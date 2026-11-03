@@ -17,12 +17,12 @@ spring:
     name: Inventory Service
 
   profiles:
-    # Do NOT force a default active profile here.
-    # Let CI/Dev/Prod set SPRING_PROFILES_ACTIVE explicitly.
-    active: # none
+    # No default profile: start.sh sets prod in the container, the build and
+    # the tests set test (and e2e) themselves.
+    active:
 
   datasource:
-    url: ${DB_URL}                              # Fallback (usually overridden by profile-specific config)
+    url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASS}
     driver-class-name: oracle.jdbc.OracleDriver
@@ -43,12 +43,9 @@ spring:
       client:
         registration:
           google:
-            # SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID overrides
-            # this property via Spring's relaxed binding, which outranks any profile
-            # YAML - including application-test.yml's literal placeholder - even when
-            # the variable is set to an empty string. Set it only in .env.prod; it
-            # must stay unset in test/CI, or the placeholder below never applies.
-            # client-secret works the same way.
+            # The environment variable outranks every profile YAML (relaxed binding),
+            # even when set empty, so set it (and the client-secret one) only in
+            # .env.prod: wherever it is set, application-test.yml's values never apply.
             client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}
             client-secret: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}
             scope:
@@ -59,31 +56,31 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none                            # Do not auto-create schemas by default
-    # This is a REST API: responses are serialised from DTOs built inside the
-    # service layer, and no view is rendered. Leaving the EntityManager open for
-    # the whole request bought nothing and hid one untransacted lazy read until
-    # the query behind it was fixed. Spring warns twice per run when unset.
+      ddl-auto: none
+    # A REST API: responses are DTOs built inside the service transaction and no
+    # view renders, so an open EntityManager per request would only hide a lazy
+    # read outside a transaction.
     open-in-view: false
 
 server:
-  port: 8081                                     # Default server port
-  address: 0.0.0.0                               # Listen on all interfaces
-  forward-headers-strategy: framework            # Respect X-Forwarded-* headers from proxies
+  port: 8081
+  address: 0.0.0.0
+  # TLS ends at the host's Caddy (backend ADR-0012): trust its X-Forwarded-*
+  # headers so redirects, the OAuth2 redirect URI included, carry https and the
+  # public host.
+  forward-headers-strategy: framework
   servlet:
     session:
       cookie:
-        same-site: lax                               # top-level OAuth2 redirect is Lax-compatible; cross-site path retired (ADR-0007/0012)
-        secure: true                                 # Use secure cookies (set to false in dev if not using HTTPS)
+        # Lax: frontend and API share the registrable domain and the OAuth2 return is
+        # a top-level navigation (backend ADR-0012, backend ADR-0007 currency note).
+        same-site: lax
+        secure: true
 
-# SQL logging is OFF by default here; a profile that wants it opts in. This file
-# used to switch it on globally through three separate keys, which left every
-# profile to remember to cancel all three. prod cancelled one, so the other two
-# survived and production logged every statement Hibernate executed. e2e
-# cancelled two. A default that must be cancelled in three places gets cancelled
-# in two.
+# SQL logging stays off here and a profile opts in: a default that every profile
+# has to cancel in several keys ends up cancelled in only some of them.
 
-# -------- App-level knobs used by SecurityConfig & SuccessHandler --------
+# app.* binds to AppProperties.
 app:
   # Default ON: anonymous callers get the read-only demo. APP_DEMO_READONLY=false
   # turns it off.
@@ -101,7 +98,6 @@ app:
 
 
   frontend:
-    # Defaults make login testable WITHOUT a frontend:
-    # after Google login, redirect to backend /api/me which returns JSON profile.
+    # Default: the Vite dev server.
     base-url: ${APP_FRONTEND_BASE_URL:https://localhost:5173}
     landing-path: /auth  # After login, redirect here (frontend route)

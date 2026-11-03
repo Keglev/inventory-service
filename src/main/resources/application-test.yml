@@ -17,8 +17,8 @@ spring:
     # Oracle-compat mode + keep DB alive for the test JVM
     url: jdbc:h2:mem:ssp;MODE=Oracle;DATABASE_TO_UPPER=true;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
-    username: sa                    # Default username
-    password:                       # No password required for in-memory use
+    username: sa
+    password:
 
   # OAuth2 configuration for tests (dummy values)
   security:
@@ -36,7 +36,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop       # Create schema on startup, drop it on shutdown
+      ddl-auto: create-drop
     properties:
       hibernate:
         '[format_sql]': true                   # Format SQL for easier reading in logs
@@ -45,20 +45,12 @@ spring:
     init:
       mode: never
 
-# Logging for tests lives in src/test/resources/logback-test.xml and nowhere
-# else. This profile used to set a root level and two Hibernate levels here,
-# which silently overrode that file and defeated its stated purpose. One of the
-# two levels never worked at all: Hibernate 6 renamed the parameter-binding
-# logger, so it logged nothing while claiming to log parameter values.
-#
-# To see the statements a test executes, add this to the Maven command:
-#   -Dlogging.level.org.hibernate.SQL=DEBUG
-# Verified to reach the forked test JVM. Do not also switch the statement echo
-# back on: the two are separate channels for the same output and enabling both
-# prints every statement twice, which is what this profile used to do.
+# Test logging lives only in src/test/resources/logback-test.xml. To see a test's
+# SQL, add -Dlogging.level.org.hibernate.SQL=DEBUG to the Maven command (it reaches
+# the forked JVM); show-sql on top would print every statement twice.
 
 server:
-  port: 8081                       # Ensure consistent port for testing environments
+  port: 8081
 
 management:
   endpoints:
@@ -72,7 +64,6 @@ management:
     build:
       enabled: true                # Contribute build-info.properties to /actuator/info
 
-# -------- App-level (test) --------
 app:
   demo-readonly: false
   frontend:

@@ -1,18 +1,20 @@
 # =============================================================================
-# Smart Supply Pro – Backend Release to Hetzner
-#
-# Runs after backend-docker.yml has pushed and scanned the image for a commit
-# on main. Copies the compose file from that commit to the host, validates it,
-# then pulls and restarts only the backend service. The compose file in the
-# repository is the source of truth; the host holds a copy plus .env.prod.
-#
-# The deploy user owns /opt/smartsupplypro and nothing else on the host, so
-# the compose file is the only thing this job ever writes there. .env.prod is
-# hand-managed on the host and never touched by CI.
-#
-# The deploy key is written from a secret through the environment, never
-# interpolated into a command line, and no step in this job uses set -x.
-# Host key: trust on first use, same reasoning as the sibling project.
+# backend-deploy.yml - releases the backend image to the Hetzner host
+# Usage: runs after backend-docker.yml succeeds for a commit on main
+#        (workflow_run), or by hand (workflow_dispatch releases the dispatched
+#        commit's image).
+# Produces: the commit's compose file copied to /opt/smartsupplypro, validated,
+#        and only the backend service pulled and restarted on the image tagged
+#        with the full commit hash; then the health check and the build-commit
+#        check against api.smartsupplypro.de. The repository's compose file is
+#        the source of truth; .env.prod is hand-managed on the host.
+#        The deploy key reaches the runner through the environment, never a
+#        command line, and no step uses set -x. Host key: trust on first use,
+#        as in the sibling project.
+# Failure mode: a missing or malformed handover fails before the host is
+#        touched; a failed copy, compose validation or pull fails the job with
+#        the previous release still running; a failed health or commit check
+#        fails the run after the restart.
 # =============================================================================
 name: Backend Deploy - Hetzner
 
@@ -23,21 +25,17 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-# One release at a time, in order. Each run releases its own commit's image and
-# skips a commit with no image-relevant change, so a dropped pending run could
-# leave a built image unreleased when the run that replaced it skips (CI-1).
-# queue: max keeps every pending run; without it GitHub keeps one.
+# One release at a time, in order: a dropped pending run could leave a built image
+# unreleased when the run that replaced it skips. queue: max keeps every pending
+# run; without it GitHub keeps one.
 concurrency:
   group: backend-deploy
   cancel-in-progress: false
   queue: max
 
-# The login name is configuration, not a credential; the SSH key is the
-# credential and stays a secret. Holding it as a secret bought nothing and cost
-# readability: GitHub masks every occurrence of a secret's value anywhere in a
-# run, and this value is an ordinary English word, so the workflow name, the job
-# name and any path containing it all rendered as ***. Deploy runs were hard to
-# identify in the Actions list.
+# The login name is configuration, not a credential (the SSH key is). As a secret,
+# an ordinary word, GitHub would mask it everywhere in a run, and run names and
+# paths would render as ***.
 env:
   DEPLOY_USER: deploy
 
@@ -57,12 +55,9 @@ jobs:
       HEALTH_URL: https://api.smartsupplypro.de
 
     steps:
-      # The commit to release is the one backend-docker built, handed over as an
-      # artifact with that run's image gate verdict; this run's own head_sha and
-      # the triggering run's head_sha are main's HEAD at creation time and can
-      # name a later, unbuilt merge (CI-2). The gate itself lives in
-      # backend-docker only (W2): a commit without an image has nothing to
-      # release, and a second copy of the path list could drift from the first.
+      # The commit to release is the one backend-docker built, handed over with its
+      # gate verdict: both runs' head_sha are main's HEAD at creation and can name a
+      # later, unbuilt merge. One gate only: a second path list could drift.
       - name: Fetch the commit and the verdict backend-docker recorded
         if: github.event_name == 'workflow_run'
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
@@ -71,12 +66,11 @@ jobs:
           path: built-commit
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      # Outcomes: a full commit hash -> IMAGE_TAG_SHA for every later step, and
-      # build=true releases it; build=false (backend-docker built no image)
-      # releases nothing and the run ends green. A missing artifact fails the
-      # step above; a value that is not a 40-hex hash or not true/false fails
-      # here, before the host is touched. A manual run releases the dispatched
-      # commit.
+      #   PASSES with a 40-hex hash (IMAGE_TAG_SHA) and build=true: release it;
+      #     a manual run releases the dispatched commit.
+      #   SKIPS with build=false (no image built): nothing released, run green.
+      #   FAILS on a missing artifact (step above), another value or a missing
+      #     build.txt, before the host is touched.
       - name: Resolve the commit to release
         id: gate
         run: |
@@ -85,7 +79,7 @@ jobs:
             sha="$GITHUB_SHA"; build=true
           else
             sha=$(cat built-commit/built-commit.txt)
-            # Only a backend-docker run older than W2 hands over no verdict.
+            # Only a re-run of a backend-docker run older than build.txt lacks it.
             [ -f built-commit/build.txt ] || { echo "::error::no build.txt: backend-docker ran an older workflow file; dispatch backend-deploy"; exit 1; }
             build=$(cat built-commit/build.txt)
           fi
@@ -121,8 +115,7 @@ jobs:
           chmod 600 ~/.ssh/known_hosts
 
       # The deploy user owns /opt/smartsupplypro and nothing else on the host, so
-      # the compose file is the only thing this job ever writes there; .env.prod
-      # is hand-managed on the host and never touched by CI.
+      # this file is the only thing the job writes there; CI never touches .env.prod.
       - name: Ship the compose file
         if: steps.gate.outputs.build == 'true'
         env:
@@ -155,12 +148,9 @@ jobs:
         if: steps.gate.outputs.build == 'true'
         run: bash .github/scripts/health-check.sh "${{ env.HEALTH_URL }}"
 
-      # A green deploy says the release was accepted, not that it is running.
-      # This asserts the jar answering requests reports the commit just
-      # released. It runs after the health gate on purpose: compose recreates
-      # the container, so the service is down rather than serving the previous
-      # release, and health-check.sh is what waits for it to come back. The
-      # frontend orders these the other way round for the opposite reason.
+      # A green deploy means accepted, not running: the answering jar must report the
+      # released commit. After the health gate, because compose recreates the
+      # container (down, not serving the old one); the frontend orders it the other way.
       - name: Verify the running jar is the released commit
         if: steps.gate.outputs.build == 'true'
         run: bash .github/scripts/verify-backend-build.sh "${{ env.HEALTH_URL }}" "${{ env.IMAGE_TAG_SHA }}"

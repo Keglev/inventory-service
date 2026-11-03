@@ -1,14 +1,16 @@
 # =============================================================================
-# Smart Supply Pro – Backend Docker Build & Security Scan
-#
-# Triggered after backend-ci.yml succeeds on main. Builds the production image,
-# scans it for CVEs, and pushes it to GHCR under the repository's own package.
-# On success, triggers: backend-deploy.yml (release to the Hetzner host).
-#
-# No push trigger on purpose: start.sh, the Dockerfile and this file all fall
-# through to backend-ci.yml, so the workflow_run chain covers them. A direct
-# push trigger would build and deploy in parallel with the tests it is
-# supposed to wait for.
+# backend-docker.yml - builds, scans and publishes the backend image
+# Usage: runs after Backend CI succeeds on a push to main (workflow_run), or by
+#        hand (workflow_dispatch builds the dispatched ref's HEAD). No push
+#        trigger on purpose: start.sh, the Dockerfile and this file fall through
+#        to backend-ci.yml, and a direct trigger would build in parallel with the
+#        tests it must wait for.
+# Produces: the image ghcr.io/keglev/inventory-service/backend under :latest and
+#        the full commit hash, its SBOM artifact, and the artifact built-commit
+#        (the commit and the gate verdict) that backend-deploy.yml releases.
+# Failure mode: a failed build, a HIGH or CRITICAL CVE with a fix, or three
+#        failed pushes fail the job; nothing is published under either tag and
+#        backend-deploy.yml, which chains on this run's success, does not run.
 # =============================================================================
 name: Backend Docker - Build & Scan
 
@@ -18,13 +20,12 @@ on:
     types: [completed]
     branches: [ "main" ]
   # A manual run builds the dispatched ref's HEAD (IMAGE_TAG_SHA falls back to
-  # github.sha). It took an image_tag input that no step ever read (W9).
+  # github.sha).
   workflow_dispatch:
 
-# Every run here belongs to one main commit (a workflow_run event carries main as
-# its ref), and the gate below looks at that commit alone. A cancelled or dropped
-# run would leave its commit's change unbuilt, so runs wait in order instead
-# (CI-1). queue: max holds up to 100 pending runs; without it GitHub keeps one.
+# Each run gates one main commit, so a dropped run would leave its change unbuilt:
+# runs wait in order. queue: max holds up to 100 pending runs; without it GitHub
+# keeps one and cancels the rest.
 concurrency:
   group: backend-docker-${{ github.ref }}
   cancel-in-progress: false
@@ -32,10 +33,9 @@ concurrency:
 
 jobs:
   docker-build-and-scan:
-    # Only a push to this repository's main may start this job. The branches
-    # filter above matches the triggering run's branch NAME, and a fork's pull
-    # request can name its branch "main" and make its own CI pass; the event and
-    # the head repository cannot be set from a fork.
+    # Only a push to this repository's main: the branches filter matches a NAME,
+    # and a fork's pull request can call its branch "main" and pass its own CI;
+    # the event and the head repository cannot be set from a fork.
     if: >
       (github.event_name == 'workflow_run'
         && github.event.workflow_run.conclusion == 'success'
@@ -54,15 +54,12 @@ jobs:
       IMAGE_TAG_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
 
     steps:
-      # A catch-all merge (README, LICENSE, workflow tweaks) still runs backend
-      # CI, but rebuilding and restarting a healthy backend for it serves
-      # nothing. Compare the released commit against its first parent and stop
-      # here when no path the image depends on has changed. backend-deploy
-      # chains on this workflow's success, so skipping the build skips the
-      # release too; a skipped run is reported as success with no image.
-      # Only src/main/ reaches the jar: it is packaged with tests skipped, and
-      # nothing else under src/ is part of the build. A test-only merge would
-      # otherwise rebuild and restart the backend with an identical jar.
+      # Image gate: the commit against its first parent. Only src/main/ of src/
+      # reaches the jar (it is packaged with tests skipped).
+      #   BUILDS when a path in the list changed, or on a manual run.
+      #   SKIPS otherwise: green, no image, and backend-deploy releases nothing.
+      #   DOES NOT CHECK whether the change alters the jar: a comment in src/main
+      #     rebuilds and restarts the backend.
       - name: Checkout for change detection
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -84,12 +81,9 @@ jobs:
             echo "No image-relevant change; skipping build and release." >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      # backend-deploy must release the commit this run builds. It cannot read it
-      # from this run: a workflow_run run's head_sha is main's HEAD when the run was
-      # created, a later merge whenever merges outpace CI (CI-2: deploy #88 asked
-      # GHCR for 8b7794a while this workflow had built 858e0c6). The gate's verdict
-      # travels with it, so the release decision is made once, here (W2): two
-      # files, one day.
+      # backend-deploy must release the commit built here, and a workflow_run run's
+      # head_sha is main's HEAD at creation, a later merge when merges outpace CI.
+      # The gate verdict travels with it, so the release decision is made once.
       - name: Record the commit and the verdict for backend-deploy
         run: |
           echo "${IMAGE_TAG_SHA}" > built-commit.txt
@@ -129,11 +123,9 @@ jobs:
             -t "$IMAGE_REPO:${IMAGE_TAG_SHA}" \
             .
 
-      # The image's SBOM and CVE gate, one Trivy analysis (the action's banner
-      # records why the SBOM comes first). Blocks backend-deploy.yml, which
-      # chains on this workflow's success, and does so before the image is
-      # published: until 2026-09-15 the push ran before the scan, so a rejected
-      # image was already on GHCR under both tags when the gate fired.
+      # SBOM and CVE gate, one Trivy analysis (the action's banner says why the
+      # SBOM comes first). It runs before the push, so a rejected image never
+      # reaches GHCR, and a failure stops backend-deploy.yml.
       #   PASSES when the SBOM holds the Java libraries inside app.jar and the
       #     image carries no HIGH or CRITICAL CVE with a published fix.
       #   FAILS the job before the push below, so nothing reaches GHCR.
@@ -148,18 +140,9 @@ jobs:
           required-purl: 'pkg:maven/'
           upload: 'true'
 
-      # The only step here that publishes anything, and deliberately the last
-      # one that could. Both tags move together once the scan above has passed,
-      # so a tag in this package names an image that cleared the gate rather
-      # than one that was merely built. The scan reads the local daemon, where
-      # the build step left the image; until this step runs there is nothing
-      # under that tag on GHCR for it to have read instead.
-      #
-      # GHCR sometimes rejects a push after every layer has uploaded ("unknown
-      # blob" while the manifest is written); on 2026-09-28 a rerun of the same
-      # commit went through. Each push gets up to three attempts, 15 s and
-      # then 30 s apart. A push of the same tag and content is idempotent, so a
-      # retry cannot publish anything the first attempt would not have.
+      # The only publishing step, last on purpose: both tags move once the scan passed,
+      # so a tag here names an image that cleared it. GHCR can answer "unknown blob"
+      # after all layers uploaded; a push is idempotent, so three tries, 15 s then 30 s apart.
       - name: Push Docker images
         if: steps.gate.outputs.build == 'true'
         run: |

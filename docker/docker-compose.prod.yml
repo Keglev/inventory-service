@@ -16,14 +16,9 @@ services:
       - .env.prod
     environment:
       SERVER_PORT: "8081"
-    # Sized from the heap ceiling, not from RSS: start.sh sets
-    # -XX:MaxRAMPercentage=75, so a 1400 MiB cgroup gives the JVM a ~1 GiB heap,
-    # a step above the 768 MiB ceiling of the previous 1 GB hosting tier. Without a limit the
-    # JVM would size itself against the host's 7.5 GiB and starve the neighbours
-    # (maintenance backend 1536m, Keycloak 1280m). memswap equals mem on purpose:
-    # the host swapfile exists for the neighbours' indexing bursts, and a JVM
-    # paging its heap is worse than a restart. Re-measure with docker stats
-    # after the first day.
+    # Sized from the heap: start.sh sets MaxRAMPercentage=75, so 1400 MiB gives a ~1 GiB
+    # heap; unlimited, the JVM sizes itself to the whole host and starves the neighbours.
+    # memswap = mem: the swapfile is the neighbours', and a paging JVM is worse than a restart.
     mem_limit: 1400m
     memswap_limit: 1400m
     networks:
