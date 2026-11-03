@@ -35,7 +35,7 @@ import { errorMessage, extractApiError } from '../shared/errorHandling';
  * // Mark items as sold (outbound)
  * const result = await adjustQuantity({ id: 'ITEM-123', delta: -5, reason: 'SOLD' });
  * if (!result.ok) {
- *   // branch on result.errorToken ('forbidden' | 'not_found' | 'unprocessable_entity' | null)
+ *   // branch on result.errorToken ('forbidden' | 'not_found' | 'unprocessable_content' | null)
  * }
  * ```
  */

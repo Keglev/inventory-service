@@ -65,7 +65,7 @@ describe('adjustQuantity', () => {
         response: {
           status: 422,
           data: {
-            error: 'unprocessable_entity',
+            error: 'unprocessable_content',
             message: 'Resulting stock cannot be negative',
             timestamp: '2026-07-02T00:00:00Z',
           },
@@ -77,7 +77,7 @@ describe('adjustQuantity', () => {
       expect(result).toEqual({
         ok: false,
         error: 'Resulting stock cannot be negative',
-        errorToken: 'unprocessable_entity',
+        errorToken: 'unprocessable_content',
         status: 422,
       });
     });

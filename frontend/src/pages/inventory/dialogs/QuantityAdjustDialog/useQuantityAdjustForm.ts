@@ -14,7 +14,7 @@
  *     newQuantity - actualCurrentQuantity = delta
  *     adjustQuantity({ id, delta, reason }) -> ItemWriteResult
  *   Failures are mapped by backend errorToken: forbidden -> notAllowed,
- *   not_found -> itemNotFound, unprocessable_entity (stale delta pushed
+ *   not_found -> itemNotFound, unprocessable_content (stale delta pushed
  *   stock negative) -> stockCannotGoNegative, else generic.
  *   The backend expects a delta, not an absolute. actualCurrentQuantity
  *   comes from the live itemDetailsQuery to avoid double-counting if
@@ -156,7 +156,9 @@ export const useQuantityAdjustForm = (
         state.setFormError(t('errors:inventory.businessRules.notAllowed'));
       } else if (result.errorToken === 'not_found') {
         state.setFormError(t('errors:inventory.businessRules.itemNotFound'));
-      } else if (result.errorToken === 'unprocessable_entity') {
+      } else if (result.errorToken === 'unprocessable_content') {
+        // Spring 7 names 422 UNPROCESSABLE_CONTENT (RFC 9110) and the backend sends the
+        // lower-cased enum name, so the token is not the older 'unprocessable_entity'.
         state.setFormError(t('errors:inventory.businessRules.stockCannotGoNegative'));
       } else {
         state.setFormError(t('errors:inventory.requests.failedToAdjustQuantity'));

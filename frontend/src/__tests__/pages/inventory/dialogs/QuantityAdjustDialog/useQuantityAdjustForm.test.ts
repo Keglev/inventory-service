@@ -12,7 +12,7 @@
  *   from the live details.
  * - Submit pipeline: delta = newQuantity - effectiveCurrentQty sent to
  *   adjustQuantity with the reason; no-item guard; readOnly demo guard;
- *   errorToken mapping (forbidden / not_found / unprocessable_entity /
+ *   errorToken mapping (forbidden / not_found / unprocessable_content /
  *   other); thrown-transport logging; close + reset on success.
  *
  * The guards, failure mapping and close reset run from the shared
@@ -122,7 +122,7 @@ const contract: ItemSubmitFormContract<ReturnType<typeof renderForm>> = {
   errorTokens: [
     ['forbidden', 'errors:inventory.businessRules.notAllowed'],
     ['not_found', 'errors:inventory.businessRules.itemNotFound'],
-    ['unprocessable_entity', 'errors:inventory.businessRules.stockCannotGoNegative'],
+    ['unprocessable_content', 'errors:inventory.businessRules.stockCannotGoNegative'],
     ['conflict', 'errors:inventory.requests.failedToAdjustQuantity'],
   ],
   transportLogPrefix: 'Quantity adjustment error:',
