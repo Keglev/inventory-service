@@ -3,15 +3,14 @@
   ========================================================================
    Smart Supply Pro — Inventory Service (Spring Boot / Maven)
    Goals:
-     • Let the Spring Boot parent decide every managed version
-     • Override a managed version only with the reason recorded beside it
-     • Preserve standard Spring Boot conventions
+     - Let the Spring Boot parent decide every managed version
+     - Override a managed version only with the reason recorded beside it
+     - Preserve standard Spring Boot conventions
   Notes:
-     • A second spring-boot-dependencies import used to sit beside the parent
-       on a different version. It won for some artifacts and lost for others,
-       so the resolved stack depended on Maven's ordering rather than on any
-       decision made here. The parent is now the only source.
-     • Overrides state what they change and why. A pin whose reasoning has
+     - The parent is the only BOM. A second spring-boot-dependencies import on
+       another version wins for some artifacts and loses for others, so the
+       resolved stack would follow Maven's ordering, not a decision made here.
+     - Overrides state what they change and why. A pin whose reasoning has
        expired is worse than no pin: it reads as protection that is not there.
   ========================================================================
 -->
@@ -19,7 +18,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <!-- Managed by Spring Boot parent; plugins and defaults come from here -->
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
@@ -48,15 +46,9 @@
   -->
   <properties>
     <java.version>21</java.version>
-    <!-- Ahead of the Spring Boot 4.1.1 BOM, which manages H2 2.4.240. That
-         version mis-validates the CHECK constraint Hibernate generates for
-         boolean @Convert columns (h2database #4323): measured 2026-10-15 over
-         all 14 @DataJpaTest classes, -Dh2.version=2.4.240 gives 38 errors
-         (H2 error 23514 on INSERTs carrying the active flag), 2.5.252 gives 0.
-         2.5.252 replaces the earlier 2.3.232 pin. Test-scoped only; production
-         runs Oracle. Keep in step with H2_VERSION in
-         .github/workflows/e2e-playwright.yml. Drop when the Boot BOM manages
-         H2 2.5 or later. -->
+    <!-- Boot 4.1.2 manages H2 2.4.240, which rejects Hibernate's CHECK on boolean @Convert
+         columns (h2database #4323; 2026-10-15). Test scope only; keep in step with H2_VERSION
+         in .github/workflows/e2e-playwright.yml. Drop when the Boot BOM manages H2 2.5+. -->
     <h2.version>2.5.252</h2.version>
     <!-- Commit written into build-info.properties so the running jar can name the
          source it was built from. CI passes the real value through the Docker
@@ -120,6 +112,8 @@
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-oracle</artifactId>
     </dependency>
+
+    <!-- JSpecify: @NonNull on overrides of Spring's null-marked APIs -->
     <dependency>
       <groupId>org.jspecify</groupId>
       <artifactId>jspecify</artifactId>
@@ -242,7 +236,8 @@
         </configuration>
       </plugin>
 
-      <!-- JaCoCo coverage at verify phase -->
+      <!-- JaCoCo coverage at verify phase. The Boot parent does not manage JaCoCo,
+           so the version is set here. -->
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -264,16 +259,9 @@
               <outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
             </configuration>
           </execution>
-          <!--
-            Coverage floor. The project standard is 85% on every counter; these
-            minima sit just under the values measured when the rule was added
-            (instruction 98.0, line 98.2, branch 91.2, method 94.7) so a
-            regression fails while it is still one change old, rather than only
-            once the 85% standard has already been breached. Branch gets the
-            widest margin because it moves fastest when conditionals are added.
-            BUNDLE level only: per-package minima on small denominators fail on
-            normal work rather than on real regressions.
-          -->
+          <!-- Floors just under the measured coverage, above the 85% standard, so a regression
+               fails one change old; branch has the widest margin. BUNDLE only: per-package
+               minima on small denominators fail on normal work, not on regressions. -->
           <execution>
             <id>check</id>
             <phase>verify</phase>
@@ -326,10 +314,9 @@
           </excludes>
         </configuration>
         <executions>
-          <!-- Writes META-INF/build-info.properties into the artifact. The commit
-               is a property of the jar, not of the environment that starts it:
-               a value read from the environment at run time would report what the
-               deployer asserted, which is exactly what needs checking. -->
+          <!-- Writes META-INF/build-info.properties into the jar. The commit belongs to the
+               jar, not to the environment that starts it: a run-time value would report
+               what the deployer asserted, which is exactly what the deploy checks. -->
           <execution>
             <id>build-info</id>
             <goals>

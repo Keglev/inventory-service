@@ -1,17 +1,8 @@
-# ============================================
+# =============================================================================
 # application-oracle-it.yml - local smoke test against the real Oracle database
-# Profile: oracle-it
-#
-# Purpose:
-# - Manually run a small subset of Spring Boot integration smoke tests against
-#   an Oracle Autonomous Database (Free Tier) from a developer machine.
-# - This profile is NOT intended for CI.
-#
-# Requirements:
-# - Oracle Wallet extracted locally and configured via environment variables.
-# - DB_URL, DB_USER, DB_PASS configured.
-# - Network access: your public IP allowlisted in Oracle.
-#
+# A manual run from a developer machine against the Oracle Autonomous Database
+# (Free Tier); never in CI. Needs the wallet extracted locally, DB_URL, DB_USER
+# and DB_PASS set, and the machine's public IP on Oracle's allow-list.
 # Usage: mvn test -Dtest=InventoryServiceApplicationTest -DenableWalletTest=true
 #        (docs/backend/architecture/oracle-it-smoke-test.md); the profile is
 #        inactive without that flag.
@@ -19,7 +10,7 @@
 #        the SQL Hibernate sends, logged at DEBUG.
 # Failure mode: a missing wallet, unset DB variables or a blocked IP fail the
 #        context load, so the one test reports the connection error.
-# ============================================
+# =============================================================================
 
 spring:
   datasource:

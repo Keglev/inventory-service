@@ -1,17 +1,23 @@
 #!/bin/sh
-# start.sh — Secure runtime bootstrap (BusyBox-compatible)
-# --------------------------------------------------------------------
-# - Wallet-only mode enforced (wallet delivered via environment at runtime)
-# - No logging of sensitive data (no wallet file listing, no tnsnames dump)
-# - Temp artifacts removed; env secrets unset after use
-# - Conservative JVM sizing via MaxRAMPercentage (tunable via JAVA_OPTS)
-# --------------------------------------------------------------------
+# =============================================================================
+# start.sh — the backend container's entrypoint (BusyBox sh)
+# Usage: CMD of the backend image (Dockerfile); the environment comes from the
+#        host's .env.prod through docker/docker-compose.prod.yml.
+# Produces: the Oracle wallet from ORACLE_WALLET_B64 unpacked under /app/wallet
+#        (backend ADR-0009), the zip and the raw variable removed, then the jar
+#        started with the prod profile by default and a heap of 75% of the
+#        container limit (extra flags through JAVA_OPTS). Nothing secret is
+#        printed or passed as a JVM argument.
+# Failure mode: a missing ORACLE_WALLET_B64 or ORACLE_WALLET_PASSWORD, a failed
+#        unzip or a wallet without tnsnames.ora or ewallet.p12 exits 1 before
+#        the JVM starts; the container restarts and the health check stays red.
+# =============================================================================
 
 set -eu
 
-# Default profile (you can override via env)
-: "${SPRING_PROFILES_ACTIVE:=prod}" # default to 'prod' profile
-: "${SERVER_PORT:=8081}"            # honor CI's 8081 preflight; defaults to 8081
+# Defaults; each can be overridden from the environment.
+: "${SPRING_PROFILES_ACTIVE:=prod}"
+: "${SERVER_PORT:=8081}"            # the compose file sets 8081 as well
 : "${DEBUG:=0}"                     # set to 1 to enable debug output
 
 umask 077
@@ -20,9 +26,9 @@ umask 077
 if [ -z "${ORACLE_WALLET_B64:-}" ]; then
   echo "ERROR: ORACLE_WALLET_B64 is not set (runtime secret required)"; exit 1
 fi
-# The encrypted wallet needs its password (ADR-0009). Checked here because the
-# JVM no longer receives it as an argument: application-prod.yml reads it from
-# the environment, and a missing value would surface only as a pool error.
+# The encrypted wallet needs its password (backend ADR-0009). application-prod.yml
+# reads it from the environment, so without this check a missing value would
+# surface only as a pool error.
 if [ -z "${ORACLE_WALLET_PASSWORD:-}" ]; then
   echo "ERROR: ORACLE_WALLET_PASSWORD is not set (runtime secret required)"; exit 1
 fi
@@ -38,12 +44,12 @@ unzip -o -q /app/wallet.zip -d /app/wallet
 rc=$?
 set -e
 
-# Verify extraction
 if [ "$rc" -ne 0 ] && [ "$rc" -ne 1 ]; then
   echo "[start] ERROR: unzip failed (rc=$rc)"; exit 1
 fi
 
-# Oracle thin driver reads the wallet location (and cwallet.sso) from TNS_ADMIN
+# The thin driver reads the wallet location from TNS_ADMIN. The folder name is the
+# wallet zip's own (backend ADR-0001, backend ADR-0009).
 export TNS_ADMIN="/app/wallet/Wallet_sspdb_fixed"
 if [ ! -d "$TNS_ADMIN" ] || [ ! -f "$TNS_ADMIN/tnsnames.ora" ] || [ ! -f "$TNS_ADMIN/ewallet.p12" ]; then
   echo "ERROR: Wallet files missing under $TNS_ADMIN"; exit 1
@@ -64,12 +70,9 @@ fi
 [ -n "${DB_USER:-}" ] && export SPRING_DATASOURCE_USERNAME="${DB_USER}"
 [ -n "${DB_PASS:-}" ] && export SPRING_DATASOURCE_PASSWORD="${DB_PASS}"
 
-# JVM opts - avoid fixed -Xmx; the percentage tracks the container memory limit.
-# server.address and server.forward-headers-strategy come from application.yml.
-# No secret goes on this line: a process's arguments are readable by every user
-# of the host through ps, its environment only by root and its own user. The
-# wallet password reaches the driver from the environment through
-# spring.datasource.hikari.data-source-properties in application-prod.yml.
+# No fixed -Xmx: the percentage tracks the container limit. No secret on this line:
+# ps shows a process's arguments to every host user, its environment only to root
+# and its own user (backend ADR-0009 amendment).
 JAVA_OPTS="${JAVA_OPTS:-} \
  -Dserver.port=${SERVER_PORT} \
  -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} \
@@ -77,5 +80,4 @@ JAVA_OPTS="${JAVA_OPTS:-} \
  -XX:MaxRAMPercentage=75"
 
 echo "[start] Starting Inventory Service on port ${SERVER_PORT}..."
-# Launch the Spring Boot app (the jar is part of the Docker image)
 exec java ${JAVA_OPTS} -jar /app/app.jar

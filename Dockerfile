@@ -1,53 +1,38 @@
-# ==============================
-# Build Stage
-# ==============================
+# =============================================================================
+# Dockerfile - the backend image: the Spring Boot jar on a JRE-only runtime
+# Usage: backend-docker.yml builds it from the repository root with
+#        --build-arg BUILD_COMMIT=<sha>; a local `docker build .` records
+#        "unknown" as the commit.
+# Produces: an eclipse-temurin:21-jre-alpine image that runs scripts/start.sh as
+#        the non-root appuser on port 8081. start.sh unpacks the Oracle wallet
+#        from the environment at run time, so no secret sits in a layer; the
+#        frontend is a separate image.
+# Failure mode: a compile or packaging error fails the build stage, and so does
+#        a target/ with more than one *.jar (the mv below); the image is not
+#        produced.
+# =============================================================================
 
-# Enterprise build notes:
-# - Multi-stage pattern: build with Maven (JDK) and produce a minimal JRE runtime.
-# - CI passes build-time args for traceability, never runtime secrets.
-# - Do NOT copy frontend assets into this image; frontend is built separately.
-# - Security posture: run as non-root, do not bake secrets, and prefer runtime secret
-#   injection via the host's env file or a secret store; never baked in.
-#
-# Build-time inputs (examples passed by CI):
-#   BUILD_COMMIT=<sha>      # commit recorded in build-info.properties (default unknown)
-#
-# Runtime is driven by scripts/start.sh which performs wallet decoding and secure startup.
-
-# -----------------------------------------------------------------------------
-# 1) Dependency Warmup (optional but good for speed)
-#    Copies only pom + .mvn to leverage Docker layer cache for dependencies.
-# -----------------------------------------------------------------------------
-# Build JDK = runtime JDK (21, see the runtime stage and <java.version>). The
-# tag floats on Maven 3 and Temurin 21 and is pulled fresh on every build.
-# Dependabot ignores this image (.github/dependabot.yml): on 2026-10-09 it
-# read the JDK in the tag as a suffix and moved the build to Temurin 26 (#305).
+# Stage deps: pom and .mvn only, so the dependency layer survives source edits.
+# Build JDK = runtime JDK 21 (runtime stage, <java.version>). Dependabot ignores
+# this floating tag: it swapped the JDK suffix to Temurin 26 (.github/dependabot.yml).
 FROM maven:3-eclipse-temurin-21 AS deps
 
-# Set working directory in the deps container
 WORKDIR /app
 
-# Copy Maven descriptors first to maximize cache hits
 COPY pom.xml .
 COPY .mvn/ .mvn/
 
-# Download dependencies (skip tests). This layer caches Maven deps.
 RUN mvn -q -B -DskipTests dependency:go-offline
 
-# -----------------------------------------------------------------------------
-# 2) Build Stage
-#    Compiles and packages the Spring Boot app. Tests run in CI already.
-# Build-stage CVEs are in Maven system packages and have no upstream fix.
-# These stages are discarded after packaging — only the JRE runtime stage is deployed.
-# Runtime image: eclipse-temurin:21-jre-alpine (no build tools, minimal attack surface).
-# -----------------------------------------------------------------------------
+# Stage build: packages the jar with tests skipped; backend-ci, which a
+# backend-docker.yml build follows, runs them. Neither Maven stage ships: the
+# runtime stage copies the jar alone.
 FROM maven:3-eclipse-temurin-21 AS build
 WORKDIR /build
 
-# Reuse warmed dependencies from the previous stage
 COPY --from=deps /root/.m2 /root/.m2
 
-# Copy backend sources ONLY (never bring in frontend/)
+# Backend sources only, never frontend/.
 COPY pom.xml .
 COPY .mvn/ .mvn/
 COPY src/ src/
@@ -57,75 +42,48 @@ COPY src/ src/
 # value has to originate in the build that produced it.
 ARG BUILD_COMMIT=unknown
 
-# Package the application JAR (skip tests here for faster Docker builds)
 RUN mvn -q -B -DskipTests -Dbuild.commit=${BUILD_COMMIT} package
 
-# Name the jar here, in the discarded stage: a rename in the runtime stage stores
-# the jar a second time in its own layer. The Spring Boot repackage leaves exactly
-# one match for the glob: the unpackaged artefact beside it ends in .jar.original,
-# which the glob does not take. So the glob is expanded directly rather than
-# filtered through `ls | head`. If that assumption is ever violated, mv is handed
-# two sources and a non-directory target and fails, instead of silently moving
-# whichever one sorted first.
+# Name the jar in this discarded stage: a rename in the runtime stage stores it twice.
+# The repackage leaves one *.jar (the original ends in .jar.original); with two, mv
+# fails on a non-directory target instead of taking whichever sorted first.
 RUN set -eux; \
     mv /build/target/*.jar /build/app.jar
 
-# -----------------------------------------------------------------------------
-# 3) Runtime Stage (JRE only, non-root)
-#    No build tools, no caches, no secrets in layers.
-# -----------------------------------------------------------------------------
+# Stage runtime: JRE only, non-root; no build tools, caches or secrets in a layer.
 FROM eclipse-temurin:21-jre-alpine AS runtime
 
-# Set working directory for runtime files (wallet + jar)
+# Holds the jar, start.sh and, at run time, the unpacked wallet.
 WORKDIR /app
 
-# Create non-root user — container security best practice
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# unzip: extracts Oracle Wallet; coreutils: provides base64 decoding for wallet secrets
-# Versions are deliberately unpinned. Alpine drops superseded packages from its
-# index within weeks, so a pinned build breaks on the next refresh, and pinning
-# would freeze the very packages the upgrade on this line exists to move.
+# unzip extracts the wallet, coreutils supplies base64 for it. Unpinned on purpose:
+# Alpine drops superseded packages within weeks, so a pin breaks the next build and
+# would freeze the packages the upgrade on this line exists to move.
 # hadolint ignore=DL3018
 RUN apk add --no-cache unzip coreutils && apk upgrade --no-cache
-
-# ==========================================================
-# Metadata for image traceability and maintainability
-# ==========================================================
 
 LABEL maintainer="https://github.com/Keglev"
 LABEL description="Smart Supply Pro Inventory Microservice"
 LABEL org.opencontainers.image.source="https://github.com/Keglev/inventory-service"
 
-
-# ==========================================================
-# Application Setup
-# ==========================================================
-
-# Startup script (handles wallet decode + JVM flags + app launch)
+# start.sh decodes the wallet, sets the JVM flags and launches the jar.
 COPY --chown=appuser:appgroup --chmod=0755 scripts/start.sh /app/start.sh
 
-# Copy packaged JAR from build stage with correct ownership
 COPY --from=build --chown=appuser:appgroup /build/app.jar /app/app.jar
 
 # start.sh unpacks the wallet into /app at run time, so the non-root user must
 # own the directory itself; the files in it already carry --chown.
 RUN chown appuser:appgroup /app
 
-# Drop privileges - must be last.
-# The name is deliberate. A numeric id would matter only if a host mapped uids
-# into this container; nothing in this deployment does, and the name keeps this
-# line in step with the adduser that created it.
+# Drop privileges last. A name, not a uid: no host maps uids into this container,
+# and the name stays in step with the adduser above.
 # hadolint ignore=DL3066
 USER appuser
 
-# Startup delegates to start.sh: wallet decode + JVM flags + Spring Boot launch
 CMD ["/app/start.sh"]
 
-# ==========================================================
-# HEALTHCHECK & PORT EXPOSURE
-# ==========================================================
-
-# Health probing is defined in docker/docker-compose.prod.yml — HEALTHCHECK omitted to keep the image lean
+# No HEALTHCHECK: docker/docker-compose.prod.yml defines the probe.
 EXPOSE 8081
 
