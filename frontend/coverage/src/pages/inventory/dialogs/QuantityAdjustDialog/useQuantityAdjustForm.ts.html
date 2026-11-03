@@ -251,7 +251,9 @@
 <a name='L186'></a><a href='#L186'>186</a>
 <a name='L187'></a><a href='#L187'>187</a>
 <a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -410,6 +412,8 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -455,7 +459,7 @@
  *     newQuantity - actualCurrentQuantity = delta
  *     adjustQuantity({ id, delta, reason }) -&gt; ItemWriteResult
  *   Failures are mapped by backend errorToken: forbidden -&gt; notAllowed,
- *   not_found -&gt; itemNotFound, unprocessable_entity (stale delta pushed
+ *   not_found -&gt; itemNotFound, unprocessable_content (stale delta pushed
  *   stock negative) -&gt; stockCannotGoNegative, else generic.
  *   The backend expects a delta, not an absolute. actualCurrentQuantity
  *   comes from the live itemDetailsQuery to avoid double-counting if
@@ -597,7 +601,9 @@ export const useQuantityAdjustForm = (
         state.setFormError(t('errors:inventory.businessRules.notAllowed'));
       } else if (result.errorToken === 'not_found') {
         state.setFormError(t('errors:inventory.businessRules.itemNotFound'));
-      } else if (result.errorToken === 'unprocessable_entity') {
+      } else if (result.errorToken === 'unprocessable_content') {
+        // Spring 7 names 422 UNPROCESSABLE_CONTENT (RFC 9110) and the backend sends the
+        // lower-cased enum name, so the token is not the older 'unprocessable_entity'.
         state.setFormError(t('errors:inventory.businessRules.stockCannotGoNegative'));
       } else {
         state.setFormError(t('errors:inventory.requests.failedToAdjustQuantity'));
