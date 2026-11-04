@@ -6,7 +6,7 @@
 #        on the assembled site it is about to publish.
 #
 # The Mermaid bundle is 3.3 MB. md-to-html-links.lua flags the pages that
-# hold a diagram and app-docs.html loads the bundle only on those (W23). This
+# hold a diagram and app-docs.html loads the bundle only on those. This
 # script holds every built page to that rule, in both directions:
 #   - a page with a <div class="mermaid"> must load the bundle, or its diagram
 #     shows as raw text;

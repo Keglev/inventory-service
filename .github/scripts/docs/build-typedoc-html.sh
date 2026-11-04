@@ -6,7 +6,7 @@
 # Skips when the TypeDoc markdown directory is absent (docs-pr-check, and any
 # run that does not build TypeDoc). Fails when that directory has no README.md,
 # the API index, rather than publishing pages without one.
-# Prerequisites: pandoc, Lua filter written by build-docs.sh
+# Prerequisites: pandoc, and the Lua filter path build-docs.sh passes (the tracked file)
 # =============================================================================
 set -euo pipefail
 
@@ -44,10 +44,9 @@ find "$TYPEDOC_MD_DIR" -type f -name "*.md" | while read -r md; do
     -o "$out"
 done
 
-# Landing page: TypeDoc's own root README, the complete module index with
-# working relative links. The markdown plugin always writes it; a placeholder
-# page used to stand in when it was missing, which would have published an
-# index without links instead of failing (W12).
+# Landing page: TypeDoc's own root README, the complete module index with working
+# relative links. The markdown plugin always writes it, so a missing one fails
+# the build rather than publishing an index without links.
 if [ ! -f "$TYPEDOC_MD_DIR/README.md" ]; then
   echo "::error::TypeDoc wrote no README.md in $TYPEDOC_MD_DIR: no index for the API pages"
   exit 1

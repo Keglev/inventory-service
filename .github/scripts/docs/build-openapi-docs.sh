@@ -9,7 +9,7 @@
 # drops the stylesheet link to fonts.googleapis.com: without it every visitor's
 # browser contacts Google, a transfer a German court has ruled unlawful without
 # consent (LG Muenchen I, 3 O 17493/20). The CDN script and the "API docs by
-# Redocly" logo (cdn.redoc.ly) were the same kind of transfer (FW6 NF-7):
+# Redocly" logo (cdn.redoc.ly) are the same kind of transfer, so:
 #   - the bundle comes from the npm package of the version the CLI named, and
 #     must hash to the CLI's own integrity value, so it is byte-for-byte the
 #     file the CDN would have served; the tag keeps that integrity attribute;

@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
 # =============================================================================
-# health-check.sh — Polls /api/health then runs smoke tests
+# health-check.sh — polls /api/health, then checks the app root
 # Usage: .github/scripts/health-check.sh <base-url> [max-attempts] [interval-seconds]
 #
-# Smoke test after the health gate: / (200, 302, or 401). The gate's own 200
-# from /api/health is the health proof; a second request right after it could
-# only repeat it (W7).
+# The gate's own 200 from /api/health is the health proof; a second request
+# right after it could only repeat it, so the one smoke check is / (200, 302
+# or 401). Every request is capped at 10 s; one that times out or cannot
+# connect counts as HTTP 000, so the gate polls again and the smoke check fails
+# with that code instead of set -e ending the script without a message.
 #
-# Every request is capped at 10 s (W18). A request that times out or cannot
-# connect counts as HTTP 000: the gate polls again, the smoke test fails with
-# that code. Before, curl's exit status ended the script under set -e on the
-# first refused connection, with no message and no retry.
-#
-# Exit code 1 if health gate times out or the smoke test fails.
+# Produces: one line per poll and one per check.
+# Failure mode: exits 1 when the health gate times out or the smoke check fails.
 # =============================================================================
 set -euo pipefail
 
@@ -41,9 +39,7 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
   sleep "$INTERVAL"
 done
 
-# ---------------------------------------------------------------------------
-# Smoke tests — validate core endpoints return expected HTTP status codes
-# ---------------------------------------------------------------------------
+# check <label> <url> <accepted-code>...: passes when the status is one of them.
 check() {
   local label="$1" url="$2"
   shift 2

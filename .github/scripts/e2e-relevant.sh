@@ -16,7 +16,7 @@
 # enter it. A commit that touches only those skips the suite. Any other path,
 # a new file included, runs it.
 #
-# One suite per pull request (F4, fork C, 2026-10-20). When backend-ci calls
+# One suite per pull request. When backend-ci calls
 # this (E2E_CALLER=backend-ci) for a pull request that also touches a path of
 # the frontend family, frontend-ci runs this same script on the same diff
 # and so reaches the same verdict; backend-ci skips its copy instead of a second
@@ -32,7 +32,7 @@
 # checked-out commit is the merge commit; on a push it is the pushed commit.
 # Failure mode: exits non-zero (set -e) when git cannot compare HEAD with its
 # parent, as in a checkout without fetch-depth 2; the job then fails rather
-# than guessing, and the caller's build-and-test reports it.
+# than guessing, and the caller's aggregator job (build-and-test) reports it.
 # =============================================================================
 set -euo pipefail
 

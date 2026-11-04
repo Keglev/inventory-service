@@ -5,8 +5,7 @@
 #
 # Koyeb reports a service HEALTHY throughout a rolling update, so a post-deploy
 # check that starts as soon as the platform says HEALTHY can run against the
-# outgoing image and pass on it. That happened on the 2026-09-02 rollout: the
-# served-bundle check reported success against the previous build.
+# outgoing image and pass on it (frontend ADR-0010).
 #
 # The build id is the commit SHA. frontend-ci.yml passes it as the
 # VITE_BUILD_ID build argument and src/config/appMeta.ts reads it, so Vite

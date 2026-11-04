@@ -3,11 +3,11 @@
 # verify-served-bundle.sh - asserts the serve-time API-base rewrite is active
 # Usage: .github/scripts/verify-served-bundle.sh <frontend-url> <backend-origin>
 #
-# ADR-0008 has Nginx rewrite the baked backend origin to the serving host in the
-# response body (sub_filter). That transform is invisible in the source tree and
-# in the built image; only the served bytes show whether it ran. If it stops
-# running the app keeps working over the direct cross-origin path, so the
-# topology flips without a symptom. This is the detection FR-01 calls cheap.
+# Backend ADR-0008 has Nginx rewrite the baked backend origin to the serving
+# host in the response body (sub_filter). That transform is invisible in the
+# source tree and in the built image; only the served bytes show whether it ran.
+# If it stops running the app keeps working over the direct cross-origin path,
+# so the topology flips without a symptom (frontend risk register, FR-01).
 #
 # Hosts are compared without scheme or port. sub_filter writes "https://$host",
 # and nginx's $host carries no port, so the rewritten bundle names the bare
@@ -15,9 +15,9 @@
 # find nothing in a bundle that says "https://localhost", which is exactly what a
 # local container run produces.
 #
-# Exit 1 when the entry bundle still carries the backend host, and when it
-# carries neither host - the second case means the assertion went vacuous rather
-# than passed.
+# Failure mode: exits 1 when the entry bundle still carries the backend host,
+# and when it carries neither host - the second case means the assertion went
+# vacuous rather than passed.
 # =============================================================================
 set -euo pipefail
 

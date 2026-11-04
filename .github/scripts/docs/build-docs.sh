@@ -3,10 +3,10 @@
 # build-docs.sh — Documentation build orchestrator
 # Usage: .github/scripts/docs/build-docs.sh <project-dir>
 #
-# Copies the Lua filter into place, builds the theme assets, then delegates to
-# sibling scripts for each doc type. Output tree mirrors the deployed site under
-# <project-dir>/target/docs.
-# Prerequisites: pandoc, redocly CLI, npx, npm, openssl
+# Builds the theme assets, then delegates to sibling scripts for each doc type,
+# all reading the Lua filter where it is tracked.
+# Prerequisites: pandoc, redocly CLI, npm, openssl
+# Produces: <project-dir>/target/docs, a tree that mirrors the deployed site.
 # Failure mode: set -euo pipefail stops the build at the first failing step
 # (theme assets, a sibling script, a copy), so no partial site reaches the
 # assembly step.
@@ -22,31 +22,23 @@ ASSETS_DIR="$OUTPUT_DIR/assets"
 # Resolve sibling script directory at runtime — safe regardless of working directory
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# The pandoc Lua filter is read where it is tracked. It rewrites .md link targets
-# to .html and wraps mermaid code blocks in a div the browser renders, so every
-# pandoc invocation in this build is passed it. This script used to copy the file
-# into the project's tracked scripts/ directory before use, which left an
-# untracked build output in a source directory after every local build and gave
-# the filter a second location to go stale in.
+# The pandoc Lua filter, read where it is tracked (one location, no copy). It
+# rewrites .md link targets to .html and wraps mermaid code blocks, so every
+# pandoc invocation in this build is passed it.
 LUA_FILTER="$SCRIPTS_DIR/md-to-html-links.lua"
 
-# Which generators run. Unset means run, so a caller that knows nothing about
-# these — docs-pr-check.yml — still builds the whole site. docs-build.yml sets
-# them from its change gate. The theme assets and the landing pages are not
-# selectable: they are four files, version_assets hashes the built assets to
-# stamp whichever pages this run did produce, and every page needs that token.
+# Which generators run; unset means run, so docs-pr-check.yml builds the whole
+# site and docs-build.yml sets them from its gate. Theme assets and landing pages
+# always build: version_assets stamps every page with their hashes.
 : "${DOCS_BUILD_REDOC:=true}"
 : "${DOCS_BUILD_TYPEDOC:=true}"
 : "${DOCS_BUILD_ARCH_BACKEND:=true}"
 : "${DOCS_BUILD_ARCH_FRONTEND:=true}"
 : "${DOCS_BUILD_DECISIONS:=true}"
 
-# ---------------------------------------------------------------------------
-# Theme assets — concatenate the CSS partials into one stylesheet and copy the
-# runtime JS. Templates reference these at /assets/docs.css and /assets/docs.js.
-# Concat order is the cascade order: tokens first (defines the variables every
-# later partial consumes), mermaid last.
-# ---------------------------------------------------------------------------
+# Theme assets: the CSS partials concatenated into /assets/docs.css plus the
+# runtime JS. Concat order is the cascade order: tokens first (the variables
+# every later partial consumes), mermaid last.
 build_theme_assets() {
   mkdir -p "$ASSETS_DIR"
   cat \
@@ -63,26 +55,19 @@ build_theme_assets() {
   echo "✓ Theme assets built (docs.css, docs.js, mermaid.min.js)"
 }
 
-# Rewrites every unversioned theme-asset reference in the built output. Applied
-# after all generators have run, so the pandoc templates and the copied landing
-# pages are covered without either having to know the id. It does not reach
-# backend/api, and the earlier claim here that it did was wrong: ReDoc emits a
-# self-contained bundle that references neither assets/docs.css nor assets/docs.js,
-# so that page carries no token because there is nothing on it to stamp.
+# Rewrites every unversioned theme-asset reference in the built output, after all
+# generators ran. backend/api carries no token: ReDoc emits a self-contained
+# bundle that references neither assets/docs.css nor assets/docs.js.
 version_assets() {
   local count css_id js_id
-  # Each asset is stamped with a hash of its own bytes, so the token changes when
-  # the file changes and at no other time. It used to be the commit SHA, which
-  # changes on every commit: that rewrote all 277 pages on every publish, grew
-  # gh-pages by roughly 1700 lines each time, and buried real documentation
-  # changes in the diff. Hashing per asset also means a stylesheet edit does not
-  # bust the cached script. Computed after build_theme_assets, on the built files.
+  # A hash of each asset's own bytes: the token changes when the file does and at
+  # no other time (a commit SHA would rewrite every page on every publish), and a
+  # stylesheet edit does not bust the cached script.
   css_id="$(sha256sum "$ASSETS_DIR/docs.css" | cut -c1-10)"
   js_id="$(sha256sum "$ASSETS_DIR/docs.js"  | cut -c1-10)"
-  # The match list is taken once and guarded. grep exits 1 when nothing matches,
-  # and under `set -o pipefail` that ends the build. It cannot happen today
-  # because the landing pages are always copied and always reference both assets,
-  # but it becomes reachable the moment a caller selects no generators.
+  # Taken once and guarded: grep exits 1 on no match, which pipefail would turn
+  # into a failed build if a caller ever selected no generators and no page
+  # referenced the assets.
   local files
   files="$(grep -rl -e 'assets/docs\.css"' -e 'assets/docs\.js"' \
     --include='*.html' "$OUTPUT_DIR" 2>/dev/null || true)"
@@ -103,14 +88,9 @@ copy_landing_pages() {
   echo "✓ Landing pages copied"
 }
 
-# JaCoCo HTML is downloaded by the workflow to target/site/jacoco; absent on
-# docs-only pushes, in which case deploy-ghpages preserves the existing report.
-#
-# Two files change on every run whatever the code does: jacoco.xml carries the
-# run's session id and times, and the sessions page lists every class the tests
-# loaded, including generated proxy and mock classes whose names and ids differ
-# run to run. Both are cut before publishing, so a report whose coverage did not
-# change publishes nothing and deploys nothing.
+# JaCoCo HTML arrives from the workflow in target/site/jacoco; absent on a docs-only
+# run, and then the published report stays. jacoco.xml (session id, times) and the
+# sessions page (generated class names) change every run, so both are cut.
 copy_backend_coverage() {
   local SRC="$PROJECT_DIR/target/site/jacoco"
   local DEST="$OUTPUT_DIR/backend/coverage"
@@ -127,8 +107,8 @@ copy_backend_coverage() {
   fi
 }
 
-# Istanbul stamps the generation time into the footer of every page, which made
-# each publish rewrite the whole report. The timestamp line is dropped.
+# The HTML reporter stamps the generation time into every page's footer; the
+# line is dropped so an unchanged report publishes nothing.
 copy_frontend_coverage() {
   local SRC="$PROJECT_DIR/target/frontend/coverage"
   local DEST="$OUTPUT_DIR/frontend/coverage"

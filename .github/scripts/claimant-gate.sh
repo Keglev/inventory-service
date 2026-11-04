@@ -6,12 +6,12 @@
 #        docs-pr-check.yml call as their first job.
 #
 # Each claimant reports a required check of its own (build-and-test-backend,
-# -frontend, -docs; W27, backend ADR-0019). A required check must report on
-# every pull request: a workflow left out by a path filter never reports and
-# blocks the merge, while a job skipped by an `if:` reports success. So the
-# three workflows run on every pull request, and this script takes over the
-# path filters they had there. A docs-only pull request runs only the docs
-# checks; the other two report success after this job. The lists repeat the
+# -frontend, -docs; backend ADR-0019). A required check must report on every
+# pull request: a workflow left out by a path filter never reports and blocks
+# the merge, while a job skipped by an `if:` reports success. So the three
+# workflows run on every pull request, and this script does the path filtering
+# a pull_request filter would have done. A docs-only pull request runs only the
+# docs checks; the other two report success after this job. The lists repeat the
 # push filters of backend-ci.yml (paths-ignore) and frontend-ci.yml (paths)
 # and the docs entries of backend-ci.yml's list: change them together.
 #

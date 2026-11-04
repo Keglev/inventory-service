@@ -35,11 +35,9 @@ PUBLISHED_DIR="${2:?Usage: assemble-site.sh <project-dir> <published-dir>}"
 BUILT_DIR="$PROJECT_DIR/target/docs"
 OUTPUT_DIR="$PROJECT_DIR/target/publish"
 
-# The complete set of subtrees the docs build owns. Every generator writes into
-# exactly one of these, and gh-pages contains exactly these plus the two landing
-# pages. An entry outside this list means a generator started writing somewhere
-# new; that must fail here rather than be published unnoticed or silently
-# dropped on the next run.
+# Every subtree the docs build owns; gh-pages holds exactly these plus the two
+# landing pages. An entry outside the list means a generator writes somewhere
+# new, which fails here rather than being published unnoticed.
 SUBTREES=(
   "assets"
   "decisions"
@@ -59,17 +57,13 @@ if [ ! -d "$BUILT_DIR" ]; then
   exit 1
 fi
 
-# ---------------------------------------------------------------------------
 # Reject anything the build wrote outside the known layout, before assembling.
-# ---------------------------------------------------------------------------
 for entry in "$BUILT_DIR"/*; do
   [ -e "$entry" ] || continue
   name="$(basename "$entry")"
   if [ -f "$entry" ]; then
-    # A MANIFEST from an earlier assembly in the same workspace. CI always starts
-    # from an empty target/, but build-docs.sh only mkdir -p's its output, so a
-    # second local run would otherwise trip the check below on this script's own
-    # output. It is rewritten at the end regardless.
+    # A MANIFEST from an earlier local run (CI starts from an empty target/); it
+    # would trip the check below on this script's own output, and is rewritten.
     [ "$name" = "MANIFEST" ] && continue
     case " ${ROOT_FILES[*]} " in
       *" $name "*) continue ;;
@@ -108,10 +102,8 @@ replaced=0
 carried=0
 for subtree in "${SUBTREES[@]}"; do
   if [ -d "$BUILT_DIR/$subtree" ]; then
-    # An empty built subtree is a bug, never an instruction to publish nothing.
-    # A generator that creates its output directory and then writes no files
-    # would otherwise replace a published subtree with an empty one and delete
-    # every page in it, silently and on main.
+    # An empty built subtree is a bug, never an instruction to publish nothing: it
+    # would replace a published subtree and delete every page in it, on main.
     if [ -z "$(find "$BUILT_DIR/$subtree" -type f -print -quit)" ]; then
       echo "::error::Built subtree $subtree exists but contains no files"
       exit 1
@@ -138,10 +130,9 @@ for file in "${ROOT_FILES[@]}"; do
   fi
 done
 
-# Written into the BUILT tree, which is what is uploaded, and deliberately not a
-# dotfile: the upload step runs with include-hidden-files disabled and would drop
-# it. Written here rather than earlier because the layout check above rejects any
-# unexpected file at the root of the built tree, and this is one.
+# Into the BUILT tree, which is uploaded; not a dotfile, because the upload drops
+# hidden files. Written last: the layout check above rejects any unexpected file
+# at the root of the built tree, and this is one.
 printf '%s\n' "${OWNED[@]}" > "$BUILT_DIR/MANIFEST"
 
 echo ""
