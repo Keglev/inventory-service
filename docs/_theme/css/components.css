@@ -3,7 +3,7 @@
    Topbar, navigation sidebar, table of contents, and footer chrome.
    ========================================================================== */
 
-/* --- Topbar -------------------------------------------------------------- */
+/* Topbar */
 .topbar {
   position: sticky;
   top: 0;
@@ -34,7 +34,6 @@
 }
 .brand:hover { text-decoration: none; opacity: 0.9; }
 
-/* Marks API-reference pages apart from architecture pages in the topbar. */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -88,7 +87,7 @@
 .menu-btn { display: none; background: none; border: 0; color: var(--text); cursor: pointer; }
 @media (max-width: 768px) { .menu-btn { display: inline-flex; } }
 
-/* --- Sidebar nav --------------------------------------------------------- */
+/* Sidebar nav */
 .sidebar {
   position: sticky;
   top: var(--topbar-h);
@@ -116,15 +115,15 @@
 }
 .sidebar a:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); text-decoration: none; }
 
-/* Current page is stamped server-side with aria-current for both styling and
-   screen-reader orientation. */
+/* docs.js sets aria-current on the current page's link at run time, for both
+   styling and screen-reader orientation. */
 .sidebar a[aria-current="page"] {
   background: var(--surface);
   color: var(--accent);
   font-weight: 500;
 }
 
-/* --- Table of contents --------------------------------------------------- */
+/* Table of contents */
 .toc {
   position: sticky;
   top: var(--topbar-h);
@@ -160,7 +159,7 @@
   display: none;                /* Chrome, Edge, Safari */
 }
 
-/* --- Footer -------------------------------------------------------------- */
+/* Footer */
 .footer {
   border-top: 1px solid var(--border);
   padding: 1.5rem 1.25rem;

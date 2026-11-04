@@ -3,14 +3,14 @@
    Styles for index.html and index-de.html: hero, stack badges, card grid.
    ========================================================================== */
 
-/* --- Home wrapper --------------------------------------------------------- */
+/* Home wrapper */
 .home {
   max-width: var(--maxw);
   margin: 0 auto;
   padding: 3rem 1.25rem 4rem;
 }
 
-/* --- Hero ----------------------------------------------------------------- */
+/* Hero */
 .hero {
   text-align: center;
   padding: 3rem 0 2.5rem;
@@ -30,7 +30,7 @@
   line-height: 1.7;
 }
 
-/* --- Technology stack badges --------------------------------------------- */
+/* Technology stack badges */
 .stack {
   display: flex;
   flex-wrap: wrap;
@@ -47,7 +47,7 @@
   white-space: nowrap;
 }
 
-/* --- Card grid ------------------------------------------------------------ */
+/* Card grid */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));

@@ -10,7 +10,7 @@
    ========================================================================== */
 
 :root {
-  /* --- Light theme (default) --- */
+  /* Light theme (default) */
   --bg: #f8fafc;
   --surface: #ffffff;
   --surface-2: #f1f5f9;
@@ -32,7 +32,7 @@
      classDef (medium tones that read on both themes), not via tokens. */
   --layer-edge: #0284c7;
 
-  /* --- Layout --- */
+  /* Layout */
   --radius: 12px;
   --radius-sm: 8px;
   --maxw: 1400px;
