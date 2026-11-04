@@ -1,5 +1,5 @@
 # =============================================================================
-# yaml-lint.yml - Smart Supply Pro YAML Lint
+# yaml-lint.yml - YAML hygiene and actionlint for pull requests (reusable)
 #
 # YAML hygiene for pull requests. Every tracked .yml and .yaml file must parse,
 # end with a newline, and carry no trailing whitespace; the rules and the scope
@@ -8,15 +8,14 @@
 # every run: block.
 #
 # No chain prefix on purpose: a lint belongs to none of the backend, frontend or
-# docs chains (ADR-0017).
+# docs chains (backend ADR-0017).
 #
 # Reusable, like e2e-playwright.yml: backend-ci.yml, frontend-ci.yml and
 # docs-pr-check.yml each call it as a job behind their build-and-test
-# aggregator, so a finding blocks the merge (F5, 2026-10-20). The checked files
-# belong to all three families (workflows, the composite action, Spring
-# profiles, Compose), and a pull request confined to one family is reported by
-# that family's claimant alone, so all three call it. It was advisory, under its
-# own job name, from 2026-10-09 until then.
+# aggregator, so a finding blocks the merge. The checked files belong to all
+# three families (workflows, the composite actions, Spring profiles, Compose),
+# and a pull request confined to one family is reported by that family's
+# claimant alone, so all three call it.
 #
 # No concurrency block: the three callers of one pull request share a ref, so a
 # group with cancel-in-progress would let them cancel each other's lint.
@@ -25,8 +24,8 @@
 # checked YAML file, check-yaml.sh or this workflow runs the lint over the whole
 # tree, and a finding fails the caller's build-and-test. A manual run always
 # lints. Anything else skips the lint and the caller passes it as skipped: a
-# pull request without such a change, one confined to docs/backend/api (OpenAPI,
-# gated by Redocly in docs-build.yml), and every push to main, whose files the
+# pull request without such a change, one confined to docs/backend/api (the
+# OpenAPI spec, which Redocly reads), and every push to main, whose files the
 # pull request already linted.
 #
 # Failure mode: a parse error (a duplicate key included), trailing
@@ -91,12 +90,9 @@ jobs:
         with:
           node-version: '24'
 
-      # Pinned for the same reason the ReDoc and Pandoc versions are pinned: a
-      # parser that changes version changes what the gate means. The npm client
-      # is deliberately NOT pinned here, unlike the four jobs that install the
-      # frontend tree: one global package has no peer graph to resolve, so the
-      # client version cannot change the outcome, and a sixth pin site would
-      # make the existing five harder to move.
+      # Pinned: a parser that changes version changes what the gate means. The npm
+      # client is not: one global package has no peer graph, so the client cannot
+      # change the outcome, and another pin site would make the others harder to move.
       - name: Install the YAML parser
         run: |
           set -euo pipefail
@@ -106,13 +102,9 @@ jobs:
       - name: Check YAML
         run: bash .github/scripts/check-yaml.sh
 
-      # Expression syntax, action inputs, workflow_run names and, through the
-      # shellcheck bundled in the image, the shell inside every run: block. A
-      # pinned image like hadolint, so no new dependency enters the repository.
-      # The 37 findings it reported on 2026-10-09 are fixed; from here on a
-      # finding fails this job. actionlint 1.7.12 does not yet know
-      # concurrency.queue (GitHub changelog 2026-05-07), so that one message
-      # is ignored until a release does; drop the -ignore then.
+      # Expressions, action inputs, workflow_run names and (bundled shellcheck) every
+      # run: block; a pinned image. 1.7.12 does not know concurrency.queue (GitHub
+      # changelog 2026-05-07): that message is ignored until a release knows it.
       - name: Lint workflows (actionlint)
         run: >-
           docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12

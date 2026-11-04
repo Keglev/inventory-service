@@ -1,10 +1,10 @@
 # =============================================================================
-# docs-deploy.yml - Smart Supply Pro Deploy Docs to GitHub Pages
-#
-# Triggered after docs-build.yml succeeds.
-# Consumes: docs-site artifact (built by docs-build.yml).
-# Publishes static documentation to the gh-pages branch, then deploys that
-# branch to GitHub Pages from this job (Pages source: GitHub Actions).
+# docs-deploy.yml - publishes the docs site to gh-pages and GitHub Pages
+# Usage: runs after docs-build.yml succeeds on main (workflow_run) and
+#        consumes its docs-site artifact.
+# Produces: the paths that artifact's MANIFEST names, replaced on gh-pages, then
+#        a Pages deployment of that branch from this job (Pages source: GitHub
+#        Actions; backend ADR-0015).
 #
 # Failure mode: a failed push to gh-pages or a failed Pages deployment fails
 # the run, and the site keeps the version last published.
@@ -24,11 +24,9 @@ permissions:
   pages: write
   id-token: write
 
-# Prevent concurrent gh-pages pushes — parallel runs cause branch merge conflicts.
-# The same queue orders the deployments: one per push, never two at once.
-# queue: max makes it a real queue: without it GitHub keeps one pending run and
-# cancels it for a newer one, and each run publishes a different docs-build
-# artifact, so a dropped run would drop that share of the site.
+# One gh-pages push and one deployment at a time. queue: max keeps every pending run:
+# each publishes a different docs-build artifact, so a dropped run would drop that
+# share of the site.
 concurrency:
   group: ghpages-deploy
   cancel-in-progress: false
@@ -59,15 +57,9 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Replace exactly the paths the run produced, named in MANIFEST, and leave the
-      # rest of the branch untouched. The branch is no longer wiped and rewritten:
-      # a merge touching docs, backend and frontend produces up to three pipeline
-      # runs carrying three different artifacts, and each must be able to publish
-      # its own part without reverting the others, in whatever order they land.
-      #
-      # Each listed directory is removed before it is copied, so a page deleted at
-      # source disappears rather than lingering. The previous backup-and-restore of
-      # the coverage reports is gone with the wipe that made it necessary.
+      # Replace exactly the MANIFEST paths and leave the rest of the branch, so up to
+      # three runs of one merge publish their parts in any order. Each listed path is
+      # removed before the copy, so a page deleted at source disappears.
       - name: Sync docs-site into gh-pages root
         run: |
           set -euo pipefail
@@ -109,10 +101,8 @@ jobs:
             echo "No changes to publish"
           fi
 
-      # Deploy the branch as just pushed. Three outcomes: the branch changed, so
-      # it is deployed; nothing changed, so the live site already matches and
-      # nothing is deployed; or this is a re-run, which deploys regardless, so a
-      # failed deployment can be retried without a new commit.
+      # DEPLOYS when the branch changed, or on a re-run (a failed deployment retries
+      # without a new commit). SKIPS when nothing changed: the live site matches.
       - name: Upload the gh-pages tree as the Pages artifact
         if: steps.publish.outputs.changed == 'true' || github.run_attempt > 1
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
