@@ -39,9 +39,8 @@ if (menu) {
 })();
 
 // Language switch: point EN/DE at the current page's translated twin when one
-// exists. Only the overview pages and the landing are translated, so any other
-// page routes DE to the German landing rather than a missing -de file. Done at
-// runtime to avoid wiring a per-page twin URL through the build.
+// exists (the landing, the overviews and the two arc42 section-1 pages); any
+// other page shows DE disabled. At run time, so the build wires no twin URL.
 (function () {
   var links = document.querySelectorAll(".lang-switch a");
   if (links.length < 2) return;
