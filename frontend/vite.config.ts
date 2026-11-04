@@ -31,10 +31,9 @@ const httpsConfig = useHttps
     }
   : undefined;
 
-// The dev server and `vite preview` proxy to a local backend (port 8081, as in
-// application.yml), so local work never sends traffic to production.
-// DEV_PROXY_TARGET overrides it from the shell, .env, .env.local or
-// .env.development; without a VITE_ prefix it never reaches the bundle.
+// The dev server and `vite preview` proxy to a local backend (8081, as in
+// application.yml). DEV_PROXY_TARGET overrides it from the shell or a .env file;
+// without a VITE_ prefix it never reaches the bundle.
 const proxyTarget = loadEnv('development', import.meta.dirname, '').DEV_PROXY_TARGET || 'http://localhost:8081';
 
 // App version is injected at build time from package.json so the UI can never drift from the manifest.
@@ -51,16 +50,13 @@ export default defineConfig({
     },
   },
   build: {
-    // MUI's combined bundle exceeds Vite's 500 KB default; raised to suppress noise
-    // while keeping the warning active for other chunks.
+    // TODO(S-2): every chunk now fits Vite's 500 kB default; drop this with a build check.
     chunkSizeWarningLimit: 800,
     rolldownOptions: {
       output: {
-        // Rolldown groups replace Rollup's manualChunks (deprecated in Vite 8,
-        // and under Rolldown it put all of @mui/material into vendor-grid). A
-        // group also takes the dependencies of what it captures, highest
-        // priority first, so the order below decides where a shared module
-        // lands. Ids use forward slashes on every platform.
+        // Rolldown groups replace manualChunks (deprecated in Vite 8). A group also
+        // takes the dependencies of what it captures, highest priority first, so the
+        // order decides where a shared module lands; ids use forward slashes.
         codeSplitting: {
           groups: [
             // React family first: one copy, shared by every other vendor chunk.
@@ -72,9 +68,9 @@ export default defineConfig({
             // clsx and reselect are shared by recharts and MUI; pinning them with
             // recharts keeps the edges one-way (mui -> charts), with no cycle.
             { name: 'vendor-charts', priority: 8, test: /\/node_modules\/(recharts|clsx|reselect)\// },
-            // The data grid (@mui/x-*) is half of all MUI code: on its own it
-            // keeps both chunks below the 800 kB warning (FQ2). Material goes
-            // first, or the grid group would take it in as a dependency.
+            // The data grid (@mui/x-*) is about half of all MUI code, so it gets its
+            // own chunk. Material goes first, or the grid group would take it in
+            // as a dependency.
             { name: 'vendor-mui', priority: 7, test: /\/node_modules\/@mui\/(?!x-)/ },
             { name: 'vendor-grid', priority: 6, test: /\/node_modules\/@mui\/x-/ },
             { name: 'vendor-routing', priority: 5, test: /\/node_modules\/react-router/ },

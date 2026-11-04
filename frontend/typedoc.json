@@ -1,6 +1,6 @@
 // TypeDoc configuration for generating API documentation from TypeScript source.
-// Outputs Markdown rather than HTML so the docs pipeline can consume it without
-// a separate rendering step.
+// Outputs Markdown, which the docs pipeline renders into the site's own theme
+// (.github/scripts/docs/build-typedoc-html.sh).
 
 {
   "entryPoints": [
@@ -17,10 +17,8 @@
   // markdown theme is required by typedoc-plugin-markdown; the default HTML theme
   // is incompatible with the plugin.
   "theme": "markdown",
-  // Only patterns that can fall inside the entry points above: main.tsx,
-  // App.tsx and vite-env.d.ts sit in src/ itself, and the project has no
-  // stories or __mocks__. Specs live in src/__tests__; these keep one placed
-  // beside its source out of the published docs.
+  // Specs live in src/__tests__, outside the entry points; these keep a spec placed
+  // beside its source out of the docs. Only patterns that can match an entry point.
   "exclude": [
     "**/*.test.ts",
     "**/*.test.tsx",
@@ -30,24 +28,14 @@
   // Suppresses TypeDoc's default behaviour of prepending the project README to generated docs.
   "readme": "none",
 
-  // The revision stamped into every "Defined in" source link. Left unset, TypeDoc
-  // falls back to `git rev-parse HEAD`, so each link carried the SHA of whatever
-  // commit happened to be publishing: 152 of the 211 generated pages were rewritten
-  // on every docs publish, 324 lines, with no source change behind any of it.
-  // Measured on the 2026-09-04 publish, and the same defect the theme asset tokens
-  // were fixed for in 03d15021. The branch name is written out rather than using
-  // TypeDoc's "{branch}" placeholder: the docs pipeline checks out a commit, not a
-  // branch, so `git branch --show-current` is empty on the runner and the fallback
-  // to the SHA would apply anyway. Links therefore track main, which is the only
-  // revision this site is ever published from.
+  // "Defined in" links name main, the only revision the site is published from:
+  // unset, TypeDoc stamps the publishing commit and every publish rewrites most
+  // pages. Written out, not "{branch}": the pipeline checks out a commit, no branch.
   "gitRevision": "main",
 
-  // blockTags REPLACES TypeDoc's defaults rather than extending them: measured
-  // 2026-09-03, declaring only the three project tags took the warning count from
-  // 64 to 241 because @param, @returns, @module and @summary became unknown. The
-  // 42 defaults for typedoc 0.28 are therefore listed first, then the tags this
-  // project uses: @file names the source file, @enterprise records the rationale
-  // a reviewer needs, @backend cites the endpoint a fetcher calls.
+  // blockTags REPLACES TypeDoc's defaults: the 42 defaults of typedoc 0.28 come first,
+  // then the project's tags: @file (source file), @enterprise (the rationale a
+  // reviewer needs), @backend (the endpoint a fetcher calls).
   "blockTags": [
     "@defaultValue", "@deprecated", "@example", "@jsx", "@param", "@privateRemarks",
     "@remarks", "@returns", "@see", "@throws", "@typeParam", "@author",

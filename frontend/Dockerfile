@@ -1,30 +1,28 @@
 # =============================================================================
-# Smart Supply Pro – Frontend image
-#
-# Multi-stage build for the Vite/React frontend. The build context must be the
-# repository root rather than frontend/, so the ops/nginx configs are readable
-# alongside the frontend source.
-#
-# Stages: base (deps) -> build (Vite bundle) -> runtime (Nginx static server).
+# Dockerfile (frontend) - the Vite bundle served by nginx
+# Usage: frontend-ci.yml builds it with the repository root as context (so
+#        ops/nginx is readable beside frontend/) and build args NPM_VERSION,
+#        VITE_API_BASE, VITE_BUILD_ID; a local build from the root works with
+#        the defaults below.
+# Produces: base (npm ci) -> build (vite build into /app/dist) -> runtime, an
+#        nginx:1.30-alpine image that serves dist/ as the unprivileged nginx user
+#        on port 8080 with ops/nginx/nginx.conf and default.conf.
+# Failure mode: a failed npm ci, type check or vite build fails the build stage;
+#        nginx config errors surface when the container starts, and the CI
+#        contract gate (verify-image-contract.sh) fails the image before push.
 # =============================================================================
 
-# Installs npm dependencies into a cached layer; subsequent stages inherit from here
-# rather than re-running npm ci on every source change.
+# Dependencies in their own layer, so a source change does not re-run npm ci.
 FROM node:24-bookworm-slim AS base
 WORKDIR /app
 
-# The CI workflows install this exact npm before running npm ci, so that lockfile
-# metadata does not churn between environments. The image build is the artifact
-# users receive, so it installs with the same client. frontend-ci.yml passes its
-# NPM_VERSION here; the default below only applies to a manual local build. On
-# 2026-09-03 the unpinned image ran npm 11.19.0 while CI ran 11.10.1 against one
-# lockfile, and the two printed different install warnings.
+# The same npm as CI, so one lockfile installs one way everywhere. frontend-ci.yml
+# passes its NPM_VERSION; the default applies to a local build only.
 ARG NPM_VERSION=11.10.1
 RUN npm install -g "npm@${NPM_VERSION}" && npm --version
 
-# Build context is repo root, so package files live under frontend/ relative to context.
-# The tree resolves its peers without legacy-peer-deps since i18next 26 and
-# react-i18next 17 accept TypeScript 6 (2026-10-15); no .npmrc is copied.
+# Paths are relative to the repository-root context. No .npmrc: the tree resolves
+# its peers without legacy-peer-deps.
 COPY frontend/package*.json ./
 RUN npm ci
 
@@ -39,34 +37,19 @@ ENV VITE_BUILD_ID=$VITE_BUILD_ID
 ARG VITE_APP_ENVIRONMENT="Production (Koyeb)"
 ENV VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT
 
-# Produces the optimised static bundle under /app/dist; nothing else carries forward to the runtime image.
-#
-# There is no test stage here. BuildKit builds only the stages the target
-# depends on, and the chain to the runtime image is base -> build -> runtime,
-# so a stage nothing copies from was never built by any pipeline invocation.
-# Vitest runs in frontend-ci before the image is built, where its failures
-# become GitHub Actions annotations.
+# Only /app/dist carries forward. No test stage: BuildKit skips a stage the target
+# does not depend on, so it would never run; Vitest runs in frontend-ci first,
+# where its failures become annotations.
 FROM base AS build
 RUN npm run build
 
-# Minimal Nginx image that serves the static assets — no node_modules, no source, no build tooling.
-# Stable line, pinned like every other version in this repository. Measured with
-# Trivy on 2026-09-10: nginx:1.27-alpine carried Alpine 3.21.3 with 2 CRITICAL
-# and 34 fixed HIGH findings; nginx:1.30-alpine carries Alpine 3.24.1, the same
-# generation the backend runtime runs, with 0 CRITICAL and 7 fixed HIGH.
+# Static assets only — no node_modules, source or build tooling. The nginx stable
+# line, pinned; add_header_inherit in default.conf needs 1.29.3 or later.
 FROM nginx:1.30-alpine AS runtime
 
-# ca-certificates: Alpine ships without a full CA bundle; default.conf reads it
-# (proxy_ssl_trusted_certificate) to verify the API's certificate.
-# apk upgrade: the seven remaining findings above are packages the base image
-# lags on, not packages without a fix. Alpine 3.24 publishes libuuid 2.42.3-r1
-# against libuuid 2.42.1-r0 in the base. The backend runtime stage has carried
-# this same upgrade from the start, which is why its image passes the Trivy gate
-# while its own base does not. Without it, a scan of this image reports whatever
-# the base was built with, however recently the image itself was built.
-# Versions are deliberately unpinned, for the reason the comment above gives:
-# pinning would freeze the packages this upgrade exists to move, and Alpine
-# drops superseded versions from its index within weeks.
+# ca-certificates: the bundle default.conf verifies the API's certificate with.
+# apk upgrade: fixed packages the base image lags on, as in the backend runtime.
+# Unpinned on purpose: a pin would freeze them, and Alpine drops old versions.
 # hadolint ignore=DL3018
 RUN apk add --no-cache ca-certificates && update-ca-certificates && apk upgrade --no-cache
 
@@ -76,11 +59,9 @@ COPY ops/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Run as the base image's unprivileged nginx user (UID 101, numeric so a runtime
-# can verify non-root without reading /etc/passwd) instead of root. The master
-# then holds no privileges an nginx flaw could inherit, and port 8080 needs none.
-# It must still create its temp directories under /var/cache/nginx; nginx.conf
-# moves the pid file to /tmp for the same reason.
+# The base image's unprivileged nginx user, numeric so a runtime can verify non-root
+# without /etc/passwd; port 8080 needs no privilege. The user must own its temp
+# directories under /var/cache/nginx (nginx.conf moves the pid file to /tmp).
 RUN chown -R nginx:nginx /var/cache/nginx
 USER 101
 
