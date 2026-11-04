@@ -1,7 +1,7 @@
 /**
  * @file playwright.config.ts
  * @module e2e
- * @testing Playwright browser suite (ADR-0009).
+ * @testing Playwright browser suite (frontend ADR-0009).
  * @description Runs the production bundle via `vite preview` on port 5173
  *   (the port the backend's default CORS allow-list already admits) against a
  *   backend that MUST already be listening on 8081 in the `test,e2e` profile.

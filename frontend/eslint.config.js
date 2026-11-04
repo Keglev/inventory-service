@@ -12,25 +12,23 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  // 'coverage' holds the generated Istanbul report: vendored scripts that carry
-  // their own disable directives and are not ours to fix. It is gitignored, but
-  // it exists on any machine that has run the suite with --coverage, and under
-  // --max-warnings 0 linting it would fail the run.
+  // 'coverage' holds the generated HTML report, scripts with their own disable
+  // directives; gitignored, but present wherever the suite ran with --coverage,
+  // and under --max-warnings 0 linting it would fail the run.
   globalIgnores(['dist', 'coverage']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
-      // Since react-hooks 7 the flat presets live under configs.flat; the
-      // top-level keys are the legacy eslintrc form (plugins as an array),
-      // which ESLint 10 rejects. 'recommended-latest' adds the React Compiler
-      // rules on top of rules-of-hooks and exhaustive-deps.
+      // react-hooks 7: flat presets live under configs.flat; the top-level keys are
+      // the eslintrc form, which ESLint 10 rejects. 'recommended-latest' adds the
+      // React Compiler rules to rules-of-hooks and exhaustive-deps.
       reactHooks.configs.flat['recommended-latest'],
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-      // create-vite scaffold default; ESLint recommends "latest" — upgrade if no older browser targets exist.
+      // TODO(S-6): create-vite's default; measure "latest" against the build target first.
       ecmaVersion: 2020,
       globals: globals.browser,
     },

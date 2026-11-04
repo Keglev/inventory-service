@@ -74,14 +74,13 @@ export default mergeConfig(viteConfig, defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcovonly'],
       reportsDirectory: './coverage',
-      // v4 removed coverage.all; an explicit include preserves the full-source denominator
-      // so untested files remain visible in the published report (not just test-touched files).
+      // Vitest has no coverage.all since v4: the explicit include keeps untested files
+      // in the report's denominator, not only the files a test touched.
       include: ['src/**/*.{ts,tsx}'],
       exclude: [
         '**/*.d.ts',
-        // Type-only modules emit no runtime code, so istanbul reports them as 0% of 0
-        // statements. They are excluded so a per-file coverage floor measures code that
-        // can actually be executed.
+        // Type-only modules emit no runtime code; excluded so the report lists only
+        // code that can run.
         '**/*.types.ts',
         'src/main.tsx',
         'src/vite-env.d.ts',
@@ -89,14 +88,9 @@ export default mergeConfig(viteConfig, defineConfig({
         'src/**/index.tsx',
         'src/__tests__/**',
       ],
-      // Coverage floor, the frontend counterpart to the JaCoCo bundle rule.
-      // The project standard is 85% on every counter; these sit just under the
-      // values measured when the rule was added (statements 99.12, branches
-      // 96.36, functions 99.03, lines 99.54) so a regression fails while it is
-      // still one change old, rather than only once the standard has already
-      // been breached. Branches get the widest margin: they move fastest when
-      // conditionals are added. Global, not perFile, because a per-file floor
-      // fails on ordinary work in small modules.
+      // Floors just under the measured coverage, above the 85% standard, so a regression
+      // fails one change old (the JaCoCo bundle rule's counterpart); branches have the
+      // widest margin. Global, not perFile: a per-file floor fails on ordinary work.
       thresholds: {
         statements: 97,
         branches: 94,
