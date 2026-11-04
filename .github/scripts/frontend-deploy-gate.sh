@@ -7,13 +7,12 @@
 #        gate inline in backend-docker.yml, which hands its verdict to
 #        backend-deploy.
 #
-# frontend-ci runs on every frontend/** change, and the deploy used to follow
-# every green run, so a merge that touched only specs rebuilt nothing the
-# browser receives and still rolled the Koyeb service (FW6 NF-51: 5 of the 62
-# deploys since 2026-09-24). This gate skips the deploy only when every changed
-# path is on the list below, which names test, lint and CI-only files. Any
-# other path deploys, including paths added later: a new file defaults to a
-# deploy, never to a silent skip.
+# frontend-ci runs on every frontend/** change, but a merge that touched only
+# specs changes nothing the browser receives, and rolling the Koyeb service for
+# it serves nothing. This gate skips the deploy only when every changed path is
+# on the list below, which names test, lint and CI-only files. Any other path
+# deploys, including paths added later: a new file defaults to a deploy, never
+# to a silent skip.
 #
 # Produces: deploy=true|false in $GITHUB_OUTPUT (stdout when unset) and one
 # line naming the path that decided it.

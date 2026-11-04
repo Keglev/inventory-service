@@ -1,14 +1,14 @@
 -- =============================================================================
 -- md-to-html-links.lua — Pandoc Lua filter
--- Usage: passed as --lua-filter by build-docs.sh, build-architecture-docs.sh
---        and build-typedoc-html.sh. All three read it where it is tracked;
---        nothing copies it any more, so this is its only location.
+-- Usage: the --lua-filter of every pandoc run in build-architecture-docs.sh and
+--        build-typedoc-html.sh (build-docs.sh hands the latter this path);
+--        nothing copies it, so this is its only location.
 --
 -- Rewrites .md link targets to .html so cross-document links resolve on the
 -- published site, and wraps mermaid code blocks in a div the browser renders.
 -- A page with such a block gets the metadata flag has-mermaid, and the page
 -- template loads the Mermaid bundle (3.3 MB) only when the flag is set, so the
--- pages that draw nothing do not download it (W23). check-mermaid-pages.sh
+-- pages that draw nothing do not download it. check-mermaid-pages.sh
 -- holds the built site to that rule.
 --
 -- Failure mode: pandoc aborts when a filter will not load, and every calling

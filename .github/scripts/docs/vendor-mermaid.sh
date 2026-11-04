@@ -4,12 +4,11 @@
 # Usage: .github/scripts/docs/vendor-mermaid.sh <theme-dir> <assets-dir>
 #        Called by build-docs.sh from build_theme_assets.
 #
-# The architecture page template (app-docs.html) renders diagrams with
-# Mermaid. It used to load it from cdn.jsdelivr.net, so every visitor's browser
-# sent its address to a third party, the transfer the Google Fonts ruling (LG
-# Muenchen I, 3 O 17493/20) is about (FW6 N4, as NF-7 for ReDoc). It now loads
-# /inventory-service/assets/mermaid.min.js. The API template (app-api.html)
-# loads no Mermaid since F6: TypeDoc output carries no diagram.
+# The architecture page template (app-docs.html) renders diagrams with Mermaid,
+# loaded from /inventory-service/assets/mermaid.min.js: a CDN would send every
+# visitor's address to a third party, the transfer the Google Fonts ruling (LG
+# Muenchen I, 3 O 17493/20) is about (as for ReDoc, build-openapi-docs.sh). The
+# API template (app-api.html) loads no Mermaid: TypeDoc output has no diagram.
 #
 # The template stays the one place that names the version and the hash: its
 # script tag carries data-mermaid-version and an integrity attribute. This

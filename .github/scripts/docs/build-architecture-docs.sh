@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # =============================================================================
 # build-architecture-docs.sh — Converts architecture markdown guides to HTML
-# Usage: .github/scripts/docs/build-architecture-docs.sh <project-dir>
+# Usage: .github/scripts/docs/build-architecture-docs.sh <project-dir> [context...]
+#        Contexts: backend, frontend, decisions; none given converts backend and
+#        frontend. Called by build-docs.sh.
 #
 # Reads the pandoc Lua filter from this script's own directory, where it is
 # tracked.
@@ -24,9 +26,8 @@ TEMPLATE="$DOCS_DIR/_theme/app-docs.html"
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LUA_FILTER="$SCRIPTS_DIR/md-to-html-links.lua"
 
-# Pandoc resolves the $nav()$ partial from <data-dir>/templates/. Setting this
-# explicitly makes partial resolution work the same on old and new pandoc
-# (older versions ignore the template's own directory for partials).
+# Pandoc resolves the $nav()$ partial from <data-dir>/templates/; set explicitly,
+# because older pandoc ignores the template's own directory for partials.
 DATA_DIR="$DOCS_DIR/_theme"
 
 # Contexts to convert, given as arguments after the project directory. Absent,
@@ -38,15 +39,9 @@ else
   CONTEXTS=(backend frontend)
 fi
 
-# A context resolves to four things: a source directory, a destination under
-# target/docs, a sidebar and a title prefix. Two contexts share the shape
-# docs/<name>/architecture; the system-wide decisions index does not, because it
-# sits at docs/decisions with no tier above it. Interpolating the context name
-# into a path therefore cannot reach every subtree this script builds, so the
-# mapping is written out as a table. Adding a subtree means adding a case here,
-# not teaching the callers a new path shape.
-# Sets SRC_DIR, DST_DIR, NAV_META and TITLE_PREFIX; fails on an unknown name,
-# which the previous code reported as a missing directory and skipped.
+# resolve_context <name>: sets SRC_DIR, DST_DIR, NAV_META and TITLE_PREFIX, and
+# fails on an unknown name. A table, not interpolation: docs/decisions does not
+# share the docs/<name>/architecture shape. A new subtree is a new case here.
 resolve_context() {
   case "$1" in
     backend)
@@ -92,11 +87,9 @@ convert_arch() {
   count=$(find "$SRC_DIR" -type f -name "*.md" | wc -l)
   [ "$count" -eq 0 ] && echo "ℹ️  No .md files in $SRC_DIR — skipping $CONTEXT" && return 0
 
-  # Created only after both guards have passed. The caller loop used to create
-  # it before calling this function, which left an empty target/docs/<context>
-  # behind for a selected context whose source is absent. An empty built subtree
-  # is indistinguishable from a rebuilt one to assemble-site.sh, which would then
-  # replace the published pages with nothing.
+  # Created only after both guards passed: an empty target/docs/<context> looks
+  # like a rebuilt subtree to assemble-site.sh, which would replace the published
+  # pages with nothing.
   mkdir -p "$DST_DIR"
 
   echo "==> [build-architecture-docs] Converting $count file(s) for $CONTEXT"

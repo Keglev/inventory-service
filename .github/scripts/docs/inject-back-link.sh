@@ -7,13 +7,9 @@
 #        and are never rendered through a docs template).
 #
 # Those pages are produced by other tools and load none of the site's CSS, so
-# the link carries its own inline style and a fixed position. The markup lived
-# as two identical sed lines, one in build-openapi-docs.sh at build time and one
-# in docs-deploy.yml on the published tree (W5); a change to one left the other
-# behind.
-# The coverage pages now get the link when they are built, like the ReDoc page.
-# Pages rendered from docs/_theme templates have their own link in the topbar
-# and do not use this.
+# the link carries its own inline style and a fixed position. One script, so the
+# markup has one copy. Pages rendered from docs/_theme templates have their own
+# link in the topbar and do not use this.
 #
 # Produces: each existing file with the link inserted right after its <body>
 # tag; a file that already has id="back-to-docs" is left as it is, so a

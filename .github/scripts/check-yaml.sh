@@ -6,8 +6,8 @@
 #        Needs the js-yaml CLI on PATH; the workflow installs it pinned.
 #
 # Three checks over every tracked .yml and .yaml file except docs/backend/api,
-# which is OpenAPI and is gated by Redocly in docs-build.yml. Two linters
-# with two opinions on one tree is how a gate starts getting waived.
+# the OpenAPI spec, which Redocly reads (it renders it in the docs build). Two
+# linters with two opinions on one tree is how a gate starts getting waived.
 #
 #   1. It parses. js-yaml also rejects duplicate mapping keys, which is the
 #      failure worth catching here: a repeated key in a workflow is silently

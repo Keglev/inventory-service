@@ -83,10 +83,8 @@ case "$DOCS_TRIGGER" in
     ;;
 esac
 
-# build-typedoc-html.sh and build-architecture-docs.sh both render through
-# pandoc, so the install is needed if any of those four is selected. The
-# decisions index is converted by build-architecture-docs.sh like the two
-# architecture trees, from a different source directory.
+# TypeDoc and the three architecture contexts (backend, frontend, decisions)
+# all render through pandoc, so any of the four needs the install.
 pandoc=false
 if [ "$typedoc" = true ] || [ "$arch_backend" = true ] || [ "$arch_frontend" = true ] || [ "$decisions" = true ]; then
   pandoc=true

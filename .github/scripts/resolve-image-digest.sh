@@ -55,7 +55,7 @@ DIGEST="$(tr -d '\r' < "$HDRS" \
   | tail -n1)"
 
 # The digest is the only part of the reference that comes from the network, so
-# it is checked here, where it arrives, rather than by the caller (W8).
+# it is checked here, where it arrives, rather than by the caller.
 if ! grep -qE '^sha256:[a-f0-9]{64}$' <<< "${DIGEST:-}"; then
   echo "::error::Manifest returned 200 but Docker-Content-Digest is missing or malformed: '${DIGEST:-}'"
   echo "::group::Response headers"; sed -n '1,40p' "$HDRS" || true; echo "::endgroup::"

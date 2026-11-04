@@ -11,10 +11,9 @@
 # time was therefore unproven before this gate: the SPA fallback, the asset 404,
 # the caching headers, the five security headers and the plain-http redirect.
 # The headers are declared once at server level with add_header_inherit merge
-# (until FO4 they were repeated in six locations, because add_header alone does
-# not accumulate across levels). A location that turns inheritance off, or a
-# base image older than nginx 1.29.3, serves them silently missing: that is
-# the failure this gate exists for.
+# (add_header alone does not accumulate across levels; frontend ADR-0011). A
+# location that turns inheritance off, or a base image older than nginx 1.29.3,
+# serves them silently missing: that is the failure this gate exists for.
 #
 # Not covered, deliberately. The proxy locations reach the production backend,
 # so exercising them from CI would send traffic there; /api/ is proven after
@@ -114,7 +113,7 @@ expect_gzip() {
   esac
 }
 
-# expect_security_headers <label> <url> - the five repeated in six locations
+# expect_security_headers <label> <url> - the five security headers
 expect_security_headers() {
   expect_header "$1" "$2" "X-Content-Type-Options" "nosniff"
   expect_header "$1" "$2" "X-Frame-Options" "DENY"
@@ -159,11 +158,9 @@ APEX_WANT="https://www.smartsupplypro.de/inventory?page=2"
 expect_redirect "apex redirect" "$ROOT/inventory?page=2" "smartsupplypro.de" "$APEX_WANT"
 expect_status "canonical host" "$ROOT/" "200" "www.smartsupplypro.de"
 
-# TLS ends at the Koyeb edge, which reports the visitor's scheme in
-# X-Forwarded-Proto. A plain-http visitor is sent to https with path and query
-# intact; an https visitor is served; a request without the header (the
-# HEALTHCHECK, every other check here) is served too, so the redirect cannot
-# loop if the platform stops sending it.
+# X-Forwarded-Proto from the Koyeb edge: http is sent to https with path and
+# query intact, https is served, and a request without the header (HEALTHCHECK,
+# every other check here) is served too, so the redirect cannot loop.
 HTTP_WANT="https://www.smartsupplypro.de/inventory?page=2"
 expect_redirect "http visitor" "$ROOT/inventory?page=2" "www.smartsupplypro.de" "$HTTP_WANT" "http"
 expect_status "https visitor" "$ROOT/" "200" "www.smartsupplypro.de" "https"
