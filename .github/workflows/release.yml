@@ -1,12 +1,12 @@
 # =============================================================================
-# release.yml - Smart Supply Pro Release
+# release.yml - turns a pushed version tag into a GitHub release
 #
 # Turns a pushed tag into a GitHub release. The tag is the decision; this
 # workflow only records it. Nothing here builds, tests or deploys: by the time a
 # tag exists, main has already been built, tested and released to both hosts.
 #
 # No chain prefix: a tag triggers this workflow, not a push to main, so it
-# belongs to none of the backend, frontend or docs chains (ADR-0017).
+# belongs to none of the backend, frontend or docs chains (backend ADR-0017).
 #
 # The version check is the point of the job. Both tiers declare a version that
 # ships to users - the backend at /actuator/info, the frontend in its bundle -

@@ -1,16 +1,13 @@
 # =============================================================================
-# Smart Supply Pro - Dependabot
+# dependabot.yml - version updates for the actions, Maven, npm and Docker
 #
 # Four ecosystems: the pinned actions, the Maven build, the frontend's npm
-# tree and the base images in the two Dockerfiles. Every action is pinned to a commit, and a pin nobody updates is how the
-# Koyeb CLI fallback ended up four major versions stale; Dependabot rewrites
-# both the commit and the trailing version comment, which is why the comments
-# are there.
+# tree and the base images in the two Dockerfiles. Every action is pinned to a
+# commit, and a pin nobody updates goes stale; Dependabot rewrites both the
+# commit and the trailing version comment, which is why the comments are there.
 #
-# Maven and npm were left out until 2026-09-24, on the ground that the
-# frontend audit and Trivy already gate both trees. They detect known
-# vulnerabilities; they never move a version, so bug-fix releases arrived only
-# when someone edited the pom or package.json by hand. Vulnerabilities are
+# The frontend audit and Trivy detect known vulnerabilities but never move a
+# version, so Maven and npm are here for bug-fix releases. Vulnerabilities are
 # covered separately by Dependabot security updates, a repository setting that
 # opens a pull request when an advisory hits a dependency, outside this
 # schedule and outside the limits below.
@@ -24,12 +21,12 @@
 # release must be seven days old before it is proposed, time for a compromised
 # version to be caught and pulled; security updates skip that wait.
 #
-# Docker was added on 2026-10-09 (FW6 C1). Every base tag floats
+# Docker: every base tag floats
 # (3-eclipse-temurin-21, 21-jre-alpine, 24-bookworm-slim, 1.30-alpine) and is
 # pulled fresh on every build; Dependabot could only move them to a new major
 # or minor, which the allow rule keeps for a person to plan. nginx minors are
 # ignored because odd minors are nginx's mainline branch; the maven image is
-# ignored because Dependabot changed its JDK suffix (#305).
+# ignored because Dependabot changed its JDK suffix (see the ignore below).
 #
 # No labels: generated release notes group by pull request label, this
 # repository does not label pull requests, and the release workflow depends on
@@ -38,10 +35,9 @@
 version: 2
 
 updates:
-  # "/" is the repository root, which is where Dependabot looks for
-  # .github/workflows - not a directory to point at the workflows themselves.
-  # The composite action under .github/actions pins its own actions (Trivy,
-  # upload-artifact); those directories are listed so the pins stay tracked.
+  # "/" is the repository root, where Dependabot finds .github/workflows. The
+  # composite actions under .github/actions pin their own actions, so they are
+  # listed too.
   - package-ecosystem: github-actions
     directories:
       - /
@@ -53,7 +49,7 @@ updates:
     commit-message:
       # Conventional Commits, so the generated release notes stay readable.
       prefix: ci
-    # The same seven days as the other ecosystems (W20). Actions are where a
+    # The same seven days as the other ecosystems. Actions are where a
     # hijacked release tag did harm (the trivy-action tag attack): a pin moved
     # within hours of a compromised release would carry it into every job.
     cooldown:
@@ -128,11 +124,9 @@ updates:
       - dependency-name: nginx
         update-types:
           - version-update:semver-minor
-      # The maven tag carries the JDK as a suffix (3-eclipse-temurin-21), and
-      # Dependabot swapped that suffix to Temurin 26 in #305 although the
-      # allow rule takes minor and patch only. The tag floats and is pulled
-      # fresh on every build, so nothing is lost by ignoring it; a JDK change
-      # is made by hand with the runtime image and <java.version>.
+      # The tag carries the JDK as a suffix (3-eclipse-temurin-21), and Dependabot
+      # swapped it to Temurin 26 despite the minor/patch rule. It floats and is pulled
+      # fresh, so ignoring it loses nothing; a JDK change is made by hand.
       - dependency-name: maven
     groups:
       docker:

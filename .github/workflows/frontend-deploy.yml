@@ -1,14 +1,14 @@
 # =============================================================================
-# frontend-deploy.yml - Smart Supply Pro Deploy Frontend to Koyeb
+# frontend-deploy.yml - deploys the frontend image to Koyeb
 #
-# Triggered automatically after frontend-ci.yml succeeds on main.
-# Manual trigger available for rollbacks or emergency deploys.
+# Usage: runs after frontend-ci.yml succeeds on a push to main (workflow_run),
+# or by hand for a rollback or an emergency deploy.
 # A merge that changed only test, lint or CI files is not deployed
 # (frontend-deploy-gate.sh); the live site then keeps the previous build.
 # Deploys by image digest (not tag) for deterministic, rollback-safe releases.
-# After the health gate, asserts the serve-time API-base rewrite ran (ADR-0008,
-# FR-01): the check reads the bytes the browser receives, which is the only
-# place that transform is visible.
+# After the health gate, asserts the serve-time API-base rewrite ran (backend
+# ADR-0008; frontend risk FR-01): the check reads the bytes the browser
+# receives, the only place that transform is visible.
 # Those checks only mean something once the new image is the one answering, so
 # the deploy first waits for the commit's build id to appear in the served
 # bundle rather than trusting the platform's HEALTHY status.
@@ -31,15 +31,9 @@ on:
 permissions:
   contents: read
 
-# One rollout at a time, in merge order (W19). Without a group two deploys
-# could run `koyeb service update` and their build waits side by side, and the
-# older could finish last. It has not happened yet (0 overlaps in the last 100
-# runs, 2026-09-28 to 2026-10-20), so this guards a latent race. Each run
-# deploys the commit its push-triggered frontend-ci run built
-# (workflow_run.head_sha of a push run is the pushed commit, unlike a
-# workflow_run run's own head_sha: R66), so the queue keeps every pending run:
-# without queue: max GitHub keeps one and drops it for a newer one, which would
-# skip that commit's deploy.
+# One rollout at a time, in merge order: two `koyeb service update` runs could
+# overlap and the older finish last. Each run deploys the commit its push run built,
+# so queue: max keeps every pending run (one slot would skip a commit's deploy).
 concurrency:
   group: frontend-deploy
   cancel-in-progress: false
@@ -47,10 +41,9 @@ concurrency:
 
 jobs:
   deploy:
-    # Only a push to this repository's main may start this job. The branches
-    # filter above matches the triggering run's branch NAME, and a fork's pull
-    # request can name its branch "main" and make its own CI pass; the event and
-    # the head repository cannot be set from a fork.
+    # Only a push to this repository's main: the branches filter matches a NAME,
+    # and a fork's pull request can call its branch "main" and pass its own CI;
+    # the event and the head repository cannot be set from a fork.
     if: >
       (github.event_name == 'workflow_run'
         && github.event.workflow_run.conclusion == 'success'
@@ -61,21 +54,9 @@ jobs:
     timeout-minutes: 20
 
     env:
-      # Names, not credentials. Holding them as secrets masked their values
-      # everywhere: KOYEB_APP was the string "inventory-service", this
-      # repository's own name, so checkout rendered as "Syncing repository:
-      # Keglev/***" and every path as /***/***. KOYEB_TOKEN and DOCKER_PASSWORD
-      # are the credentials and stay secrets.
-      #
-      # The service is identified by its short ID rather than by app/service.
-      # #113 wrote "inventory-service/web-service" and the deploy was rejected:
-      # "Web Service" is the type Koyeb shows beside a service, not its name.
-      # 8d13ab85 is this service's short ID, read from the successful deploy of
-      # 2026-09-10, and the CLI names it as a supported identifier alongside the
-      # full UUID and the app/service form.
-      #
-      # If this ever stops resolving, the service was recreated and has a new
-      # ID. "koyeb service list" prints it.
+      # Names, not credentials (as secrets they would be masked everywhere in a run);
+      # KOYEB_TOKEN and DOCKER_PASSWORD stay secrets. The service's short ID, which the
+      # CLI accepts; after a recreate, "koyeb service list" prints the new one.
       KOYEB_SERVICE_ID: 8d13ab85
       FRONTEND_URL: https://www.smartsupplypro.de
       # Origin baked into the bundle by frontend-ci.yml; the rewrite check
@@ -102,29 +83,16 @@ jobs:
           fi
           git diff --name-only HEAD^ HEAD | bash .github/scripts/frontend-deploy-gate.sh
 
-      # Resolve image digest from commit SHA.
-      # Deploying by digest (not tag) guarantees deterministic rollouts and safe rollbacks.
-      # Docker Hub can be eventually consistent — retries reduce post-push flakiness.
+      # The commit's tag resolved to a digest, so the rollout is the scanned image and a
+      # rollback has a fixed target; retries cover Docker Hub's lag right after a push.
       - name: Resolve image digest
         if: steps.gate.outputs.deploy == 'true'
         id: img
         run: bash .github/scripts/resolve-image-digest.sh "ckbuzin" "ssp-frontend" "${{ github.event.workflow_run.head_sha || github.sha }}"
 
-      # This step runs in the job that writes the deploy token to
-      # $HOME/.koyeb.yaml two steps later, so what it executes matters. Until
-      # now it asked the GitHub API for the latest release and ran whatever came
-      # back: the 2026-09-10 deploy installed v5.10.2 while the hardcoded
-      # fallback still read 4.4.1, four majors behind, which is a fair measure of
-      # how long it had been since anyone looked at it.
-      #
-      # Now one pinned version, and the archive is checked against the digest the
-      # release publishes before anything is extracted. A moved release, a
-      # substituted asset or a truncated download fails the step rather than
-      # being executed.
-      #
-      # To upgrade: raise both values in one commit. The digest is the
-      # linux_amd64 line of
-      # https://github.com/koyeb/koyeb-cli/releases/download/v<version>/checksums.txt
+      # This job writes the deploy token, so the CLI is one pinned version, checked against
+      # the linux_amd64 line of the release's checksums.txt before extraction. To upgrade,
+      # raise both values in one commit (github.com/koyeb/koyeb-cli/releases).
       - name: Install Koyeb CLI
         if: steps.gate.outputs.deploy == 'true'
         env:
@@ -152,13 +120,9 @@ jobs:
           umask 077
           printf "token: %s\n" "$KOYEB_TOKEN" > "$HOME/.koyeb.yaml"
 
-      # Koyeb <-> registry connectivity can be flaky — retries reduce transient failures.
-      # No registry credential is attached. docker.io/ckbuzin/ssp-frontend is public
-      # (Docker Hub reports is_private false) and Koyeb marks the field optional. This
-      # command used to pass one on every deploy, which re-attached it to the service
-      # definition each time and silently reverted any change made in the console.
-      # Measured 2026-09-03: the deploy that put 2707e5e6 live ran with
-      # image_registry_secret empty.
+      # Retries cover flaky Koyeb-registry connectivity. No registry credential: the
+      # image is public and the field optional, and passing one re-attaches it to the
+      # service on every deploy, reverting changes made in the console.
       - name: Deploy to Koyeb
         if: steps.gate.outputs.deploy == 'true'
         run: |
@@ -180,27 +144,16 @@ jobs:
 
           echo "::error::All deploy attempts failed"
           exit 1
-      # Blocks until the commit being deployed is the one answering requests.
-      # Without it the two checks below can pass against the outgoing image,
-      # which is what happened on the 2026-09-02 rollout. The build id is the
-      # commit SHA, inlined into the bundle by frontend-ci.yml.
-      #
-      # It replaces a loop that waited for the service to report HEALTHY. That
-      # loop passed on its first poll in ten of ten runs (2026-10-09), because
-      # the outgoing deployment stays healthy through a rolling update, so it
-      # never waited for anything. 45 attempts, 10 s apart: successful deploys
-      # since 2026-09-24 needed 3 to 5, and the one failure ran out at 30.
+      # Blocks until the commit's build id answers (frontend ADR-0010): the service
+      # stays HEALTHY through a rolling update, so the checks below could pass against
+      # the outgoing image. 45 attempts, 10 s apart; a successful deploy needs a few.
       - name: Wait for the new build to reach the edge
         if: steps.gate.outputs.deploy == 'true'
         run: bash .github/scripts/wait-for-build.sh "${{ env.FRONTEND_URL }}" "${{ github.event.workflow_run.head_sha || github.sha }}" 45
 
-      # On any failure after the update, show what Koyeb itself reports: the
-      # 2026-10-05 timeout left nothing in the log to tell a slow rollout from
-      # a failed one.
-      # Each command ends in `|| true`, so a wrong one fails silently: until
-      # 2026-10-20 two of the three were not CLI commands at all ("service
-      # deployments list --limit", "service instances list" print an
-      # invalid-command error or the help text in 5.10.2 and 5.12.0 alike).
+      # On any failure after the update, Koyeb's own view, to tell a slow rollout from
+      # a failed one. Each command ends in `|| true`, so a wrong form fails silently:
+      # try a new one with a bogus token first; a valid form then fails on auth.
       - name: Koyeb diagnostics
         if: failure() && steps.gate.outputs.deploy == 'true'
         run: |
@@ -212,10 +165,8 @@ jobs:
       - name: Health check and smoke tests
         if: steps.gate.outputs.deploy == 'true'
         run: bash .github/scripts/health-check.sh "${{ env.FRONTEND_URL }}"
-      # health-check.sh is shared with backend-deploy.yml, so this
-      # frontend-only assertion lives in its own script rather than growing
-      # that one. It runs after the health gate: a service that is not serving
-      # yet would fail here for the wrong reason.
+      # Its own script (health-check.sh is shared with backend-deploy.yml), after the
+      # health gate: a service not serving yet would fail here for the wrong reason.
       - name: Verify serve-time API-base rewrite
         if: steps.gate.outputs.deploy == 'true'
         run: bash .github/scripts/verify-served-bundle.sh "${{ env.FRONTEND_URL }}" "${{ env.API_ORIGIN }}"

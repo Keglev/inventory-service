@@ -9,8 +9,7 @@
 # image; the CVE gate then scans that SBOM file, not the image again. Measured
 # on 2026-10-15 with Trivy 0.74.0: scanning the SBOM found exactly what
 # scanning the image found (alpine:3.10.0 30 = 30, tomcat:9.0.30 691 = 691,
-# Debian and jar findings alike). Until then a separate sbom.yml analysed every
-# published image a second time.
+# Debian and jar findings alike).
 #
 # The order is the point. A scan that misses the jar finds no jar CVEs and
 # passes: a local run on 2026-10-15 reused the layer cache of a failed run and
@@ -24,7 +23,7 @@
 # CRITICAL findings in the log, component counts in the job summary, and, when
 # upload is 'true', the artifact sbom-<name>-<sha>, kept 60 days: the
 # repository's maximum retention, so a longer request only logs a warning
-# and is cut to 60 anyway (every sbom.yml run did so until 2026-10-15).
+# and is cut to 60 anyway.
 #
 # FAILURE MODE. Fails the calling job, before its publishing step, so the image
 # never leaves the runner and the deploy chain behind it does not start:
@@ -39,11 +38,9 @@
 # Pinned by commit SHA, not by tag: in March 2026 nearly every version tag of
 # trivy-action and of the setup-trivy action it calls was force-pushed to
 # credential-stealing code. The scanner version is set explicitly because the
-# action's own default trails its releases. 0.76.1 since 2026-11-02 (W21,
-# after the seven-day wait the repository applies to every update): against
-# both live images it writes the same components as 0.75.0 (frontend 72, of
-# which 71 apk; backend 177, of which 102 maven and 74 apk), finds 0 fixable
-# HIGH/CRITICAL on either, and logs no "not on the EOL list" line.
+# action's own default trails its releases. 0.76.1, taken after the seven-day
+# wait the repository applies to every update: against both live images it
+# writes the same components as 0.75.0 and finds no fixable HIGH/CRITICAL.
 # =============================================================================
 name: Image SBOM and CVE gate
 description: Writes a CycloneDX SBOM of a local image, checks it is complete, and gates on fixable HIGH/CRITICAL CVEs found in it.

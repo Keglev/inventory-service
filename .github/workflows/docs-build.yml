@@ -1,13 +1,12 @@
 # =============================================================================
-# docs-build.yml - Smart Supply Pro Documentation Pipeline
-#
-# Builds and packages all project documentation into the docs-site artifact.
-# Triggered after backend or frontend CI succeeds, or on docs-only pushes.
-# On success, triggers: docs-deploy.yml (publishes to GitHub Pages).
-#
-# Artifacts consumed: jacoco-html-{SHA}            (from backend-ci.yml, optional)
-#                     frontend-coverage-html-{SHA}  (from frontend-ci.yml, optional)
-# Artifacts produced: docs-site                    (consumed by docs-deploy.yml)
+# docs-build.yml - builds the documentation site into the docs-site artifact
+# Usage: runs on a push to main that touches docs/ or the docs pipeline, and
+#        after Backend CI or Frontend CI succeeds on main (workflow_run);
+#        docs-deploy.yml follows.
+#        Consumes jacoco-html-{SHA} (backend-ci.yml) and
+#        frontend-coverage-html-{SHA} (frontend-ci.yml) when the trigger has one.
+# Produces: the docs-site artifact (the built subtrees and their MANIFEST),
+#        consumed by docs-deploy.yml.
 #
 # Failure mode: a page that fails to render, a page whose Mermaid loading
 # disagrees with its diagrams, or a broken internal link fails the run before
@@ -39,17 +38,9 @@ permissions:
   contents: read
   actions: read
 
-# Runs queue, they do not cancel each other. A merge touching docs, backend and
-# frontend triggers this pipeline up to three times — once on its own push and
-# once behind each CI workflow — and each of those runs carries a different
-# artifact. Cancelling an overtaken run silently drops the coverage report it was
-# about to publish. Queuing is safe because the publisher replaces only the paths
-# a run's MANIFEST claims, so order does not change the result.
-# cancel-in-progress: false alone does not queue: GitHub keeps one pending run
-# per group and cancels it when a newer one arrives, so the second of three runs
-# could be dropped. queue: max keeps up to 100 pending runs in order (GitHub
-# docs, "Control workflow concurrency"); it cannot be combined with
-# cancel-in-progress: true.
+# Runs queue: one merge can start up to three runs (push, after each CI), each with
+# its own artifact, and the publisher replaces only a run's MANIFEST paths, so order
+# is safe. queue: max keeps every pending run; without it GitHub keeps one.
 concurrency:
   group: docs-build-${{ github.ref }}
   cancel-in-progress: false
@@ -57,46 +48,33 @@ concurrency:
 
 jobs:
   build-docs:
-    # Only a push to this repository's main may start this job. The branches
-    # filter above matches the triggering run's branch NAME, and a fork's pull
-    # request can name its branch "main" and make its own CI pass; the event and
-    # the head repository cannot be set from a fork.
+    # Only a push to this repository's main: the branches filter matches a NAME,
+    # and a fork's pull request can call its branch "main" and pass its own CI;
+    # the event and the head repository cannot be set from a fork.
     if: >
       (github.event_name == 'workflow_run'
         && github.event.workflow_run.conclusion == 'success'
         && github.event.workflow_run.event == 'push'
         && github.event.workflow_run.head_repository.full_name == github.repository)
       || github.event_name == 'push'
-    # Pinned to the image, not to a moving label. This job installs pandoc from the
-    # Ubuntu archive, and 24.04 publishes exactly one pandoc: 3.1.3+ds-2. When
-    # ubuntu-latest migrates to the next LTS that version is simply not there, so
-    # the OS is fixed here and the migration becomes something to schedule.
+    # The image, not ubuntu-latest: pandoc comes from the Ubuntu archive, and 24.04
+    # has exactly 3.1.3+ds-2; on the next LTS that version is gone, so moving the
+    # OS is a scheduled change.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     steps:
-      # Checkout the commit that triggered upstream CI, or HEAD for direct pushes.
-      # Two commits, not the whole repository: this build reads no history, and a
-      # full-depth checkout pulled every branch and every tag on every run for
-      # nothing, measured at 8 to 9 seconds. Two rather than one keeps the merge's
-      # parent present, so a diff of what a merge actually changed stays possible
-      # without a second fetch; backend-docker.yml checks out at this depth for
-      # exactly that reason.
+      # The commit upstream CI ran on, or HEAD for a direct push. Depth 2: no history
+      # is read, but the gate below diffs the merge against its parent.
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 2
 
-      # Which of the five generated subtrees this merge can possibly have changed.
-      # Same shape as the change gate in backend-docker.yml: compare the released
-      # commit against its first parent, which is exact for the squash merges this
-      # repository lands and covers only the last commit of a multi-commit push.
-      #
-      # The rebuild scope is decided in a script. Its header states the three
-      # outcomes and the outputs later steps read as steps.gate.outputs.<name>.
-      # DOCS_TRIGGER tells it which of the up to three runs of a merge this is,
-      # so each builds only its own share.
+      # Which of the five subtrees this merge can have changed: the commit against its
+      # first parent (exact for squash merges). The script's header states the three
+      # outcomes; DOCS_TRIGGER tells it which of a merge's runs this is.
       - name: Decide which parts of the site to rebuild
         id: gate
         env:
@@ -131,10 +109,9 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Node, and the pinned Redocly CLI and Pandoc when this run renders their
-      # pages; npm pin and frontend npm cache only when TypeDoc needs npm ci.
-      # The pins and their reasons live in the action, shared with
-      # docs-pr-check.yml so both render with the same tools (W3, W4, W6).
+      # Node, and the pinned Redocly CLI and Pandoc when this run renders their pages;
+      # the npm pin and cache only when TypeDoc needs npm ci. The pins and their
+      # reasons live in the action, shared with docs-pr-check.yml.
       - name: Docs toolchain
         uses: ./.github/actions/docs-toolchain
         with:
@@ -142,11 +119,8 @@ jobs:
           pandoc: ${{ steps.gate.outputs.pandoc }}
           frontend-install: ${{ steps.gate.outputs.typedoc }}
 
-      # Install frontend deps so TypeDoc can generate markdown from source. A
-      # failed install fails the run: an earlier form swallowed it and rendered a
-      # site from whatever happened to be there (the defect the next step was
-      # fixed for in eee1b410). The repository always has frontend/ and its
-      # typedoc.json, so the fallbacks for their absence went with W11.
+      # Frontend dependencies for TypeDoc. A failed install fails the run rather than
+      # rendering a site from whatever happens to be there.
       - name: Install frontend dependencies
         if: steps.gate.outputs.typedoc == 'true'
         run: |
@@ -154,12 +128,9 @@ jobs:
           cd frontend
           npm ci
 
-      # Blocking since 2026-09-04. This step swallowed failures while it printed 64
-      # warnings on every run; a4088857 declared the project's block tags and took that
-      # to zero, so a warning now means something changed. --treatWarningsAsErrors is
-      # the part that bites: TypeDoc exits 0 when it only warns, which is how those 64
-      # survived unnoticed. Measured: exit 0 on the clean baseline, exit 3 with a single
-      # warning reintroduced.
+      # Blocking: the baseline has zero warnings, so one means something changed, and
+      # TypeDoc exits 0 when it only warns, hence --treatWarningsAsErrors (exit 3 on a
+      # single warning).
       - name: Generate TypeDoc markdown
         if: steps.gate.outputs.typedoc == 'true'
         run: |
@@ -180,19 +151,15 @@ jobs:
         run: |
           bash .github/scripts/docs/build-docs.sh .
 
-      # W23: a page loads the Mermaid bundle exactly when it draws a diagram. Reads
-      # what this run built, not the assembled site: a carried-forward subtree was
-      # checked by the run that built it, and a run racing an unpublished change
-      # would otherwise fail on pages it never touched. Passes when every page
-      # agrees; fails on a page that disagrees in either direction or on no page.
+      # A page loads Mermaid exactly when it draws a diagram. Reads what this run
+      # built: a carried-forward subtree was checked by the run that built it.
+      #   PASSES when every page agrees. FAILS on a disagreeing page or on no page.
       - name: Check which pages load Mermaid
         run: bash .github/scripts/docs/check-mermaid-pages.sh target/docs
 
-      # The site currently published, fetched one commit deep, so the assembly below
-      # has something to lay this build over. A missing branch is tolerated and
-      # nothing else is: before the first ever publish there is no gh-pages, and the
-      # assembly then falls back to this build alone, which is what the pipeline did
-      # unconditionally until now.
+      # The published site, one commit deep, for the assembly to lay this build over.
+      # Only a missing branch is tolerated (before the first publish there is no
+      # gh-pages, and the assembly uses this build alone).
       - name: Fetch the published site
         run: |
           set -euo pipefail
@@ -204,20 +171,15 @@ jobs:
             echo "::warning::No gh-pages branch found — assembling from this build alone"
           fi
 
-      # What gets published is this build laid over the published site, one subtree
-      # at a time. Every subtree is still rebuilt on every run, so this is expected
-      # to change nothing today: the published output after this commit must be
-      # byte-identical to the output before it. It earns its place once the build is
-      # split into gated jobs, because a subtree a run did not rebuild is then
-      # carried forward instead of vanishing.
+      # This build laid over the published site, one subtree at a time: a subtree the
+      # gate did not rebuild is carried forward instead of vanishing.
       - name: Assemble the site to publish
         run: |
           bash .github/scripts/docs/assemble-site.sh . target/gh-pages
 
-      # Same checker, same version and config as docs-pr-check.yml: the publishing
-      # build must not disagree with the PR gate about what a broken link is. It
-      # reads the assembled tree, so it checks the site that is about to be
-      # published rather than a fragment of it.
+      # Same checker, version and config as docs-pr-check.yml, so the publishing build
+      # agrees with the PR gate on a broken link; it reads the assembled tree, the
+      # site about to be published.
       - name: Stage the site for link checking
         run: |
           mkdir -p target/link-check
@@ -232,10 +194,8 @@ jobs:
             --root-dir "${{ github.workspace }}/target/link-check"
             "target/link-check/inventory-service/**/*.html"
 
-      # The built tree plus its MANIFEST, not the assembled site. What a run
-      # publishes is what it produced; the assembled tree exists so the link check
-      # can see a whole site, and shipping it would make every run overwrite
-      # subtrees it never built.
+      # The built tree plus its MANIFEST, not the assembled site: a run publishes what
+      # it produced, and shipping the assembly would overwrite subtrees it never built.
       - name: Upload docs-site artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
