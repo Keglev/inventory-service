@@ -112,12 +112,13 @@
         <h2 id="build-pipeline">Build Pipeline</h2>
         <p><code>npm run build</code> runs <code>tsc -b</code> then
         <code>vite build</code>, emitting content-hashed assets under
-        <code>dist/</code>. The Vite config defines manual vendor chunks
-        per dependency family (React, MUI, router, forms/validation,
-        charts, i18n, utilities) so growth is attributable, with an 800
-        KB chunk-size warning limit acknowledging MUI’s weight. The
-        router loads pages eagerly — chunking is by vendor, not by route
-        (see <a href="06-runtime.html">§6</a>).</p>
+        <code>dist/</code>. The Vite config groups vendor code into one
+        chunk per dependency family (Rolldown <code>codeSplitting</code>
+        groups: React, MUI, the MUI data grid, router, forms/validation,
+        charts, i18n, utilities) so growth is attributable. The
+        chunk-size warning limit is set to 800 kB. The router loads
+        pages eagerly — chunking is by vendor, not by route (see <a
+        href="06-runtime.html">§6</a>).</p>
         <h2 id="container-delivery">Container &amp; Delivery</h2>
         <p>A multi-stage Docker build (context = repo root, so
         <code>ops/nginx/</code> travels with the frontend source): a
@@ -138,7 +139,9 @@
         <code>Cache-Control: public, immutable</code> — safe because
         filenames are content-hashed; <code>index.html</code> is never
         cached, so deployments propagate immediately.</li>
-        <li>gzip for text assets.</li>
+        <li>gzip for text assets, with one <code>gzip_types</code> list
+        in <code>nginx.conf</code>: a list in <code>default.conf</code>
+        would replace it for that server, not extend it.</li>
         <li><strong>Serve-time API-base rewrite + reverse
         proxy</strong>: the build bakes the backend origin into the
         bundle; Nginx rewrites it to the frontend host as the bundle is
@@ -146,7 +149,60 @@
         paths to the backend, making browser traffic same-origin. Full
         mechanism, verification, and fragility notes: <a
         href="../../backend/architecture/09-decisions/adr-0008-serve-time-api-base-rewrite.html">ADR-0008
-        (backend)</a>.</li>
+        (backend)</a>. <code>sub_filter_types</code> lists both
+        JavaScript types: nginx maps <code>.js</code> to
+        <code>application/javascript</code>, but the type is chosen by
+        whatever serves the bytes, and a filter matching one type would
+        stop rewriting in silence if it changed. Retiring the rewrite
+        means a relative <code>VITE_API_BASE</code> and also reworking
+        httpClient’s blank-value fallback (<code>/api</code>), which
+        would send the OAuth2 start to
+        <code>/api/oauth2/authorization/google</code>, a path no
+        location serves.</li>
+        <li><strong>Plain http to https</strong>: TLS ends at the Koyeb
+        edge, so Nginx only sees http and reads the visitor’s scheme
+        from <code>X-Forwarded-Proto</code>. Only the literal value
+        <code>http</code> redirects; a request without the header (the
+        image <code>HEALTHCHECK</code>, the CI contract gate on
+        127.0.0.1) is served, so a platform that stopped sending it
+        would lose the redirect but never loop. Without the redirect, a
+        first plain-http visit could be served the whole app and have
+        script injected on the path.</li>
+        <li><strong>Security headers and HSTS</strong> are sent once for
+        every response the image serves, and the proxied paths keep only
+        the backend’s own: <a
+        href="09-decisions/adr-0011-gating-the-frontend-image-on-its-http-contract.html">ADR-0011</a>.</li>
+        <li><strong>Upstream certificate check</strong>:
+        <code>proxy_ssl_verify on</code> at server level (nginx’s
+        default is off, which would accept any certificate on the hop
+        that carries the session cookies and OAuth codes). Depth 2,
+        measured 2026-10-15: the API sends leaf &lt;- Let’s Encrypt YE2
+        &lt;- ISRG Root YE (cross-signed by ISRG Root X2), and Alpine
+        3.24’s bundle trusts X1 and X2 but not Root YE, so the chain
+        verifies at depth 2 and fails at nginx’s default of 1. A chain
+        that stops verifying answers 502 on every proxied path, and the
+        error log says “upstream SSL certificate verify error”.</li>
+        <li><strong>Logout</strong>: only the logout form’s POST is
+        proxied. A reload or typed URL would get Spring’s English
+        confirmation page and a new session; it gets the app shell,
+        whose <code>/logout</code> route posts the real logout.</li>
+        <li><strong>Locale files</strong> are revalidated on every load
+        (<code>no-cache</code>, ETag -&gt; 304): the i18n load path
+        carries no version, and without a <code>Cache-Control</code> the
+        browser applies heuristic freshness and can show raw keys for
+        hours after a deploy. A missing file is a 404, not the app
+        shell, so i18next reports it.</li>
+        <li><strong>Images and the favicon</strong> keep one day: stable
+        names, so a long lifetime would pin an old picture, and none
+        would leave the lifetime to heuristics.</li>
+        <li><strong>Content Security Policy</strong> on the app shell,
+        the one location every SPA route and the GET of
+        <code>/logout</code> end in: <code>'unsafe-inline'</code> for
+        styles only (MUI/emotion injects <code>&lt;style&gt;</code> tags
+        at run time), no <code>'unsafe-eval'</code>
+        (<code>config/zodConfig.ts</code> turns off zod’s eval probe),
+        <code>'self'</code> for everything else because the API, the
+        OAuth start and the locale files all go through this host.</li>
         </ul>
         <h2 id="hosting-cicd">Hosting &amp; CI/CD</h2>
         <p>The container runs on <strong>Koyeb</strong>, reachable on
