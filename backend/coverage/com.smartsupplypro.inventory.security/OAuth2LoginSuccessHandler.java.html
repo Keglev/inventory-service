@@ -26,7 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * the principal attributes and resolves the redirect target.&lt;/p&gt;
  *
  * @see CookieOAuth2AuthorizationRequestRepository
- * @see SecurityConfig
+ * @see com.smartsupplypro.inventory.config.SecurityConfig
  */
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -84,19 +84,20 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 <span class="pc bpc" id="L84" title="1 of 4 branches missed.">            if (candidate != null &amp;&amp; !candidate.isBlank()) {</span>
                 // Redirect URL construction: validate against allowed origins to prevent open redirect
 <span class="fc bfc" id="L86" title="All 2 branches covered.">                if (props.getCors().getAllowedOrigins().contains(candidate)) {</span>
-<span class="fc" id="L87">                    target = candidate + &quot;/auth&quot;;</span>
+                    // TODO(S-10): &quot;/auth&quot; is hard-coded here; the default target uses landingPath
+<span class="fc" id="L88">                    target = candidate + &quot;/auth&quot;;</span>
                 } else {
-<span class="fc" id="L89">                    log.warn(&quot;Rejected non-allowlisted return URL: {}&quot;, LogSanitizer.sanitize(candidate));</span>
+<span class="fc" id="L90">                    log.warn(&quot;Rejected non-allowlisted return URL: {}&quot;, LogSanitizer.sanitize(candidate));</span>
                 }
             }
-<span class="fc" id="L92">            clearReturnCookie(request, response);</span>
-<span class="fc" id="L93">            break;</span>
+<span class="fc" id="L93">            clearReturnCookie(request, response);</span>
+<span class="fc" id="L94">            break;</span>
         }
-<span class="fc" id="L95">        return target;</span>
+<span class="fc" id="L96">        return target;</span>
     }
 
     private void clearReturnCookie(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L99">        OAuthCookies.write(request, response, OAuthCookies.RETURN_COOKIE, &quot;&quot;, 0);</span>
-<span class="fc" id="L100">    }</span>
+<span class="fc" id="L100">        OAuthCookies.write(request, response, OAuthCookies.RETURN_COOKIE, &quot;&quot;, 0);</span>
+<span class="fc" id="L101">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

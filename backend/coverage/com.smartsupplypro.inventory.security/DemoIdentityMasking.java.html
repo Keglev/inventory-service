@@ -89,106 +89,107 @@ public class DemoIdentityMasking implements ResponseBodyAdvice&lt;Object&gt; {
 <span class="fc bfc" id="L89" title="All 2 branches covered.">        String number = value.endsWith(DOMAIN)</span>
 <span class="fc" id="L90">                ? value.substring(PREFIX.length(), value.length() - DOMAIN.length())</span>
 <span class="fc" id="L91">                : &quot;&quot;;</span>
-<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (!number.matches(&quot;[1-9][0-9]{0,5}&quot;)) {</span>
-<span class="fc" id="L93">            return NO_MATCH;</span>
+        // 1 to 999999, no leading zero: parseInt stays in range, and &quot;007&quot; cannot alias &quot;7&quot;
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (!number.matches(&quot;[1-9][0-9]{0,5}&quot;)) {</span>
+<span class="fc" id="L94">            return NO_MATCH;</span>
         }
-<span class="fc" id="L95">        int n = Integer.parseInt(number);</span>
-<span class="fc" id="L96">        List&lt;String&gt; accounts = maskedAccounts();</span>
-<span class="fc bfc" id="L97" title="All 2 branches covered.">        return n &lt;= accounts.size() ? accounts.get(n - 1) : NO_MATCH;</span>
+<span class="fc" id="L96">        int n = Integer.parseInt(number);</span>
+<span class="fc" id="L97">        List&lt;String&gt; accounts = maskedAccounts();</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        return n &lt;= accounts.size() ? accounts.get(n - 1) : NO_MATCH;</span>
     }
 
     @Override
     public boolean supports(MethodParameter returnType, Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; converterType) {
-<span class="fc" id="L102">        return true;</span>
+<span class="fc" id="L103">        return true;</span>
     }
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType contentType,
                                   Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; converterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
-<span class="fc bfc" id="L109" title="All 4 branches covered.">        if (body == null || !anonymousCaller()) {</span>
-<span class="fc" id="L110">            return body;</span>
+<span class="fc bfc" id="L110" title="All 4 branches covered.">        if (body == null || !anonymousCaller()) {</span>
+<span class="fc" id="L111">            return body;</span>
         }
-<span class="fc" id="L112">        Pseudonyms pseudonyms = new Pseudonyms();</span>
-<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (body instanceof Page&lt;?&gt; page) {</span>
-<span class="fc" id="L114">            return page.map(pseudonyms::apply);</span>
+<span class="fc" id="L113">        Pseudonyms pseudonyms = new Pseudonyms();</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (body instanceof Page&lt;?&gt; page) {</span>
+<span class="fc" id="L115">            return page.map(pseudonyms::apply);</span>
         }
-<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (body instanceof List&lt;?&gt; list) {</span>
-<span class="fc" id="L117">            return list.stream().map(pseudonyms::apply).toList();</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        if (body instanceof List&lt;?&gt; list) {</span>
+<span class="fc" id="L118">            return list.stream().map(pseudonyms::apply).toList();</span>
         }
-<span class="fc" id="L119">        return pseudonyms.apply(body);</span>
+<span class="fc" id="L120">        return pseudonyms.apply(body);</span>
     }
 
     static boolean exempt(String identity) {
-<span class="fc" id="L123">        String value = identity.toLowerCase(Locale.ROOT);</span>
-<span class="fc bfc" id="L124" title="All 4 branches covered.">        return value.indexOf('@') &lt; 0 || value.endsWith(DOMAIN);</span>
+<span class="fc" id="L124">        String value = identity.toLowerCase(Locale.ROOT);</span>
+<span class="fc bfc" id="L125" title="All 4 branches covered.">        return value.indexOf('@') &lt; 0 || value.endsWith(DOMAIN);</span>
     }
 
     /** Lower-cased addresses of the non-exempt accounts, oldest first. */
     private List&lt;String&gt; maskedAccounts() {
-<span class="fc" id="L129">        AppUserRepository repository = users.getIfAvailable();</span>
-<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (repository == null) {</span>
-<span class="fc" id="L131">            return List.of();</span>
+<span class="fc" id="L130">        AppUserRepository repository = users.getIfAvailable();</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">        if (repository == null) {</span>
+<span class="fc" id="L132">            return List.of();</span>
         }
-<span class="fc" id="L133">        return repository.findAll().stream()</span>
-<span class="pc bpc" id="L134" title="1 of 4 branches missed.">                .filter(u -&gt; u.getEmail() != null &amp;&amp; !exempt(u.getEmail()))</span>
-<span class="fc" id="L135">                .sorted(Comparator.comparing(AppUser::getCreatedAt,</span>
-<span class="fc" id="L136">                                Comparator.nullsLast(Comparator.naturalOrder()))</span>
-<span class="fc" id="L137">                        .thenComparing(AppUser::getEmail))</span>
-<span class="fc" id="L138">                .map(u -&gt; u.getEmail().toLowerCase(Locale.ROOT))</span>
-<span class="fc" id="L139">                .distinct()</span>
-<span class="fc" id="L140">                .toList();</span>
+<span class="fc" id="L134">        return repository.findAll().stream()</span>
+<span class="pc bpc" id="L135" title="1 of 4 branches missed.">                .filter(u -&gt; u.getEmail() != null &amp;&amp; !exempt(u.getEmail()))</span>
+<span class="fc" id="L136">                .sorted(Comparator.comparing(AppUser::getCreatedAt,</span>
+<span class="fc" id="L137">                                Comparator.nullsLast(Comparator.naturalOrder()))</span>
+<span class="fc" id="L138">                        .thenComparing(AppUser::getEmail))</span>
+<span class="fc" id="L139">                .map(u -&gt; u.getEmail().toLowerCase(Locale.ROOT))</span>
+<span class="fc" id="L140">                .distinct()</span>
+<span class="fc" id="L141">                .toList();</span>
     }
 
     /** One response's pseudonym table, loaded on first use. */
-<span class="fc" id="L144">    private final class Pseudonyms {</span>
+<span class="fc" id="L145">    private final class Pseudonyms {</span>
 
         private Map&lt;String, Integer&gt; numbers;
 
         Object apply(Object dto) {
-<span class="fc bfc" id="L149" title="All 5 branches covered.">            return switch (dto) {</span>
-<span class="fc" id="L150">                case StockUpdateResultDTO r -&gt; new StockUpdateResultDTO(r.itemName(), r.supplierName(),</span>
-<span class="fc" id="L151">                        r.change(), r.reason(), address(r.createdBy()), r.timestamp());</span>
-<span class="fc bfc" id="L152" title="All 2 branches covered.">                case EmployeeActivityDTO e -&gt; exemptOrNull(e.createdBy()) ? e</span>
-<span class="fc" id="L153">                        : new EmployeeActivityDTO(e.period(), address(e.createdBy()), label(e.createdBy()),</span>
-<span class="fc" id="L154">                                e.changeCount());</span>
-<span class="fc" id="L155">                case InventoryItemDTO i -&gt; {</span>
-<span class="fc" id="L156">                    i.setCreatedBy(address(i.getCreatedBy()));</span>
-<span class="fc" id="L157">                    yield i;</span>
+<span class="fc bfc" id="L150" title="All 5 branches covered.">            return switch (dto) {</span>
+<span class="fc" id="L151">                case StockUpdateResultDTO r -&gt; new StockUpdateResultDTO(r.itemName(), r.supplierName(),</span>
+<span class="fc" id="L152">                        r.change(), r.reason(), address(r.createdBy()), r.timestamp());</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">                case EmployeeActivityDTO e -&gt; exemptOrNull(e.createdBy()) ? e</span>
+<span class="fc" id="L154">                        : new EmployeeActivityDTO(e.period(), address(e.createdBy()), label(e.createdBy()),</span>
+<span class="fc" id="L155">                                e.changeCount());</span>
+<span class="fc" id="L156">                case InventoryItemDTO i -&gt; {</span>
+<span class="fc" id="L157">                    i.setCreatedBy(address(i.getCreatedBy()));</span>
+<span class="fc" id="L158">                    yield i;</span>
                 }
-<span class="fc" id="L159">                case SupplierDTO s -&gt; {</span>
-<span class="fc" id="L160">                    s.setCreatedBy(address(s.getCreatedBy()));</span>
-<span class="fc" id="L161">                    yield s;</span>
+<span class="fc" id="L160">                case SupplierDTO s -&gt; {</span>
+<span class="fc" id="L161">                    s.setCreatedBy(address(s.getCreatedBy()));</span>
+<span class="fc" id="L162">                    yield s;</span>
                 }
-<span class="fc" id="L163">                default -&gt; dto;</span>
+<span class="fc" id="L164">                default -&gt; dto;</span>
             };
         }
 
         private boolean exemptOrNull(String identity) {
-<span class="fc bfc" id="L168" title="All 4 branches covered.">            return identity == null || exempt(identity);</span>
+<span class="fc bfc" id="L169" title="All 4 branches covered.">            return identity == null || exempt(identity);</span>
         }
 
         private String address(String identity) {
-<span class="fc bfc" id="L172" title="All 2 branches covered.">            if (exemptOrNull(identity)) {</span>
-<span class="fc" id="L173">                return identity;</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">            if (exemptOrNull(identity)) {</span>
+<span class="fc" id="L174">                return identity;</span>
             }
-<span class="fc" id="L175">            Integer n = number(identity);</span>
-<span class="fc bfc" id="L176" title="All 2 branches covered.">            return n == null ? FALLBACK_ADDRESS : PREFIX + n + DOMAIN;</span>
+<span class="fc" id="L176">            Integer n = number(identity);</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">            return n == null ? FALLBACK_ADDRESS : PREFIX + n + DOMAIN;</span>
         }
 
         private String label(String identity) {
-<span class="fc" id="L180">            Integer n = number(identity);</span>
-<span class="fc bfc" id="L181" title="All 2 branches covered.">            return n == null ? LABEL : LABEL + &quot; &quot; + n;</span>
+<span class="fc" id="L181">            Integer n = number(identity);</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">            return n == null ? LABEL : LABEL + &quot; &quot; + n;</span>
         }
 
         private Integer number(String identity) {
-<span class="fc bfc" id="L185" title="All 2 branches covered.">            if (numbers == null) {</span>
-<span class="fc" id="L186">                numbers = new HashMap&lt;&gt;();</span>
-<span class="fc bfc" id="L187" title="All 2 branches covered.">                for (String account : maskedAccounts()) {</span>
-<span class="fc" id="L188">                    numbers.putIfAbsent(account, numbers.size() + 1);</span>
-<span class="fc" id="L189">                }</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">            if (numbers == null) {</span>
+<span class="fc" id="L187">                numbers = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">                for (String account : maskedAccounts()) {</span>
+<span class="fc" id="L189">                    numbers.putIfAbsent(account, numbers.size() + 1);</span>
+<span class="fc" id="L190">                }</span>
             }
-<span class="fc" id="L191">            return numbers.get(identity.toLowerCase(Locale.ROOT));</span>
+<span class="fc" id="L192">            return numbers.get(identity.toLowerCase(Locale.ROOT));</span>
         }
     }
 }

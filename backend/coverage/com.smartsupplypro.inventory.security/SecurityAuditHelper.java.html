@@ -16,7 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public final class SecurityAuditHelper {
 
-    /** Attribution used when no authentication is present, e.g. migrations and batch jobs. */
+    /** Attribution used when no authentication is present, e.g. a call outside any request. */
     public static final String SYSTEM_USER = &quot;system&quot;;
 
     private SecurityAuditHelper() {}

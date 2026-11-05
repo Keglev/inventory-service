@@ -15,31 +15,32 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+// TODO(S2-F1): cite the docs page that says why the request lives in an unsigned HttpOnly cookie
 /**
- * Persists OAuth2 authorization requests in HTTP cookies
- * to support stateless authorization code flow.
+ * Persists OAuth2 authorization requests in HTTP cookies across the provider redirect.
  *
  * &lt;p&gt;Replaces the default session-based
- * {@link org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository}
- * for deployments where session affinity cannot be guaranteed.&lt;/p&gt;
+ * {@link org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository},
+ * so starting a sign-in creates no server session; the session begins after a successful
+ * login.&lt;/p&gt;
  *
- * @see SecurityConfig
+ * @see com.smartsupplypro.inventory.config.SecurityConfig
  * @see OAuth2LoginSuccessHandler
  */
 public class CookieOAuth2AuthorizationRequestRepository
         implements AuthorizationRequestRepository&lt;OAuth2AuthorizationRequest&gt; {
 
-<span class="fc" id="L32">    private static final Logger log = LoggerFactory.getLogger(CookieOAuth2AuthorizationRequestRepository.class);</span>
+<span class="fc" id="L33">    private static final Logger log = LoggerFactory.getLogger(CookieOAuth2AuthorizationRequestRepository.class);</span>
 
     private final String cookieName;
     private final int cookieMaxAge;
     private final List&lt;String&gt; allowedReturnOrigins;
 
-<span class="fc" id="L38">    public CookieOAuth2AuthorizationRequestRepository(AppProperties props) {</span>
-<span class="fc" id="L39">        this.cookieName = props.getCookie().getAuthRequestName();</span>
-<span class="fc" id="L40">        this.cookieMaxAge = props.getCookie().getAuthRequestMaxAge();</span>
-<span class="fc" id="L41">        this.allowedReturnOrigins = props.getCors().getAllowedOrigins();</span>
-<span class="fc" id="L42">    }</span>
+<span class="fc" id="L39">    public CookieOAuth2AuthorizationRequestRepository(AppProperties props) {</span>
+<span class="fc" id="L40">        this.cookieName = props.getCookie().getAuthRequestName();</span>
+<span class="fc" id="L41">        this.cookieMaxAge = props.getCookie().getAuthRequestMaxAge();</span>
+<span class="fc" id="L42">        this.allowedReturnOrigins = props.getCors().getAllowedOrigins();</span>
+<span class="fc" id="L43">    }</span>
 
     /**
      * Loads the authorization request from the incoming cookie.
@@ -52,7 +53,7 @@ public class CookieOAuth2AuthorizationRequestRepository
      */
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
-<span class="fc" id="L55">        return read(request).orElse(null);</span>
+<span class="fc" id="L56">        return read(request).orElse(null);</span>
     }
 
     /**
@@ -68,46 +69,46 @@ public class CookieOAuth2AuthorizationRequestRepository
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest,
                                          HttpServletRequest request,
                                          HttpServletResponse response) {
-<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (authorizationRequest == null) {</span>
-<span class="fc" id="L72">            deleteCookie(request, response);</span>
-<span class="fc" id="L73">            return;</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (authorizationRequest == null) {</span>
+<span class="fc" id="L73">            deleteCookie(request, response);</span>
+<span class="fc" id="L74">            return;</span>
         }
-<span class="fc" id="L75">        saveReturnCookie(request, response);</span>
-<span class="fc" id="L76">        String encoded = OAuth2AuthorizationRequestCookieSerializer.serialize(authorizationRequest);</span>
-<span class="fc" id="L77">        OAuthCookies.write(request, response, cookieName, encoded, cookieMaxAge);</span>
-<span class="fc" id="L78">    }</span>
+<span class="fc" id="L76">        saveReturnCookie(request, response);</span>
+<span class="fc" id="L77">        String encoded = OAuth2AuthorizationRequestCookieSerializer.serialize(authorizationRequest);</span>
+<span class="fc" id="L78">        OAuthCookies.write(request, response, cookieName, encoded, cookieMaxAge);</span>
+<span class="fc" id="L79">    }</span>
 
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
                                                                  HttpServletResponse response) {
-<span class="fc" id="L83">        OAuth2AuthorizationRequest existing = read(request).orElse(null);</span>
-<span class="fc" id="L84">        deleteCookie(request, response);</span>
-<span class="fc" id="L85">        return existing;</span>
+<span class="fc" id="L84">        OAuth2AuthorizationRequest existing = read(request).orElse(null);</span>
+<span class="fc" id="L85">        deleteCookie(request, response);</span>
+<span class="fc" id="L86">        return existing;</span>
     }
 
     private Optional&lt;OAuth2AuthorizationRequest&gt; read(HttpServletRequest request) {
-<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (request.getCookies() == null) return Optional.empty();</span>
-<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (Cookie c : request.getCookies()) {</span>
-<span class="pc bpc" id="L91" title="1 of 2 branches missed.">            if (cookieName.equals(c.getName())) {</span>
-<span class="fc" id="L92">                OAuth2AuthorizationRequest r = OAuth2AuthorizationRequestCookieSerializer.deserialize(c.getValue());</span>
-<span class="fc bfc" id="L93" title="All 2 branches covered.">                if (r != null) return Optional.of(r);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (request.getCookies() == null) return Optional.empty();</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        for (Cookie c : request.getCookies()) {</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">            if (cookieName.equals(c.getName())) {</span>
+<span class="fc" id="L93">                OAuth2AuthorizationRequest r = OAuth2AuthorizationRequestCookieSerializer.deserialize(c.getValue());</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">                if (r != null) return Optional.of(r);</span>
             }
         }
-<span class="fc" id="L96">        return Optional.empty();</span>
+<span class="fc" id="L97">        return Optional.empty();</span>
     }
 
     private void saveReturnCookie(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L100">        String ret = request.getParameter(&quot;return&quot;);</span>
-<span class="pc bpc" id="L101" title="1 of 4 branches missed.">        if (ret == null || ret.isBlank()) return;</span>
-<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (!allowedReturnOrigins.contains(ret)) {</span>
-<span class="fc" id="L103">            log.warn(&quot;Rejected non-allowlisted return origin: {}&quot;, LogSanitizer.sanitize(ret));</span>
-<span class="fc" id="L104">            return;</span>
+<span class="fc" id="L101">        String ret = request.getParameter(&quot;return&quot;);</span>
+<span class="pc bpc" id="L102" title="1 of 4 branches missed.">        if (ret == null || ret.isBlank()) return;</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (!allowedReturnOrigins.contains(ret)) {</span>
+<span class="fc" id="L104">            log.warn(&quot;Rejected non-allowlisted return origin: {}&quot;, LogSanitizer.sanitize(ret));</span>
+<span class="fc" id="L105">            return;</span>
         }
-<span class="fc" id="L106">        OAuthCookies.write(request, response, OAuthCookies.RETURN_COOKIE, ret, 300);</span>
-<span class="fc" id="L107">    }</span>
+<span class="fc" id="L107">        OAuthCookies.write(request, response, OAuthCookies.RETURN_COOKIE, ret, 300);</span>
+<span class="fc" id="L108">    }</span>
 
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L110">        OAuthCookies.write(request, response, cookieName, &quot;&quot;, 0);</span>
-<span class="fc" id="L111">    }</span>
+<span class="fc" id="L111">        OAuthCookies.write(request, response, cookieName, &quot;&quot;, 0);</span>
+<span class="fc" id="L112">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>
