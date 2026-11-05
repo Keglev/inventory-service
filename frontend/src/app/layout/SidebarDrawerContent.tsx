@@ -3,18 +3,17 @@
  * @module app/layout/SidebarDrawerContent
  *
  * @summary
- * The shared content tree for the sidebar's mobile and desktop Drawer variants:
- * the navigation list and, under a divider, the settings entry. Extracted from
- * AppSidebar so both Drawer variants render one source of truth.
+ * The shared content tree for the sidebar's mobile and desktop Drawer variants: the
+ * navigation list and, under a divider, the settings entry.
  *
  * @enterprise
- * - Navigation only (FW5 fork 1): the former footer (profile, environment and
- *   version, theme/language/settings/help buttons) duplicated the header, the
- *   user menu and the footer, so each of those now exists once. Settings
- *   returned in FW6 as the one entry that is not navigation (SidebarSettingsItem).
+ * - One content tree, so both Drawer variants render one source of truth.
+ * - Navigation plus the settings entry (SidebarSettingsItem), the one entry that is
+ *   not navigation: profile, version and help live in the header, the user menu and
+ *   the footer, so each exists once.
  * - The drawer starts with an empty Toolbar: the AppBar covers the drawer's top
- *   edge, and the "Smart Supply Pro" title that used to sit there was hidden
- *   under it while screen readers still read the product name twice.
+ *   edge, so a title there would be hidden while screen readers read the product
+ *   name twice.
  */
 
 import { Box, Divider, Toolbar } from '@mui/material';

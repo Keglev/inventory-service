@@ -9,8 +9,7 @@
  * @enterprise
  * - Reads the count from useDashboardMetrics, the query the dashboard KPI card
  *   uses, so the bell and the card cannot disagree and share one request.
- * - Moved here from app/HamburgerMenu when that menu was removed (FW6 UX-1);
- *   the bell has been its only consumer since FW5 fork 7.
+ * - The bell is its only consumer.
  */
 import { useDashboardMetrics } from '../../../../api/analytics/hooks/useDashboardMetrics';
 import AllClearNotificationSection from './AllClearNotificationSection';

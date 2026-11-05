@@ -3,11 +3,10 @@
  * @module app/layout/header/HealthBadge
  *
  * @summary
- * System health status indicator badge component.
- * Displays backend and database status with color-coded visual feedback.
+ * Header badge showing backend and database status in colour.
  *
  * @enterprise
- * - Owns its own health polling via useHealthCheck, keeping the header decoupled from polling configuration.
+ * - Reads the shared health query (useHealthCheck, also read by the footer and the About dialog), keeping the header decoupled from polling configuration.
  * - Three-state model (allOk / backend-only / neither) maps cleanly to MUI Chip's success/warning/error color props.
  * - Hidden on xs to avoid crowding the mobile toolbar where horizontal space is constrained.
  * - The dot (and the border in dark mode) carries the status colour; the label stays in the
@@ -38,23 +37,19 @@ export default function HealthBadge() {
   const { t } = useTranslation(['common']);
   const { health } = useHealthCheck();
 
-  // Determine backend and database status
   const backendOnline = health.status === 'online';
   const dbOnline = health.database === 'online';
   const allOk = backendOnline && dbOnline;
 
-  // Map health status to color tone for badge styling
   const healthTone: 'success' | 'warning' | 'error' =
     allOk ? 'success' : backendOnline ? 'warning' : 'error';
 
-  // Determine health label based on status
   const healthLabel = allOk
     ? t('app.health.okLabel')
     : backendOnline
     ? t('app.health.degradedLabel')
     : t('app.health.downLabel');
 
-  // Determine health tooltip based on status
   const healthTooltip = allOk
     ? t('app.health.okTooltip')
     : backendOnline && !dbOnline

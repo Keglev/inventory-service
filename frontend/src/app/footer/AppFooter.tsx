@@ -3,14 +3,13 @@
  * @module app/footer/AppFooter
  *
  * @summary
- * Main application footer: a single static compact status bar.
- * Displays copyright/version metadata, documentation links, and system health.
+ * Main application footer: one compact status bar with version, documentation links and
+ * system health.
  *
  * @enterprise
  * - Thin orchestrator: layout composition only; all state flows from useFooterState.
- * - The former collapsible details panel was removed: its content
- *   duplicated Settings > System Info and the hamburger Systeminfo section.
- *   Enterprise apps keep footers minimal; deep diagnostics live in settings.
+ * - Kept minimal on purpose, as enterprise apps do; version and system details live
+ *   in the About dialog.
  * - Legal pages (Impressum / Datenschutz) are part of the link row.
  */
 
@@ -53,16 +52,13 @@ export default function AppFooter() {
             minHeight: 40,
           }}
         >
-          {/* Meta Information */}
           <FooterMetaInfo
             appVersion={config.appVersion}
             buildId={config.buildId}
           />
 
-          {/* Documentation Links */}
           <FooterLinks />
 
-          {/* Health Status */}
           <HealthStatusDisplay health={health} />
         </Stack>
       </Container>

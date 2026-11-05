@@ -4,10 +4,9 @@
  *
  * @summary
  * Thin dialog container for application settings.
- * Manages dialog open/close state and delegates form rendering to AppSettingsForm.
  *
  * @enterprise
- * - Thin dialog shell: owns only open/close state and layout; all form logic lives in AppSettingsForm + useAppSettingsForm
+ * - Thin dialog shell: the parent owns `open`; this file owns layout only, and all form logic lives in AppSettingsForm + useAppSettingsForm
  * - Entry point for the settings flow; keeps the dialog surface isolated so it can be opened from any trigger
  */
 
@@ -36,8 +35,8 @@ export interface AppSettingsDialogProps {
 /**
  * Application settings dialog component.
  *
- * Thin container managing dialog open/close state. Delegates form orchestration
- * and state management to AppSettingsForm and useAppSettingsForm hook.
+ * Thin container: the parent passes `open` and `onClose`. Delegates form
+ * orchestration and state management to AppSettingsForm and useAppSettingsForm hook.
  *
  * Integrates all settings sections through AppSettingsForm component.
  *

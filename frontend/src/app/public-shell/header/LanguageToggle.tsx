@@ -1,12 +1,12 @@
 /**
  * @file LanguageToggle.tsx
- * @module LanguageToggle
+ * @module app/public-shell/header/LanguageToggle
  * @summary Public-shell language toggle: a text button naming the language it
  * switches to; stateless, delegates the switch to its parent via onToggle.
  *
  * @enterprise
- * - The only quick language switch left (FW5 fork 2): public websites keep it in
- *   the header, while the app shell sets language in the settings dialog.
+ * - The only quick language switch: public websites keep it in the header, while
+ *   the app shell sets language in the settings dialog.
  * - Text, not a flag: flags stand for countries, not languages (W3C i18n).
  *
  * @example
@@ -28,8 +28,7 @@ export interface LanguageToggleProps {
   tooltip: string;
 }
 
-// WHY: the button names the language it switches TO, in that language, and uses
-// no flag (W3C i18n: flags stand for countries, not languages).
+// WHY: the button names the language it switches TO, in that language.
 const LanguageToggle: React.FC<LanguageToggleProps> = ({ locale, onToggle, tooltip }) => {
   const target = locale === 'de' ? { code: 'en', label: 'English' } : { code: 'de', label: 'Deutsch' };
   return (

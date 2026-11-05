@@ -6,8 +6,8 @@
  * Custom hook composing footer data: system health and build metadata.
  *
  * @enterprise
- * - The footer is stateless (details panel removed); this hook
- *   only composes data for the presentational components.
+ * - The footer is stateless; this hook only composes data for the
+ *   presentational components.
  * - `health` is read from useHealthCheck (features/health) — footer consumes
  *   health state, it does not own it (correct app -> features direction).
  * - Build metadata comes exclusively from config/appMeta (vite define /

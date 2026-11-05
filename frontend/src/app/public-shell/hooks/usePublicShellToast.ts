@@ -1,8 +1,7 @@
 /**
  * @file usePublicShellToast.ts
- * @module usePublicShellToast
- * @summary Toast state owner for the public shell; canonical home of the Toast
- * type, re-exported through both hooks/index and the root public-shell barrel.
+ * @module app/public-shell/hooks/usePublicShellToast
+ * @summary Toast state owner for the public shell and the canonical home of the Toast type.
  *
  * @enterprise
  * - Toast state is isolated here (not in AppPublicShell) so the hook can be tested

@@ -4,14 +4,12 @@
  *
  * @summary
  * Main content area component rendering page content.
- * Extracted from AppShell to isolate main content layout.
  *
  * @enterprise
- * - Extracted from AppShell to keep the shell a pure orchestrator; all content-area layout lives here.
- * - The former demo-mode banner row was removed: demo state is
- *   indicated by the header DEMO badge (with explanatory tooltip), and every
- *   mutation dialog shows the demo guard message on attempted changes. The
- *   banner cost a full-width row on every page.
+ * - Owns all content-area layout, so AppShell stays a pure orchestrator.
+ * - No demo banner row: the header DEMO badge (with explanatory tooltip) and the
+ *   mutation dialogs' demo guard message show the demo state without costing a
+ *   full-width row on every page.
  * - Single internal scroll region of the viewport-fit shell.
  */
 
@@ -48,7 +46,6 @@ export default function AppMain() {
       {/* Spacer to account for fixed AppBar height */}
       <Toolbar />
 
-      {/* Page Content Area */}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Outlet />
       </Box>

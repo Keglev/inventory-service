@@ -3,11 +3,10 @@
  * @module app/settings/sections/AppearanceSettingsSection
  *
  * @summary
- * Appearance settings section component.
- * Theme (light/dark) and table density, each as a radio group.
+ * Appearance settings section: theme (light/dark) and table density, each as a radio group.
  *
  * @enterprise
- * - The only editor for theme and density (FW5 fork 1); theme state belongs to
+ * - The only editor for theme and density; theme state belongs to
  *   ShellPreferencesProvider and arrives through props like density does
  */
 
@@ -39,7 +38,7 @@ export interface AppearanceSettingsSectionProps {
 /**
  * Appearance settings section component.
  *
- * Provides table density selector with comfortable and compact options.
+ * Provides the theme mode and table density selectors.
  * Isolated from other settings for independent testing and reuse.
  *
  * @param props - Component props
@@ -48,6 +47,8 @@ export interface AppearanceSettingsSectionProps {
  * @example
  * ```tsx
  * <AppearanceSettingsSection
+ *   themeMode="light"
+ *   onThemeModeChange={handleThemeChange}
  *   tableDensity="comfortable"
  *   onTableDensityChange={handleDensityChange}
  * />

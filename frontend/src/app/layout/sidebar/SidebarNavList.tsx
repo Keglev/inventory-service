@@ -3,13 +3,12 @@
  * @module app/layout/sidebar/SidebarNavList
  *
  * @summary
- * Navigation items list extracted from sidebar footer.
- * Renders all navigation items from centralized navConfig with route matching.
+ * The sidebar's navigation list, rendered from navConfig's NAV_ITEMS.
  *
  * @enterprise
  * - Iterates NAV_ITEMS from navConfig rather than inlining route definitions — nav structure is owned by navConfig, rendering is owned here.
  * - NAV_ITEMS labels are typed i18n keys, so t(item.label) is key-checked at compile time; a renamed or removed key fails the build instead of silently returning the raw key at runtime.
- * - No sign-out entry: signing out lives in the avatar menu only (FW5 fork 1, SAP Fiori pattern).
+ * - No sign-out entry: signing out lives in the avatar menu only (SAP Fiori pattern).
  */
 
 import {
@@ -40,7 +39,6 @@ export default function SidebarNavList({ variant = 'list' }: { variant?: Sidebar
 
   return (
     <>
-      {/* Navigation Items */}
       <Box sx={{ py: 0.25 }}>
         <List>
           {NAV_ITEMS.map((item) => {

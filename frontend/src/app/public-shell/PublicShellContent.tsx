@@ -1,6 +1,6 @@
 /**
  * @file PublicShellContent.tsx
- * @module PublicShellContent
+ * @module app/public-shell/PublicShellContent
  * @summary Main content region for public routes; owns the sole React.Suspense
  * boundary in this directory, wrapping the lazy-loaded route <Outlet />.
  *

@@ -4,10 +4,9 @@
  *
  * @summary
  * Thin orchestrator managing application shell state and layout coordination.
- * Delegates rendering to focused sub-components (header, sidebar, main).
  *
  * @enterprise
- * - Theme mode and locale are owned by ShellPreferencesProvider (App.tsx); AppShell only applies the theme. The header, the avatar menu and the settings dialog read what they need themselves, so no preference props pass through the shell (FW5).
+ * - Theme mode and locale are owned by ShellPreferencesProvider (App.tsx); AppShell only applies the theme. The header, the avatar menu and the settings dialog read what they need themselves, so no preference props pass through the shell.
  * - Session keep-alive ping fires at shell level so it runs regardless of which page route is active.
  * - Viewport-fit layout: an inner flex column bounds the shell to exactly one viewport (100dvh, overflow hidden); AppMain is the single internal scroll region, so the footer is always visible. AppPublicShell keeps its own document-scroll layout and is unaffected.
  * - Single Snackbar instance prevents duplicate toasts from concurrent state changes across sub-components.
@@ -41,17 +40,10 @@ import HelpPanel from '../../components/help/HelpPanel';
 /**
  * Application shell component.
  *
- * Manages layout state and renders fixed AppBar, responsive Drawer,
- * and main content area. Coordinates:
- * - Theme mode (light/dark) with localStorage persistence
- * - Locale selection (de/en) with i18n integration
- * - Mobile drawer toggle
- * - Session timeout monitoring
- * - Health status checking
- * - Toast notifications
- * - Settings dialog
- *
- * Authenticated pages render inside this shell via <Outlet />.
+ * Renders the fixed AppBar, the responsive Drawer and the main content area, and
+ * coordinates the mobile drawer toggle, session timeout monitoring, toast
+ * notifications and the settings and About dialogs. Authenticated pages render
+ * inside this shell via <Outlet />.
  *
  * @returns JSX element rendering the application shell layout
  */
@@ -101,7 +93,6 @@ export default function AppShell() {
         {/* Viewport-fit shell: bounds header + content + footer to exactly
             one viewport; AppMain is the single internal scroll region. */}
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
-          {/* Application Header (fixed) */}
           <AppHeader
             onAboutOpen={() => setAboutOpen(true)}
             onLogout={handleLogout}
@@ -110,7 +101,6 @@ export default function AppShell() {
             onDrawerToggle={() => setMobileOpen((v) => !v)}
           />
 
-          {/* Main container with sidebar + content */}
           <Box
             sx={{
               display: 'flex',
@@ -119,14 +109,12 @@ export default function AppShell() {
               bgcolor: 'background.default',
             }}
           >
-            {/* Sidebar Navigation */}
             <AppSidebar
               mobileOpen={mobileOpen}
               onMobileClose={() => setMobileOpen(false)}
               onSettingsOpen={() => setSettingsOpen(true)}
             />
 
-            {/* Main Content Area */}
             <AppMain />
           </Box>
 
@@ -137,7 +125,6 @@ export default function AppShell() {
         {/* Help drawer — inside the ThemeProvider so it follows light/dark mode */}
         <HelpPanel />
 
-        {/* Toast Notifications */}
         <Snackbar
           open={!!toast?.open}
           onClose={() => setToast((t) => (t ? { ...t, open: false } : t))}
@@ -149,7 +136,6 @@ export default function AppShell() {
           </Alert>
         </Snackbar>
 
-        {/* Settings Dialog */}
         <AppSettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
         <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
       </ToastContext.Provider>

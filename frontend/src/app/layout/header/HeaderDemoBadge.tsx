@@ -3,17 +3,14 @@
  * @module app/layout/header/HeaderDemoBadge
  *
  * @summary
- * Demo mode badge component for header.
- * Displays prominent DEMO indicator when user is on demo account.
+ * Header DEMO badge, shown only for a demo session.
  *
  * @enterprise
  * - Pure conditional display: renders nothing when `isDemo` is false, keeping the header uncluttered for normal users.
  * - Chip is FILLED with the theme `warning` palette so the amber block reads
- *   clearly on both the light and dark header (the former outlined variant
- *   was near-invisible in dark mode); the label stays pinned '#000' for
- *   fixed contrast on the amber fill.
- * - The tooltip carries the former full-width demo banner text:
- *   the badge is now the single persistent demo indicator.
+ *   clearly on both the light and dark header (an outlined chip is near-invisible
+ *   in dark mode); the label stays pinned '#000' for fixed contrast on the amber fill.
+ * - The tooltip explains demo mode: the badge is the single persistent demo indicator.
  * - i18n keys ('auth:demoBadge', 'auth:demoNotice') share the auth namespace with login/demo flows.
  */
 

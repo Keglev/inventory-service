@@ -8,8 +8,9 @@
  * @enterprise
  * - Props-only leaf: data flows from ProfileMenuSection (which reads useAuth);
  *   no state or data-fetching hooks in this component.
- * - Maps the backend's uppercase role token (Role.name(): "ADMIN"/"USER"/"DEMO")
- *   to a localized label via common:roles.*, falling back to the raw token.
+ * - Maps the uppercase role token (the backend's "ADMIN"/"USER", or "DEMO" for a
+ *   client-side demo session) to a localized label via common:roles.*, falling back
+ *   to the raw token.
  *
  * @example
  * ```tsx
@@ -28,7 +29,6 @@ export interface ProfileRoleDisplayProps {
 export default function ProfileRoleDisplay({ role, isDemo }: ProfileRoleDisplayProps) {
   const { t } = useTranslation(['common', 'auth']);
 
-  // WHY: backend sends Role.name() uppercase tokens (ADMIN/USER/DEMO); map to localized labels, falling back to the raw token for unknown roles.
   const roleKey = (role || 'USER').toLowerCase();
   const displayRole = t(`common:roles.${roleKey}`, role || 'User');
 
