@@ -244,6 +244,41 @@
         what the build produced, link included; pages already on the
         branch carry it and the script leaves a page that has it
         unchanged.</p>
+        <h2
+        id="amendment-2026-11-05-every-deployment-has-its-own-build-version">Amendment
+        2026-11-05: every deployment has its own build version</h2>
+        <p>Two promises of this decision did not hold, because
+        <code>actions/deploy-pages</code> names a deployment after
+        <code>GITHUB_SHA</code>, and under <code>workflow_run</code>
+        that is the newest commit on <code>main</code>, not the commit
+        that was built:</p>
+        <ul>
+        <li><strong>“One deployment per push, each carrying different
+        content.”</strong> The pushes were separate, the deployment
+        names were not. On 2026-11-05 the docs build of #506 finished
+        after #507 had merged, so two runs deployed as
+        <code>5da25ee</code>. The second read the first one’s
+        <code>succeed</code> and turned green, but its content never
+        went live: the site kept serving the gh-pages commit of the
+        first run. Its deployment stayed “in progress” at GitHub, and
+        every later deployment was refused (“cancel 5da25ee first”)
+        until it was cancelled by hand.</li>
+        <li><strong>“A failed deployment can be retried by a
+        re-run.”</strong> Artifacts belong to the run, not the attempt,
+        so a re-run found two artifacts named <code>github-pages</code>
+        and the deploy step stopped.</li>
+        </ul>
+        <p>The deploy step is now
+        <code>.github/scripts/deploy-pages.sh</code>. It calls the same
+        Pages API as the action, with a build version derived from the
+        gh-pages commit, the run and the attempt, so no two deployments
+        share a name, and it reads only its own deployment’s status. It
+        cancels its own deployment on a timeout, on repeated status
+        errors and on a cancelled job, so a stuck deployment cannot
+        block the next one. The upload step names the artifact
+        <code>github-pages-&lt;attempt&gt;</code>, so a re-run deploys
+        its own copy. The pages, environment, queue and deploy
+        conditions above are unchanged.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -284,6 +319,10 @@
       href="#amendment-2026-10-20-the-back-to-docs-link-is-added-at-build-time"
       id="toc-amendment-2026-10-20-the-back-to-docs-link-is-added-at-build-time">Amendment
       2026-10-20: the back-to-docs link is added at build time</a></li>
+      <li><a
+      href="#amendment-2026-11-05-every-deployment-has-its-own-build-version"
+      id="toc-amendment-2026-11-05-every-deployment-has-its-own-build-version">Amendment
+      2026-11-05: every deployment has its own build version</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
