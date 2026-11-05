@@ -3,12 +3,12 @@
  * @module pages/inventory/dialogs/ItemFormDialog/useItemForm
  *
  * @summary
- * Orchestrator hook for the create-item flow. Owns the react-hook-form
- * instance, the suppliers query, the reset-on-open effect, and the
- * submit pipeline (validate, map to CreateItemRequest, call
- * createItem, map errors).
+ * Orchestrator hook for the create-item flow.
  *
  * @enterprise
+ * Owns the react-hook-form instance, the suppliers query, the reset-on-open effect, and
+ * the submit pipeline (validate, map to CreateItemRequest, call createItem, map errors).
+ *
  * - No reason is asked for or sent: creating an item always records
  *   INITIAL_STOCK, which the backend sets itself. Reasons belong to the
  *   quantity-adjust flow.
@@ -21,19 +21,13 @@
  *   default on create.
  * - createdBy is intentionally not sent. The backend always sets it
  *   from the authenticated session (server-authoritative audit field),
- *   so any client value is ignored; sending a placeholder was
- *   misleading and has been removed.
+ *   so any client value would be ignored.
  * - applyServerError keys on the backend status token (errorToken), not
  *   freeform message text, matching deleteItemErrorHandler
  *   and useEditItemForm.
  * - Demo mode (readOnly) stops a valid submit before the mutation, so a
  *   demo user can walk the whole form, sees its validation, and gets the
  *   disabled-action message instead of a request (frontend ADR-0013).
- *
- * Size note: over the 120-line hook alarm. WAIVED — one cohesive form lifecycle
- * (state, suppliers query, the reset-on-open effect, submit, close); the error
- * mapping (applyItemFormServerError) and the default values (ITEM_FORM_DEFAULTS)
- * are already factored out, and no separable second responsibility remains.
  */
 
 import * as React from 'react';
@@ -60,11 +54,7 @@ const ITEM_FORM_DEFAULTS: CreateItemForm = {
   price: 0,
 };
 
-/**
- * Complete item form state and handlers
- * 
-
- */
+/** Complete item form state and handlers. */
 export interface UseItemFormReturn {
   // State
   supplierValue: SupplierOption | null;
@@ -100,12 +90,6 @@ export interface UseItemFormReturn {
  * @param params.onSaved - Optional callback after successful save
  * @param params.readOnly - Demo mode flag (disables submission)
  * @returns Complete form state and handlers
- * 
- * @enterprise
- * - Supplier options from the shared supplier list cache via useSuppliersQuery
- * - Controlled Autocomplete to prevent UI/RHF desync
- * - Intelligent error mapping: detects duplicate name/code and fields supplier issues
- * - Form state resets on dialog open to ensure clean state
  */
 export function useItemForm({
   isOpen,
@@ -121,22 +105,10 @@ export function useItemForm({
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
 
-  // ================================
-  // State Management
-  // ================================
-
   const [supplierValue, setSupplierValue] = React.useState<SupplierOption | null>(null);
   const [formError, setFormError] = React.useState<string | null>(null);
 
-  // ================================
-  // Data Query
-  // ================================
-
   const { data: suppliers = [], isLoading: suppliersLoading } = useSuppliersQuery(isOpen);
-
-  // ================================
-  // Form Management
-  // ================================
 
   const {
     register,
@@ -153,56 +125,32 @@ export function useItemForm({
     defaultValues: ITEM_FORM_DEFAULTS,
   });
 
-  // ================================
-  // Effects
-  // ================================
-
-  /**
-   * Clear the previous error each time the dialog opens. Adjusted during
-   * render (React's pattern for state that follows a prop), so the opening
-   * render never shows the last session's error.
-   */
+  // Clears the previous error each time the dialog opens, during render (React's pattern
+  // for state that follows a prop), so the opening render never shows the last error.
   const [wasOpen, setWasOpen] = React.useState(isOpen);
   if (isOpen !== wasOpen) {
     setWasOpen(isOpen);
     if (isOpen) setFormError(null);
   }
 
-  /**
-   * Reset the form fields each time the dialog opens. react-hook-form is an
-   * external store, so its reset stays in an effect.
-   */
+  // Resets the fields each time the dialog opens; react-hook-form is an external store,
+  // so its reset stays in an effect.
   React.useEffect(() => {
     if (!isOpen) return;
     reset(ITEM_FORM_DEFAULTS);
     clearErrors();
   }, [isOpen, reset, clearErrors]);
 
-  // ================================
-  // Handlers
-  // ================================
 
-
-  /**
-   * Submit form with validation and API call
-   * 
-   * @enterprise
-   * - Honors readOnly (demo mode) flag
-   * - Maps form values to CreateItemRequest (code -> sku)
-   * - Maps field-level and generic errors from backend
-   * - Triggers onSaved callback and closes on success
-   */
   const onSubmit = rhfHandleSubmit(async (values: CreateItemForm) => {
     setFormError(null);
     clearErrors();
 
-    // Demo guard
     if (readOnly) {
       setFormError(t('common:demoDisabled'));
       return;
     }
 
-    // Map form values to backend request shape
     const requestData: CreateItemRequest = {
       name: values.name,
       sku: values.code,
@@ -221,10 +169,7 @@ export function useItemForm({
     }
   });
 
-  /**
-   * Close dialog with complete state cleanup
-   * Prevents state pollution between sessions
-   */
+  // Clears every value, so the next open starts empty
   const handleClose = () => {
     setSupplierValue(null);
     setFormError(null);

@@ -3,7 +3,7 @@
  * @module pages/inventory/validation/inventoryValidation
  *
  * @summary
- * Zod schemas for the five inventory-mutation flows: create/update item,
+ * Zod schemas for the five inventory-mutation flows: create item,
  * adjust quantity, change price, edit name, delete item.
  *
  * @enterprise
@@ -18,8 +18,8 @@
  *   DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER and MANUAL_UPDATE. It
  *   mirrors the backend StockHistoryValidator's accepted set and also
  *   rejects a no-op change (new quantity equal to current). price-change,
- *   edit-name, and delete carry no reason field at all because the backend
- *   does not record one for those flows.
+ *   edit-name, and delete carry no reason field: the backend records a price
+ *   change as PRICE_CHANGE itself, and rename and delete write no stock history.
  * - Number fields reach a schema as numbers: the create form registers
  *   them with valueAsNumber, and the adjust and price inputs convert in
  *   their Controller, where an empty input becomes 0. An emptied create
@@ -127,8 +127,8 @@ export type QuantityAdjustForm = z.infer<typeof quantityAdjustSchema>;
  * Schema for changing item prices, used in price-change dialogs.
  *
  * Fields: itemId (required, identifies the item) and newPrice (must be
- * > 0; backend re-validates). No reason field -- backend does not record
- * one for this flow.
+ * > 0; backend re-validates). No reason field -- the backend records the
+ * change as PRICE_CHANGE itself.
  */
 export const priceChangeSchema = z.object({
   itemId: z.string().min(1, 'errors:validation.required'),
@@ -140,8 +140,7 @@ export type PriceChangeForm = z.infer<typeof priceChangeSchema>;
 /**
  * Schema for editing item names, used in edit-item dialogs.
  *
- * Fields: itemId (required) and newName (non-empty; should differ from
- * the current name). Backend rejects duplicate names within the same
+ * Fields: itemId (required) and newName (non-empty). Backend rejects duplicate names within the same
  * supplier, and only ADMIN users can rename items.
  */
 export const editItemSchema = z.object({

@@ -5,8 +5,7 @@
  *   over the submit button while the request runs.
  *
  * @enterprise
- * - ItemFormDialog and PriceChangeDialog carried the same 20 lines (jscpd, G-L7).
- *   Each dialog keeps what differs: its submit label, its extra disable rule and
+ * - Shared by ItemFormDialog and PriceChangeDialog. Each dialog keeps what differs: its submit label, its extra disable rule and
  *   its test id; this component owns the layout and the busy state.
  * - Both buttons are disabled while submitting, so a second click cannot send the
  *   request twice and cancel cannot close the dialog under a running request.

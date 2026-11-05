@@ -4,9 +4,10 @@
  *
  * @summary
  * Maps a failed delete response to a user-facing message and severity.
- * Used by useDeleteItemHandlers when deleteItem returns ok: false.
  *
  * @enterprise
+ * Used by useDeleteItemHandlers when deleteItem returns ok: false.
+ *
  * - Branches on the backend's structured status token (errorToken =
  *   HttpStatus.name().toLowerCase()) rather than on substrings of the freeform
  *   message. The three delete failure categories map to distinct tokens:

@@ -16,8 +16,7 @@
  *   parent dialog additionally disables the Delete button.
  * - The numbered step badges scaffold the user through an irreversible
  *   operation, slowing the flow deliberately.
- * - StepSection (numbered step wrapper) is extracted to its own module
- *   (./StepSection) and imported here, keeping the import block intact.
+ * - StepSection (numbered step wrapper) lives in its own module (./StepSection).
  */
 
 import { Box, Alert } from '@mui/material';
@@ -39,12 +38,6 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {/*
-        STEP 1: Supplier Selection
-        - Always visible - user must choose supplier first
-        - Enables subsequent item search by filtering supplier context
-        - Required before item selection is possible
-      */}
       <StepSection
         title={t('inventory:deleteFlow.step1')}
         number={1}
@@ -52,12 +45,6 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
         <SupplierSelectField state={state} />
       </StepSection>
 
-      {/*
-        STEP 2: Item Search
-        - Only visible after supplier selected
-        - Shared item picker: name or SKU, from 2 characters
-        - Matches the selected supplier's items in the browser
-      */}
       {state.selectedSupplier && (
         <StepSection
           title={t('inventory:deleteFlow.step2')}
@@ -67,12 +54,6 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
         </StepSection>
       )}
 
-      {/*
-        STEP 3: Item Information Preview
-        - Only visible after item details are loaded from API
-        - Shows name and on-hand quantity for final confirmation
-        - Helps user verify they're deleting the correct item
-      */}
       {state.selectedItem && state.itemDetailsQuery.data && (
         <StepSection
           title={t('inventory:deleteFlow.step3')}
@@ -82,23 +63,12 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
         </StepSection>
       )}
 
-      {/*
-        Quantity-zero pre-gate hint
-        - Shown when the selected item still has stock on hand
-        - Mirrors the backend rule (409 'conflict' at quantity > 0)
-        - The Delete button in the parent dialog is disabled in this state
-      */}
       {blockedByStock && (
         <Alert severity="warning">
           {t('errors:inventory.businessRules.quantityMustBeZero')}
         </Alert>
       )}
 
-      {/*
-        Form-level error display
-        - Shows validation errors from form submission attempt
-        - Prevents proceeding to confirmation without valid selections
-      */}
       {state.formError && (
         <Alert severity="error" sx={{ mt: 1 }}>
           {state.formError}

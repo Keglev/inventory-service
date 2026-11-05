@@ -3,15 +3,14 @@
  * @module pages/inventory/dialogs/ItemFormDialog/itemFormServerErrors
  * @summary Maps failed create responses onto react-hook-form field and form-level errors.
  * @enterprise
- * Extracted from useItemForm so the server-error-to-form translation is a
+ * Kept apart from useItemForm, so the server-error-to-form translation is a
  * separate responsibility from form orchestration. Callbacks are injected so
  * the module stays free of hook state.
  *
  * The backend's `fieldErrors` map is read as a SIGNAL — it says WHICH input the
  * server rejected — and never as copy. Its text is English and the display
  * language is German, so the message is deliberately discarded and a translated
- * key is attached instead. This mirrors the supplier classifier; the two domains
- * now behave alike.
+ * key is attached instead, as the supplier classifier does.
  *
  * Which key a field earns depends on the error token, because the two producers
  * of `fieldErrors` mean different things:

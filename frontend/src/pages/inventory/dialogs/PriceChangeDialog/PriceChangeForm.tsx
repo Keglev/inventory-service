@@ -17,13 +17,6 @@
  * - newPrice input is gated by selectedItem -- typing in the box without
  *   a selected item is impossible. The button disabled state on the
  *   parent dialog is the redundant final gate.
- *
- * Size note: 166 code lines, six over the dialog alarm threshold (160);
- * the helper text's number formatting added two.
- * WAIVED: a single pure render function with all state injected; the item
- * details panel is already extracted (SelectedItemDetails), and any
- * further cut would slice contiguous form markup to hit a number, which
- * the house standard forbids. Re-measure if a fourth field group is added.
  */
 
 import {
@@ -51,7 +44,6 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
 
   return (
     <Box sx={{ display: 'grid', gap: 2.5, mt: 1 }}>
-      {/* Error banner for non-field errors */}
       {state.formError && (
         <Alert severity="error" onClose={() => state.setFormError('')}>
           {state.formError}
@@ -88,7 +80,6 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
         />
       </Box>
 
-      {/* Selected Item Details */}
       <SelectedItemDetails
         item={state.selectedItem}
         currentPrice={state.effectiveCurrentPrice}

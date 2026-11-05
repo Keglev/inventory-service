@@ -3,10 +3,11 @@
  * @module pages/inventory/components/ItemSearchField
  *
  * @summary
- * The item picker of the four inventory dialogs (quantity, price, edit,
- * delete). A thin setting of the shared ListSearchField.
+ * The item picker of the four inventory dialogs (quantity, price, edit, delete).
  *
  * @enterprise
+ * A thin setting of the shared ListSearchField.
+ *
  * - Picker mode: the picked item stays in the field; clearing the text
  *   clears the pick.
  * - Results come from useItemSearchQuery: the chosen supplier's items,

@@ -3,10 +3,12 @@
  * @module pages/inventory/dialogs/ItemFormDialog/ItemFormDialog
  *
  * @summary
- * Root dialog for creating an item. Renders ItemForm and the dialog
- * actions; delegates all state and submission to useItemForm.
+ * Root dialog for creating an item.
  *
  * @enterprise
+ * Renders ItemForm and the dialog actions; delegates all state and submission to
+ * useItemForm.
+ *
  * - Create only. An existing item is changed through the dedicated
  *   dialogs (EditItemDialog for the name, PriceChangeDialog,
  *   QuantityAdjustDialog), each with its own reason flow, so this
@@ -47,7 +49,6 @@ export function ItemFormDialog({
 }: ItemFormDialogProps) {
   const { t } = useTranslation(['common', 'inventory']);
 
-  // All form state and handlers delegated to hook
   const state = useItemForm({ isOpen, onClose, onSaved, readOnly });
 
   return (
@@ -57,7 +58,6 @@ export function ItemFormDialog({
       maxWidth="sm"
       fullWidth
     >
-      {/* Title with help icon */}
       <DialogTitle
         sx={{
           display: 'flex',
@@ -72,12 +72,10 @@ export function ItemFormDialog({
         />
       </DialogTitle>
 
-      {/* Form content */}
       <DialogContent>
         <ItemForm state={state} />
       </DialogContent>
 
-      {/* Dialog actions */}
       <SubmitDialogActions
         onCancel={() => state.handleClose()}
         onSubmit={() => void state.onSubmit()}

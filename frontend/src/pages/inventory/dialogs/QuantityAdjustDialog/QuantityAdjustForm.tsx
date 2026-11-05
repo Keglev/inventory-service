@@ -3,15 +3,13 @@
  * @module pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustForm
  *
  * @summary
- * Three-step form layout for quantity adjustment: supplier select,
- * item select, quantity input. Each step is its own sub-component.
+ * Three-step form layout for quantity adjustment: supplier select, item select, quantity
+ * input.
  *
  * @enterprise
- * - Most extracted form layout in the codebase. Where other dialogs
- *   inline their step controls, this one delegates every visible
- *   block to a dedicated sub-component (QuantityAdjustSupplierSelect,
- *   QuantityAdjustItemSelect, SelectedItemDetails,
- *   QuantityAdjustQuantityInput). The split makes each step swappable.
+ * - Each visible block is its own sub-component (QuantityAdjustSupplierSelect,
+ *   QuantityAdjustItemSelect, SelectedItemDetails, QuantityAdjustQuantityInput),
+ *   so each step is swappable.
  * - The form component is pure presentation: every prop is plumbed
  *   from the orchestrator hook; no useState, no useEffect.
  */
@@ -32,7 +30,6 @@ export const QuantityAdjustForm: React.FC<QuantityAdjustFormProps> = ({ form }) 
 
   return (
     <Box sx={{ display: 'grid', gap: 2.5, mt: 1 }}>
-      {/* Error Display */}
       {form.formError && (
         <Alert severity="error" onClose={() => form.setFormError('')}>
           {form.formError}
@@ -58,7 +55,7 @@ export const QuantityAdjustForm: React.FC<QuantityAdjustFormProps> = ({ form }) 
         selectedSupplier={form.selectedSupplier}
       />
 
-      {/* Selected Item Details - Only show AFTER item is selected */}
+      {/* Selected item details, once an item is picked */}
       <SelectedItemDetails
         item={form.selectedItem}
         currentQty={form.effectiveCurrentQty}

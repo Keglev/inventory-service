@@ -3,11 +3,11 @@
  * @module pages/inventory/dialogs/EditItemDialog/EditItemForm
  *
  * @summary
- * Three-step rename form: supplier select, item autocomplete, new-name
- * input. Each step renders only after the previous one produces the
- * value it depends on.
+ * Three-step rename form: supplier select, item autocomplete, new-name input.
  *
  * @enterprise
+ * Each step renders only after the previous one produces the value it depends on.
+ *
  * - Progressive disclosure mirrors DeleteFormView's pattern but inline
  *   in one file -- the rename flow is smaller and a StepSection helper
  *   would be over-extracted.
@@ -39,40 +39,27 @@ import type { UseEditItemFormReturn } from './useEditItemForm';
 import ReadOnlyField from '../../../../components/ui/ReadOnlyField';
 
 /**
- * EditItemForm - Renders three-step edit workflow
- * 
- * @param state - Complete form state and handlers from useEditItemForm
- * 
- * @enterprise
- * - Step 1 always visible (supplier selection)
- * - Step 2 visible only after supplier selected
- * - Step 3 visible only after item selected
- * - Each step shows loading states while data fetches
- * - Error display at top with dismissal capability
+ * EditItemForm - Renders the three-step rename workflow.
  *
- * Size note: exceeds the component typical range but stays under the alarm
- * threshold as a single pure render function; all state is injected and there
- * is nothing to extract but markup (accepted, never split to hit a number).
+ * @param state - Complete form state and handlers from useEditItemForm
  */
 export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
 
   return (
     <Box sx={{ display: 'grid', gap: 2.5, mt: 1 }}>
-      {/* Error display with dismissal */}
       {state.formError && (
         <Alert severity="error" onClose={() => state.setFormError('')}>
           {state.formError}
         </Alert>
       )}
 
-      {/* ===== STEP 1: Supplier Selection ===== */}
+      {/* Step 1: Supplier Selection */}
       <Box>
         <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
           {t('inventory:steps.selectSupplier')}
         </Typography>
 
-        {/* Show loading spinner while suppliers fetch */}
         {state.suppliersQuery.isLoading ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CircularProgress size={20} />
@@ -94,13 +81,12 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
 
       <Divider />
 
-      {/* ===== STEP 2: Item Selection ===== */}
+      {/* Step 2: Item Selection */}
       <Box>
         <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
           {t('inventory:steps.selectItem')}
         </Typography>
 
-        {/* Guard: show info message if supplier not selected */}
         {!state.selectedSupplier ? (
           <Alert severity="info">
             {t('inventory:search.selectSupplierFirst')}
@@ -119,7 +105,7 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
 
       <Divider />
 
-      {/* ===== STEP 3: Name Change ===== */}
+      {/* Step 3: Name Change */}
       {state.selectedItem && (
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
@@ -132,7 +118,6 @@ export function EditItemForm({ state }: { state: UseEditItemFormReturn }) {
             value={state.itemDetailsQuery.data?.name ?? state.selectedItem.name}
           />
 
-          {/* New name input with form validation */}
           <Controller
             name="newName"
             control={state.control}

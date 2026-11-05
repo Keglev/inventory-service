@@ -3,11 +3,12 @@
  * @module pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog
  *
  * @summary
- * Root component for the delete-item flow. Mounts two MUI Dialogs (form
- * and confirmation) driven by a single orchestrator hook, with help and
- * demo-mode wiring.
+ * Root component for the delete-item flow.
  *
  * @enterprise
+ * Mounts two MUI Dialogs (form and confirmation) driven by a single orchestrator hook,
+ * with help and demo-mode wiring.
+ *
  * - Two-dialog architecture, not one dialog with two states. The form
  *   Dialog and the confirmation Dialog are independent <Dialog> mounts
  *   keyed off showConfirmation. They share state through the
@@ -69,9 +70,9 @@ const DeleteActionButton: React.FC<DeleteActionButtonProps> = ({ onClick, disabl
 };
 
 export interface DeleteItemDialogProps {
-  open: boolean; // Dialog visibility state
-  onClose: () => void; // Callback when dialog closes
-  onItemDeleted: () => void; // Callback after successful deletion
+  open: boolean;
+  onClose: () => void;
+  onItemDeleted: () => void;
   readOnly?: boolean; // Demo mode: allow UI navigation but block actual deletion
 }
 
@@ -90,7 +91,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
 
   return (
     <>
-      {/* Form dialog: supplier -> item -> reason selection */}
+      {/* Form dialog: supplier -> item -> preview */}
       <Dialog open={open && !state.showConfirmation} onClose={state.handleClose} fullWidth maxWidth="sm">
         <DialogTitle>
           <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>

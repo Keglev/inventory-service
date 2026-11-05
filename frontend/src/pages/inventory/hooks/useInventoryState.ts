@@ -10,10 +10,9 @@
  * - Single useState-bag lets handler hooks receive one state object
  *   instead of threading individual setters. The cost is a wider
  *   re-render surface; the benefit is a stable handler signature across
- *   all five handler modules.
- * - paginationModel uses MUI's 0-based page convention. The 1-based
- *   conversion for the backend happens later in useDataFetchingLogic
- *   (see CB-F).
+ *   the handler hooks.
+ * - paginationModel uses MUI's 0-based page convention, which the backend's
+ *   Spring Pageable shares; no conversion happens anywhere.
  * - Defaults are deliberate. Sort 'name,asc' matches the alphabetical
  *   mental model for inventory browse; page size 10 fits one viewport
  *   on standard laptops without vertical scroll.
@@ -100,12 +99,9 @@ export const useInventoryState = (): InventoryState & InventoryStateSetters => {
   const [openAdjust, setOpenAdjust] = React.useState(false);
   const [openPrice, setOpenPrice] = React.useState(false);
 
-  // The bell links here with ?belowMinimum=1, also while the page is open:
-  // every arrival on that link shows all items below minimum. The location key
-  // changes on each navigation, also to the same URL; the params object does not.
-  // Adjusted during render (React's pattern for state that follows the route):
-  // an effect first rendered the page once more with the previous filter.
-  // The first render needs no adjustment: the initial state already matches.
+  // Every arrival on the bell's ?belowMinimum=1 link shows all items below minimum, also while
+  // the page is open (the location key changes on each navigation). Adjusted during render,
+  // not in an effect, so the page never renders once more with the previous filter.
   const [seenNavigationKey, setSeenNavigationKey] = React.useState(navigationKey);
   if (navigationKey !== seenNavigationKey) {
     setSeenNavigationKey(navigationKey);

@@ -13,8 +13,8 @@
  *   this component sends MUI's native 0-based model up untouched.
  * - Row classification (row-critical / row-warning) is delegated to
  *   getRowClassName from useInventoryRowStyling. The CSS in this file
- *   only paints the classes; the threshold rule (deficit >= 5) lives
- *   upstream.
+ *   only paints the classes; the severity rule (lowStockSeverity in
+ *   config/inventoryPolicy, frontend ADR-0012) lives upstream.
  * - Row backgrounds are translucent overlays derived from semantic
  *   palette tokens (info/warning/error via alpha), so both light and
  *   dark mode adapt automatically.
@@ -60,9 +60,8 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
 }) => {
   return (
     <Box sx={{ width: '100%', position: 'relative' }}>
-      {/* No fixed height: x-data-grid v8 sizes to its rows when the
-          parent is unconstrained, removing the dead space below short pages. */}
-      {/* Loading Overlay */}
+      {/* No fixed height: the data grid sizes to its rows when the parent is
+          unconstrained, removing the dead space below short pages. */}
       {loading && (
         <Stack
           sx={{
@@ -81,7 +80,6 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
           <CircularProgress />
         </Stack>
       )}
-      {/* DataGrid Table */}
       <DataGrid
         rows={rows}
         columns={columns}

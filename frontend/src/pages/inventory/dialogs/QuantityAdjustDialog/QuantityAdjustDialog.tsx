@@ -3,19 +3,14 @@
  * @module pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog
  *
  * @summary
- * Root dialog for the quantity-adjust flow. Title, form body, and
- * cancel/apply actions. All state and submission live in
- * useQuantityAdjustForm.
+ * Root dialog for the quantity-adjust flow: title, form body, and cancel/apply actions.
  *
  * @enterprise
+ * - All state and submission live in useQuantityAdjustForm.
  * - Single-dialog architecture. A quantity adjustment is reversible
  *   by another adjustment, so no second confirmation step is offered.
  *   Same pattern as EditItemDialog and PriceChangeDialog.
- * - This was the reference dialog for the canonical help-icon wiring:
- *   it uses the shared HelpIconButton component, not raw IconButton
- *   + HelpOutlineIcon. ItemFormDialog, PriceChangeDialog,
- *   DeleteItemDialog, and EditItemDialog have all converged on this
- *   pattern.
+ * - Help opens through the shared HelpIconButton, as in every dialog.
  * - Backend invariant: the reason must belong to the StockChangeReason
  *   enum that quantity adjustments actually support; backend
  *   StockHistoryValidator is the authority. The dialog offers only the
@@ -48,14 +43,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
 }) => {
   const { t } = useTranslation(['common', 'inventory']);
 
-  // ================================
-  // Form Management via Orchestrator Hook
-  // ================================
   const form = useQuantityAdjustForm(open, onClose, onAdjusted, readOnly);
-
-  // ================================
-  // Render
-  // ================================
 
   return (
     <Dialog open={open} onClose={form.handleClose} fullWidth maxWidth="sm">

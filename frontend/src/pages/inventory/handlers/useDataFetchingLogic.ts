@@ -3,8 +3,8 @@
  * @module pages/inventory/handlers/useDataFetchingLogic
  *
  * @summary
- * Adapter between InventoryBoard state and useInventoryPageData. Owns the
- * pagination and sort-model transformations.
+ * Adapter between InventoryBoard state and useInventoryPageData; owns the pagination
+ * and sort-model transformations.
  *
  * @enterprise
  * - The sort-model array is joined into a comma-separated server query
@@ -34,14 +34,12 @@ export type InventoryStateReturn = InventoryState & InventoryStateSetters;
  * @returns Data fetching result from useInventoryPageData
  */
 export function useDataFetchingLogic(state: InventoryStateReturn) {
-  // Prepare sort parameter for server
   const serverSort = useMemo(() => {
     return state.sortModel.length
       ? `${state.sortModel[0].field},${state.sortModel[0].sort ?? 'asc'}`
       : 'name,asc';
   }, [state.sortModel]);
 
-  // Execute data fetching with prepared parameters
   const data = useInventoryPageData(
     state.supplierId,
     state.q,

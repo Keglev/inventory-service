@@ -31,29 +31,10 @@ import type { UseDeleteItemDialogReturn } from './DeleteItemDialog.types';
 import { ItemSearchField } from '../../components/ItemSearchField';
 import { SupplierPickerField } from '../../../../components/search/SupplierPickerField';
 
-/**
- * SupplierSelectField - Step 1: Search and pick the supplier (shared SupplierPickerField)
- * 
- * @param state - Complete dialog state from useDeleteItemDialog hook
- * 
- * @behavior
- * - Shows loading spinner while fetching suppliers from API
- * - Two typed letters list the matching suppliers (S2-9)
- * - On selection: updates state.selectedSupplier (triggers item search reset)
- * - On change: clears previously selected item and search query
- * 
- * @visibility
- * - Always visible in form view
- * - First step that must be completed
- * - Enables Step 2 (item selection) when completed
- * 
- * @performance
- * - Suppliers come from the shared supplier list cache via useSuppliersQuery
- */
+/** Step 1: pick the supplier (shared SupplierPickerField); a change clears the item and its search. */
 export function SupplierSelectField({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['common', 'inventory']);
   
-  // Show loading state while suppliers are being fetched from API
   if (state.suppliersQuery.isLoading) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -76,29 +57,10 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
   );
 }
 
-/**
- * ItemSelectField - Step 2: Search and select item (shared ItemSearchField)
- * 
- * @param state - Complete dialog state from useDeleteItemDialog hook
- * 
- * @behavior
- * - Shows an info alert until a supplier is selected
- * - Matches the supplier's items by name or SKU from 2 characters on
- * - On selection: updates state.selectedItem; the field shows its name
- * - On input change: updates state.itemQuery (matched in the browser)
- * 
- * @visibility
- * - Visible only after Step 1 (supplier) is completed
- * - Conditional render: {state.selectedSupplier && (...)}
- * - Enables Step 3 (item information) when item is selected
- * 
- * @performance
- * - The supplier's items load once; typing sends no request (ADR-0014)
- */
+/** Step 2: pick the item from the supplier's list, matched in the browser by name or SKU (frontend ADR-0014). */
 export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['common', 'inventory']);
   
-  // Guard: cannot search items without selecting supplier first
   if (!state.selectedSupplier) {
     return (
       <Alert severity="info">
@@ -119,39 +81,16 @@ export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn })
   );
 }
 
-/**
- * ItemInfoDisplay - Step 3: Show item details for final confirmation
- * 
- * @param state - Complete dialog state from useDeleteItemDialog hook
- * @returns Item preview card or null if no item selected/loaded
- * 
- * @behavior
- * - Only renders when item is selected AND details are loaded
- * - Shows: item name and on-hand quantity
- * - Non-interactive: displays information for user verification
- * - Helps user confirm they're deleting the correct item
- * 
- * @visibility
- * - Visible only after Step 2 (item) is completed
- * - Only renders if itemDetailsQuery has data (name and on-hand quantity)
- * - Conditional render: {state.selectedItem && state.itemDetailsQuery.data && (...)}
- * 
- * @styling
- * - Light background (action.hover) to visually separate from form
- * - Padding and border radius for readable presentation
- * - Typography hierarchy: label -> value for clarity
- */
+/** Step 3: the selected item's name and on-hand quantity for a last check; null until its details load. */
 export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['inventory']);
 
-  // Guard: only render if item is selected and details are loaded
   if (!state.selectedItem || !state.itemDetailsQuery.data) {
     return null;
   }
 
   return (
     <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}>
-      {/* Item name section */}
       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
         {t('inventory:table.name')}
       </Typography>
@@ -159,7 +98,6 @@ export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn })
         {state.itemDetailsQuery.data.name}
       </Typography>
 
-      {/* Item on-hand quantity section */}
       <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
         {t('inventory:table.onHand')}
       </Typography>

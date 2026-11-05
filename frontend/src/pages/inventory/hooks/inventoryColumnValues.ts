@@ -3,11 +3,10 @@
  * @module pages/inventory/hooks/inventoryColumnValues
  * @summary Pure value resolvers and formatters for the inventory grid columns.
  * @enterprise
- * Extracted from useInventoryColumns so the row-shape tolerance lives apart
- * from the column layout. The grid must accept both normalized rows (onHand,
- * minQty) and raw backend rows (quantity, minimumQuantity, string numerics),
- * because search results and page loads normalize at different points. All
- * functions are pure and defensive: absent or malformed values render as 0,
+ * Kept apart from useInventoryColumns so value resolution lives apart from the
+ * column layout. Rows reach the grid normalized (getInventoryPage -> toInventoryRow:
+ * onHand, minQty); the fallbacks to raw backend names (quantity, minimumQuantity,
+ * string numerics) are defensive. All functions are pure and defensive: absent or malformed values render as 0,
  * null, or an em-dash instead of crashing a cell. Formatters take the user's number-format
  * preference as an argument so the module stays state-free. Date cells are rendered by the
  * shared formatDateCell in utils/formatters, which the supplier grid uses too.

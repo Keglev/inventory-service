@@ -3,10 +3,11 @@
  * @module pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types
  *
  * @summary
- * Shared type surface for the DeleteItemDialog feature module. Centralizes
- * the content props and the orchestrator-hook return shape.
+ * Shared type surface for the DeleteItemDialog feature module.
  *
  * @enterprise
+ * Centralizes the content props and the orchestrator-hook return shape.
+ *
  * - UseDeleteItemDialogReturn is the contract every view and field
  *   component consumes. Specialized sub-hooks (state, queries, handlers)
  *   flow up into this single shape so callers do not thread three objects.

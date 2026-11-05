@@ -20,9 +20,7 @@
  *   resetting paginationModel, so refresh works on page 0 as well as
  *   any other page.
  * - isDemo flows through to readOnly on the four dialogs that support
- *   it (create, delete, quantity-adjust, price-change; frontend
- *   ADR-0013). Rename does not currently honor demo mode -- the dialog
- *   props omit readOnly.
+ *   it (create, delete, quantity-adjust, price-change; frontend ADR-0013).
  */
 
 import * as React from 'react';
@@ -70,6 +68,7 @@ export const InventoryDialogs: React.FC<InventoryDialogsProps> = ({
         readOnly={isDemo}
       />
 
+      {/* TODO(S-14): EditItemDialog takes no readOnly yet (frontend ADR-0013) */}
       <EditItemDialog
         open={openEditName}
         onClose={() => setOpenEditName(false)}

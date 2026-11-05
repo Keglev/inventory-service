@@ -13,9 +13,7 @@
  *   value is pushed via setValue whenever selectedItem changes, and its
  *   handleSubmit is used only to wrap onSubmit. The primary gate against
  *   submitting without a selection is the Delete button's disabled prop
- *   on the parent dialog, not the form's zod schema. Tracked under
- *   CB-APP49 -- either make the form authoritative (drop the local React
- *   state) or remove the form wiring entirely.
+ *   on the parent dialog, not the form's zod schema.
  * - Two effects: one resets dependent state when the supplier changes
  *   (item, query, form, error, confirmation flag) so a supplier swap
  *   starts a clean flow; one keeps the form's itemId mirroring the
@@ -52,17 +50,11 @@ export function useDeleteItemState() {
     [setSupplierState],
   );
 
-  // Form validation state
   const { handleSubmit, formState: { isSubmitting }, reset, setValue } = useForm<DeleteItemForm>({
     resolver: zodResolver(deleteItemSchema),
     defaultValues: { itemId: '' },
   });
 
-  /**
-   * Reset dependent state when supplier changes
-   * Ensures: item selection, search query, and form state are cleared
-   * Prevents: stale data from previous supplier selection
-   */
   React.useEffect(() => {
     setSelectedItem(null);
     setItemQuery('');
@@ -70,11 +62,6 @@ export function useDeleteItemState() {
     setFormError('');
   }, [selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
 
-  /**
-   * Sync form validation state with UI item selection
-   * Ensures: form itemId matches selected item for submission
-   * Purpose: keep react-hook-form synchronized with local state
-   */
   React.useEffect(() => {
     if (selectedItem) {
       setValue('itemId', selectedItem.id);
