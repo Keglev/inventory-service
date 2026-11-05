@@ -3,23 +3,19 @@
  * @module pages/analytics/sections/MovementsSection
  *
  * @summary
- * "Movements" analytics section: per-reason stock movement with increases on
- * the LEFT chart and decreases on the RIGHT chart, plus a row-level drilldown
- * table underneath. Consumes the page-global filters (window + supplier) and
- * adds two section-local controls:
- * - item-name filter (debounced, sent to the backend),
- * - reason multi-select chips (client-side; the endpoint always returns the
- *   full reason set, so toggling never refetches).
+ * "Movements" analytics section: per-reason stock movement (increases left, decreases
+ * right) plus a row-level drilldown table underneath.
  *
  * @enterprise
+ * - Consumes the page-global filters (window + supplier) and adds two
+ *   section-local controls: an item filter (a picked item, sent to the
+ *   backend; typed text alone filters nothing) and reason multi-select chips
+ *   (client-side; the endpoint always returns the full reason set, so
+ *   toggling never refetches).
  * - Quantities are sign-split by the backend, so a reason (e.g. MANUAL_UPDATE)
  *   can legitimately appear on both charts at once.
  * - An empty chip selection means "all reasons" — one tap less for the common
  *   case and no dead state.
- *
- * Size note: after extracting the shared item-search hook, the remainder is
- * the reason filter and chart render body; accepted above the typical range,
- * under the alarm threshold.
  */
 import * as React from 'react';
 import { Box, Chip, Stack, Typography } from '@mui/material';
@@ -46,12 +42,8 @@ export default function MovementsSection({ from, to, supplierId }: MovementsSect
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
 
-  // Item filter is SELECTION-based (matches the app's other item pickers):
-  // the user types >= 2 letters, gets real item-name suggestions, and only an
-  // explicit selection filters the charts and drilldown. This avoids silent
-  // no-match filtering from free text that isn't a name substring.
-  // Shared analytics type-ahead: input, debounce, selection, reset-on-supplier,
-  // and the supplier-scoped-vs-global search query (>= 2 chars).
+  // Selection-based item filter, like the other item pickers: only a picked item filters
+  // the charts and drilldown, so free text that names no item never filters to nothing.
   const {
     itemQuery,
     setItemQuery,

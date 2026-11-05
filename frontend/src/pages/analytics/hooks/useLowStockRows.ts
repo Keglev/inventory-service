@@ -3,7 +3,7 @@
  * @module pages/analytics/hooks/useLowStockRows
  * @summary Query plus client-side deficit derivation for the low-stock table.
  * @enterprise
- * Extracted from LowStockTable so the business rule lives apart from the
+ * Kept apart from LowStockTable so the business rule lives apart from the
  * markup and is unit-testable without rendering. BUSINESS RULE: the deficit
  * is `minimumQuantity - quantity` (floored at 0) and is computed here, not
  * by the backend; an item is "low stock" when its deficit is positive or
@@ -11,8 +11,8 @@
  * descending so the most urgent items come first, and the optional limit
  * caps the visible slice while `total` lets callers report the cap
  * ("Showing n of m"). The query is unconditional and gated with `enabled`
- * to comply with the Rules of Hooks; the key includes supplier and date
- * window so the cache stays correct across filter changes.
+ * to comply with the Rules of Hooks; the key is the supplier alone, since
+ * the list does not depend on dates.
  */
 import { useQuery } from '@tanstack/react-query';
 import { getLowStockItems } from '../../../api/analytics/lowStock';
@@ -51,7 +51,7 @@ export function useLowStockRows(
 
   const q = useQuery<LowStockRow[], Error>({
     // A current snapshot: the endpoint takes no dates, so none are sent and a
-    // date change does not refetch the same list (GRAPHS NF-52).
+    // date change does not refetch the same list.
     queryKey: ['analytics', 'lowStock', supplierId],
     queryFn: () => getLowStockItems(supplierId),
     enabled,

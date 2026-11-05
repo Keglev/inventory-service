@@ -3,10 +3,11 @@
  * @module pages/analytics/components/filters/DateRangeFilter
  *
  * @summary
- * Date range picker for the analytics filter panel. Offers 30/90/180-day
- * quick presets plus a custom mode with explicit from/to inputs.
+ * Date range picker for the analytics filter panel.
  *
  * @enterprise
+ * Offers 30/90/180-day quick presets plus a custom mode with explicit from/to inputs.
+ *
  * - Filter state is shaped for URL serialization: a `quick` discriminator
  *   ('30' | '90' | '180' | 'custom') plus ISO YYYY-MM-DD `from`/`to`.
  * - Any manual edit to the date inputs forces `quick` back to `'custom'`,

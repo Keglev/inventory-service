@@ -3,11 +3,13 @@
  * @module pages/dashboard/blocks/ReasonBreakdownMini
  *
  * @summary
- * Compact grouped bar of stock movement per change-reason (increase vs
- * decrease) for the dashboard. Unfiltered/global; reuses the analytics reason
- * label lookup so the 11 StockChangeReason values stay in sync.
+ * Compact grouped bar of stock movement per change-reason (increase vs decrease) for the
+ * dashboard.
  *
  * @enterprise
+ * Unfiltered/global; reuses the analytics reason label lookup so the 11 StockChangeReason
+ * values stay in sync.
+ *
  * - A reason may carry both an increase and a decrease at once (e.g. manual
  *   corrections); rows with no movement in either direction are dropped.
  * - Reason labels resolve via the analytics namespace; card chrome uses common.
@@ -39,8 +41,8 @@ export default function ReasonBreakdownMini() {
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
 
-  // Same window as the movement chart beside it (Carlos, fork 5 option A). Without
-  // dates the server answered with its default of 30 days, which the title never said.
+  // Same window as the movement chart beside it; without dates the server would answer
+  // with its default of 30 days, which the title never says.
   const from = getDaysAgoIso(90);
   const to = getTodayIso();
   const q = useQuery<ReasonBreakdownRow[]>({

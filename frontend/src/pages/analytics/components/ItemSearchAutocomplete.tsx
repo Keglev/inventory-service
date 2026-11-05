@@ -3,8 +3,7 @@
  * @module pages/analytics/components/ItemSearchAutocomplete
  * @summary Shared item type-ahead picker for analytics cards and sections.
  * @enterprise
- * Extracts the Autocomplete markup previously duplicated in PriceTrendCard
- * and MovementsSection. State stays with the callers (useItemSearchOptions
+ * The Autocomplete markup shared by PriceTrendCard and MovementsSection. State stays with the callers (useItemSearchOptions
  * plus per-consumer option enrichment); this component owns only the
  * invariant picker behavior: object-based selection that is never derived
  * from options, controlled input text, no client-side re-filtering
@@ -77,7 +76,7 @@ export function ItemSearchAutocomplete({
       onChange={(_e, val) => {
         onSelect(val);
         // Mirror the selection into the input so the visible text stays in
-        // sync with the chosen item (identical behavior in both prior hosts).
+        // sync with the chosen item.
         if (val) onInputChange(val.name);
       }}
       inputValue={inputValue}

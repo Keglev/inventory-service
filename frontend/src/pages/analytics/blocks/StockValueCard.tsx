@@ -3,7 +3,7 @@
  * @module pages/analytics/blocks/StockValueCard
  *
  * @summary
- * Card that renders the stock value over time (A1) as a step line on a time axis.
+ * Card that renders the stock value over time as a step line on a time axis.
  *
  * @enterprise
  * - The value holds until the next stock movement, so the line is a step

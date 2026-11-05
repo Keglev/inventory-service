@@ -3,13 +3,13 @@
  * @module pages/analytics/sections/useEmployeesSectionData
  * @summary Query and pivot logic behind the employee analytics section.
  * @enterprise
- * Extracted from EmployeesSection so data acquisition and shaping are
+ * Kept apart from EmployeesSection, so data acquisition and shaping are
  * separate from rendering. Owns the granularity/pagination state, the two
  * analytics queries (activity series, paged change log), the pivot of flat
  * (period, employee, count) rows into one chart object per period, and the
- * page reset when the date/supplier window changes. Colors and i18n label
- * formatting stay in the component because they depend on the MUI theme and
- * translation context of the render tree.
+ * page reset when the date/supplier window changes. Colours and i18n label
+ * formatting live in useEmployeeChartFormatting, because they depend on the MUI
+ * theme and translation context of the render tree.
  */
 import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -31,9 +31,9 @@ export function useEmployeesSectionData({ from, to, supplierId }: UseEmployeesSe
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
 
-  // A new window invalidates the current page position. Adjusted during render
-  // (React's pattern for state that follows props): an effect first rendered,
-  // and fetched, the old page of the new window.
+  // A new window invalidates the current page position. Adjusted during render (React's
+  // pattern for state that follows props), so the old page of the new window is never
+  // rendered or fetched.
   const windowKey = JSON.stringify([from ?? null, to ?? null, supplierId ?? null]);
   const [seenWindowKey, setSeenWindowKey] = React.useState(windowKey);
   if (windowKey !== seenWindowKey) {

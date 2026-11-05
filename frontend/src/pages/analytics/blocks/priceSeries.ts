@@ -3,14 +3,15 @@
  * @module pages/analytics/blocks/priceSeries
  *
  * @summary
- * Price axis for the step chart in PriceTrendCard: domain and round ticks.
- * The series comes from utils/stepSeries, the time axis from utils/timeAxis.
+ * Price axis for the step chart in PriceTrendChart: domain and round ticks.
  *
  * @enterprise
+ * The series comes from utils/stepSeries, the time axis from utils/timeAxis.
+ *
  * The API returns one point per recorded price change; the step series carries
  * the last price to the range end, and the time axis gives each gap between
- * changes its real width (on a category axis 62 days and 97 days took the same
- * width).
+ * changes its real width (on a category axis 62 days and 97 days would take the
+ * same width).
  */
 import type { PricePoint } from '../../../api/analytics/types';
 import type { StepPoint } from '../../../utils/stepSeries';

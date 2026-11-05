@@ -7,9 +7,8 @@
  * buttons for the title row.
  *
  * @enterprise
- * - They sat below the four chart cards, where a desktop user had to scroll to
- *   find them and their outlined style barely showed (FW6, 2026-10-09). In the
- *   title row they are visible without scrolling and take no height of their own.
+ * - In the title row they are visible without scrolling and take no height of
+ *   their own; below the four chart cards a desktop user would have to scroll.
  * - Below the sm breakpoint the long labels ("Lieferanten verwalten") do not fit
  *   three across, so the buttons show the navigation labels instead, the same
  *   words as the sidebar, and share the row equally.

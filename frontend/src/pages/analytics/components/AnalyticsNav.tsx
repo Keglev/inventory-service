@@ -3,7 +3,7 @@
  * @module pages/analytics/components/AnalyticsNav
  *
  * @summary
- * Secondary navigation for Analytics sections (tabs). Keeps the main page focused.
+ * Secondary navigation for Analytics sections (tabs).
  *
  * @sections
  * - overview   -> Stock Value + Monthly Movement
@@ -15,6 +15,8 @@
  *                a notice for other users, decided in Analytics)
  *
  * @enterprise
+ * Keeps the main page focused.
+ *
  * - Uses route segments so deep-links work (e.g., /analytics/pricing).
  * - Minimal state: URL is the single source of truth.
  */

@@ -3,9 +3,8 @@
  * @module pages/analytics/blocks/LowStockTable
  *
  * @summary
- * Low-stock table for a selected supplier. Shows item name, current
- * quantity, minimum threshold, computed deficit, and a status chip
- * (OK / Warning / Critical) -- ordered by most severe deficit first.
+ * Low-stock table for a selected supplier: item, quantity, minimum, deficit and a status
+ * chip, most severe deficit first.
  *
  * @enterprise
  * - BUSINESS RULE: the chip follows lowStockSeverity (config/inventoryPolicy):
@@ -53,7 +52,7 @@ export type LowStockTableProps = {
 
 
 /**
- * Displays items at or below minimum quantity for a given supplier,
+ * Displays items below their minimum quantity for a given supplier,
  * most severe deficit first. Data and derivation come from
  * {@link useLowStockRows}; this component maps rows to table markup
  * and severity chips.
@@ -91,8 +90,6 @@ function LowStockTableContent({ supplierId, limit = 12 }: LowStockTableProps): J
   );
 
   const { enabled, isLoading, isError, visible, total } = useLowStockRows(supplierId, limit);
-
-  // Conditional UI states
 
   if (!enabled) {
     return (

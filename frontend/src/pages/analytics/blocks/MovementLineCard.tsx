@@ -3,7 +3,7 @@
  * @module pages/analytics/blocks/MovementLineCard
  *
  * @summary
- * Line chart version of monthly stock movement (A2) with two series:
+ * Line chart version of monthly stock movement with two series:
  * Stock In vs Stock Out over months in the selected date range.
  *
  * @enterprise

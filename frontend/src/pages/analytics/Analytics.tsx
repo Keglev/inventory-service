@@ -3,12 +3,11 @@
  * @module pages/analytics/Analytics
  *
  * @summary
- * Orchestrates the Analytics page: a global filter bar, route-driven
- * section navigation, and a responsive grid of analytics blocks. The
- * file is intentionally kept thin (under ~200 lines) by delegating each
- * visual concern to a dedicated block component.
+ * Orchestrates the Analytics page: a global filter bar, route-driven section navigation,
+ * and a responsive grid of analytics blocks.
  *
  * @enterprise
+ * - Thin by design: each visual concern is a dedicated block component.
  * - URL is the single source of truth for filters. State is hydrated
  *   from the URL on mount and synced back to the URL on every filter
  *   change (one-way state -> URL effect). This keeps deep-links and
@@ -21,16 +20,11 @@
  *   'finance' | 'employees'. Any unknown value falls back to 'overview'.
  *   The employees section shows its charts to ADMIN and the demo session
  *   only; for any other user it shows a notice and the filters are inert.
- * - The suppliers list is fetched once with a 5-minute staleTime and
- *   is reused by both the supplier filter dropdown and the price-trend
- *   item search inside PriceTrendCard.
+ * - The suppliers list is the shared supplier list query (1-minute
+ *   staleTime), passed to the filter bar's supplier picker.
  * - Each section renders a different subset of blocks; the grid uses
  *   `auto-fit` + `minmax(320px, 1fr)` so the layout reflows from one
  *   column on mobile to multiple columns on wide viewports.
- * - The eslint-disable on the URL-sync effect is deliberate:
- *   `setSearchParams` is referentially stable per React Router but
- *   ESLint cannot prove it. Including it in the dep array would
- *   trigger an extra re-sync without changing behavior.
  */
 import * as React from 'react';
 import type { JSX } from 'react';
@@ -55,11 +49,9 @@ import MovementLineCard from './blocks/MovementLineCard';
 import MovementsSection from './sections/MovementsSection';
 import EmployeesSection from './sections/EmployeesSection';
 
-// Filters UI
 import { Filters } from './components/filters/Filters';
 import type { AnalyticsFilters } from './components/filters/Filters.types';
 
-// Import date helpers from the standard utils location
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
 import { pagePanelSx, railGutter } from '../../theme/pagePanel';
 
@@ -98,7 +90,7 @@ export default function Analytics(): JSX.Element {
     if (filters.to) next.to = filters.to;
     if (filters.supplierId) next.supplierId = filters.supplierId;
     setSearchParams(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setSearchParams is stable (React Router) but ESLint cannot prove it
   }, [filters.from, filters.to, filters.supplierId]);
   
   
@@ -132,10 +124,9 @@ export default function Analytics(): JSX.Element {
   sx={{
     display: 'grid',
     gap: 2,
-    // the inventory-health section gives the low-stock table
-    // ~3/5 of the width (its fixed-layout table needs ~640px to show the
-    // Status chips without horizontal scroll) and the supplier pie ~2/5.
-    // Other sections keep the responsive auto-fit grid.
+    // The inventory-health section gives the low-stock table ~3/5 of the width (its
+    // fixed-layout table needs ~640px for the Status chips without horizontal scroll)
+    // and the supplier pie ~2/5; other sections keep the responsive auto-fit grid.
     gridTemplateColumns:
       section === 'inventory'
         ? { xs: '1fr', md: 'minmax(0, 3fr) minmax(280px, 2fr)' }
@@ -145,10 +136,8 @@ export default function Analytics(): JSX.Element {
 >
   {section === 'overview' && (
     <>
-      {/* A1 */}
       <StockValueCard {...scope} />
 
-      {/* A2 (Line) */}
       <MovementLineCard {...scope} />
     </>
   )}
@@ -165,17 +154,14 @@ export default function Analytics(): JSX.Element {
 
   {section === 'pricing' && (
     <>
-      {/* A3 */}
       <PriceTrendCard {...scope} />
     </>
   )}
 
   {section === 'inventory' && (
     <>
-      {/* A4 — Low stock table (fetch gated by supplier) */}
       <LowStockTable supplierId={filters.supplierId ?? ''} limit={12} />
 
-      {/* A4 — Stock value per supplier (pie) */}
       <StockValuePerSupplierPie dateScopeNote />
     </>
   )}

@@ -3,10 +3,11 @@
  * @module pages/analytics/blocks/StockValuePerSupplierPie
  *
  * @summary
- * Pie of the stock value held per supplier: the top four by name and one grey
- * slice for all others. Shown on the dashboard and the analytics page.
+ * Pie of the stock value held per supplier: the four largest by value, named, and one grey
+ * slice for all others.
  *
  * @enterprise
+ * - Shown on the dashboard and the analytics page.
  * - Value in euros, not pieces: pieces are not comparable across items, the
  *   capital held per supplier is. Values come from
  *   /api/analytics/stock-per-supplier (quantity times current unit price).
@@ -80,11 +81,9 @@ export default function StockValuePerSupplierPie({ chartHeight = 260, dateScopeN
   }, [q.data, t, muiTheme]);
   const total = data.reduce((sum, d) => sum + d.value, 0);
 
-  // The tooltip followed the cursor and covered a third of the pie (62% on a
-  // phone). It is pinned where the pie never is: at the foot of the legend
-  // column on wide charts, in a band above the pie on narrow ones (fork 4 C,
-  // 2026-10-15). Recharts 3.10.1 never reports the legend box (onBBoxUpdate is
-  // typed but not called), so the readout is anchored to the chart foot.
+  // A cursor-following tooltip would cover a third of the pie, so it is pinned where the pie
+  // never is: legend foot when wide, a band above the pie when narrow. Recharts 3.10.1 never
+  // reports the legend box (onBBoxUpdate is typed but not called): anchored to the chart foot.
   const [chartWidth, setChartWidth] = React.useState(0);
   // Measured in the commit phase, before paint, so the layout does not jump once
   // ResponsiveContainer reports its size.
@@ -128,8 +127,8 @@ export default function StockValuePerSupplierPie({ chartHeight = 260, dateScopeN
         ) : (
           <Box
             ref={measureBox}
-            // A tapped sector takes focus (tabindex -1, not keyboard-reachable);
-            // the browser outline framed it once the readout stopped covering it.
+            // A tapped sector takes focus (tabindex -1, not keyboard-reachable), and
+            // the browser outline would frame it.
             sx={{ height: chartHeight + (wide ? 0 : NARROW_EXTRA_PX), '& .recharts-sector:focus': { outline: 'none' } }}
           >
             <ResponsiveContainer width="100%" height="100%" onResize={(width) => setChartWidth(width)}>
@@ -150,10 +149,9 @@ export default function StockValuePerSupplierPie({ chartHeight = 260, dateScopeN
                 />
                 {/* Recharts sorts legend items alphabetically by default; keep the
                     slices' rank order so "all others" stays last. */}
-                {/* TODO(FD-10): align and verticalAlign are deprecated since Recharts 3.10.
-                    Its replacement, position="left", centres and narrows the legend and
-                    puts the readout against its last line (mockup 2026-11-02), so they
-                    stay until a Recharts release removes them. */}
+                {/* TODO(FD-10): align/verticalAlign are deprecated since Recharts 3.10; their
+                    replacement position="left" centres and narrows the legend, so they stay
+                    until a Recharts release removes them. */}
                 <Legend
                   {...chartLegendProps(muiTheme)}
                   itemSorter={(item) => data.findIndex((d) => d.name === item.value)}

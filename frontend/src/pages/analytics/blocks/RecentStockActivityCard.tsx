@@ -15,9 +15,9 @@
  * - The X axis is a time scale over the selected range: days without changes
  *   keep their width instead of disappearing between two bars. Long ranges
  *   group by week (see stockActivitySeries) and the tooltip says "Woche ab".
- * - Each kind keeps its colour whatever else the supplier has. Colours were
- *   assigned by position among the kinds present, so "Verkauf" changed colour
- *   between suppliers, and two near-identical blues sat side by side.
+ * - Each kind keeps its colour whatever else the supplier has: coloured by
+ *   position among the kinds present, "Verkauf" would change colour between
+ *   suppliers, and two near-identical blues could sit side by side.
  */
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';

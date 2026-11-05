@@ -3,13 +3,12 @@
  * @module pages/dashboard/Dashboard
  *
  * @summary
- * Authenticated landing page. Renders three KPI cards (inventory count,
- * suppliers count, low-stock count), a 2x2 analytics overview grid
- * (stock value per supplier pie, movement-by-reason, 90-day stock movement,
- * low-stock watchlist), and shortcut buttons for the core workflows in the
- * title row (DashboardQuickActions).
+ * Authenticated landing page: three KPI cards, a 2x2 analytics overview grid and shortcut
+ * buttons for the core workflows in the title row.
  *
  * @enterprise
+ * - The grid holds the stock value per supplier pie, movement by reason, the 90-day
+ *   stock movement and the low-stock watchlist; the shortcuts are DashboardQuickActions.
  * - Resilience: KPI cards degrade to em-dash placeholders when their data
  *   source is unavailable, so a partial backend outage does not blank the
  *   page or fall through to an error boundary.
@@ -37,19 +36,18 @@ import { HelpIconButton } from '../../features/help/components/HelpIconButton';
 import DashboardQuickActions from './DashboardQuickActions';
 import { pagePanelSx, railGutter } from '../../theme/pagePanel';
 
-/** Pie area on the dashboard, smaller than on Analytik so the page fits a 1920x950 viewport (Carlos, 2026-10-12). */
+/** Pie area on the dashboard, smaller than on Analytik so the page fits a 1920x950 viewport. */
 const DASHBOARD_PIE_HEIGHT = 220;
 
 /**
  * Dashboard page component.
- * Provides KPI overview, trending chart, and navigation shortcuts.
+ * Provides the KPI overview, four charts and navigation shortcuts.
  * Resilient to partial API failures (missing KPI data shows "—").
  * @returns React component with grid layout of cards and action buttons
  */
 const Dashboard: React.FC = () => {
   const { t } = useTranslation('common');
 
-  // Fetch all KPI metrics in a single query with cache durability
   const metricsQuery = useDashboardMetrics(true);
 
   return (

@@ -8,9 +8,9 @@
  *
  * @enterprise
  * The low-stock list, the supplier value pie and the update-frequency chart sit
- * under the Analytik date filter but do not depend on it (GRAPHS survey G-5,
- * NF-52). Without a note the page claimed a date-limited view it did not show
- * (Carlos, fork 4 option A). The cards also stop sending or refetching on dates.
+ * under the Analytik date filter but do not depend on it. Without a note the page
+ * would claim a date-limited view it does not show; the cards neither send dates
+ * nor refetch on a date change.
  */
 import { Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';

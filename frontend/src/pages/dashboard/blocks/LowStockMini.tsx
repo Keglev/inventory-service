@@ -3,12 +3,13 @@
  * @module pages/dashboard/blocks/LowStockMini
  *
  * @summary
- * Global low-stock watchlist for the dashboard: one bar per item below its
- * minimum, across all suppliers, most critical first. Data comes from the
- * dashboard summary endpoint (all-suppliers low-stock), not a supplier-scoped
- * query, so it works without a supplier selection.
+ * Global low-stock watchlist for the dashboard: one bar per item below its minimum, across
+ * all suppliers, most critical first.
  *
  * @enterprise
+ * Data comes from the dashboard summary endpoint (all-suppliers low-stock), not a
+ * supplier-scoped query, so it works without a supplier selection.
+ *
  * - A bar's length is the stock as a share of the item's own minimum, and its
  *   colour is the severity of frontend ADR-0012 (critical at half the minimum
  *   or less), so the chart speaks the same language as the inventory table.

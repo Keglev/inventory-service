@@ -3,13 +3,13 @@
  * @module pages/analytics/sections/EmployeesActivityChart
  * @summary Employee activity line chart card with a granularity toggle.
  * @enterprise
- * Extracted from EmployeesSection so the section composes two cards
- * instead of inlining the chart. Owns the presentation of the pivoted
+ * A card of its own, so EmployeesSection composes two cards instead of
+ * inlining the chart. Owns the presentation of the pivoted
  * per-employee series and the recharts wiring; colours, the time axis and every
  * formatter come from useEmployeeChartFormatting.
  * Emails contain dots and Recharts resolves string dataKeys as nested
- * paths, so each series uses a FUNCTION accessor (locked lesson) --
- * do not "simplify" to string keys. Data, granularity state, and the
+ * paths, so each series uses a FUNCTION accessor -- do not "simplify" to
+ * string keys. Data, granularity state, and the
  * pivot itself stay in useEmployeesSectionData; this card is render-only.
  */
 import * as React from 'react';
@@ -83,8 +83,8 @@ export function EmployeesActivityChart({
   return (
     <Card data-testid="employee-activity-card">
       <CardContent>
-        {/* Title and toggle share one row from sm up. At 390 px the German toggle alone is
-            279 px and the row ran 31 px past the card edge, cut "MONATLICH" (S2-14). */}
+        {/* Title and toggle share one row from sm up: at 390 px the German toggle alone is
+            279 px, and one row would run past the card edge and cut "MONATLICH". */}
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={1}
