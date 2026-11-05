@@ -195,6 +195,19 @@
         href="09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.html">ADR-0012</a>)</td>
         </tr>
         <tr class="odd">
+        <td>CSRF</td>
+        <td>Off for <code>/api/**</code> and <code>/logout</code>
+        (<code>SecurityConfig</code>)</td>
+        <td>The session cookie is <code>SameSite=Lax</code>, so a
+        browser does not send it with a cross-site POST, and the
+        frontend reaches the API same-origin through the serving proxy
+        (<a
+        href="09-decisions/adr-0008-serve-time-api-base-rewrite.html">ADR-0008</a>):
+        a cross-site form cannot carry the session. Actuator is not in
+        the list: its exposed endpoints are GET, and CSRF does not apply
+        to safe methods</td>
+        </tr>
+        <tr class="even">
         <td>CORS allowed origins</td>
         <td>dev <code>http://localhost:5173</code>; prod
         <code>https://www.smartsupplypro.de</code></td>
@@ -204,7 +217,7 @@
         allow-listed (<a
         href="09-decisions/adr-0010-custom-domain-and-canonical-host.html">ADR-0010</a>)</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>Audit attribution</td>
         <td><code>createdBy</code> is read from the security context
         (<code>SecurityAuditHelper.currentUsername()</code>), never from
@@ -216,7 +229,7 @@
         resolution point — reading the principal name anywhere else
         re-introduces a copy that can drift.</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>Demo mode</td>
         <td><code>AppProperties.isDemoReadonly</code> (env
         <code>APP_DEMO_READONLY</code>, default <code>true</code> in
@@ -227,7 +240,7 @@
         <code>@appProperties</code>); does NOT disable the security
         filter chain</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>Demo identities</td>
         <td><code>DemoIdentityMasking</code>, a
         <code>ResponseBodyAdvice</code></td>
