@@ -3,14 +3,15 @@
 /**
  * User role enum for authorization and access control via Spring Security.
  *
- * &lt;p&gt;&lt;strong&gt;Roles&lt;/strong&gt;: ADMIN (full CRUD access), USER (read-only access).
+ * &lt;p&gt;&lt;strong&gt;Roles&lt;/strong&gt;: ADMIN (full CRUD access), USER (reads, plus quantity and
+ * price adjustments).
  *
  * &lt;p&gt;&lt;strong&gt;Storage&lt;/strong&gt;: Persisted as STRING via @Enumerated(EnumType.STRING).
  *
  * @see AppUser
  */
-<span class="fc" id="L12">public enum Role {</span>
-<span class="fc" id="L13">    ADMIN,</span>
-<span class="fc" id="L14">    USER</span>
+<span class="fc" id="L13">public enum Role {</span>
+<span class="fc" id="L14">    ADMIN,</span>
+<span class="fc" id="L15">    USER</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>
