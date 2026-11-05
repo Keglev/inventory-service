@@ -3,26 +3,19 @@
  * @module pages/inventory/InventoryBoard
  *
  * @summary
- * Root orchestrator for the inventory management page. Composes the
- * state hook, five handler hooks, the data-fetching hook, and the
- * presentation components into a single page layout.
+ * Root orchestrator for the inventory management page.
  *
  * @enterprise
- * - Composition layout: state (useInventoryState) -> handlers (five
- *   *Handlers hooks) -> data (useDataFetchingLogic) -> UI components
+ * - Composition layout: state (useInventoryState) -> handlers (useToolbarHandlers,
+ *   useFilterHandlers, useRefreshHandler) -> data (useDataFetchingLogic) -> UI components
  *   (InventoryToolbar, InventoryFilterPanel, InventoryTable,
  *   InventoryDialogs). The board owns no useState or useEffect of its
  *   own; every piece of state lives in a sub-hook.
- * - This is the reference site for HelpIconButton wiring: the help
- *   icon next to the page title uses the shared component with the
- *   topicId 'inventory.overview', matching QuantityAdjustDialog's
- *   pattern. Every dialog in the application now routes help through
- *   that same component; no raw IconButton + HelpOutlineIcon pairing
- *   remains.
+ * - The help icon next to the page title is the shared HelpIconButton
+ *   (topicId 'inventory.overview'), as in every dialog.
  * - Without a supplier the grid lists the stock of all suppliers, one
- *   server page at a time (S2-9, Carlos 2026-10-30). The former
- *   "select a supplier" placeholder rested on a gate the backend never
- *   had: GET /api/inventory/search takes no supplier and pages.
+ *   server page at a time: GET /api/inventory/search pages and needs no
+ *   supplier.
  * - Demo mode (isDemo from useAuth) flows down to the four dialogs
  *   that support readOnly (create, delete, quantity-adjust,
  *   price-change) via InventoryDialogs.
@@ -52,31 +45,19 @@ const InventoryBoard: React.FC = () => {
   const { user } = useAuth();
   const isDemo = Boolean(user?.isDemo);
 
-  // =====================
-  // State Management
-  // =====================
   const state = useInventoryState();
 
-  // =====================
-  // Event Handlers
-  // =====================
   const { handleAddNew, handleEdit, handleDelete, handleAdjustQty, handleChangePrice } =
     useToolbarHandlers(state);
   const { handleSearchChange, handleSupplierChange, handleBelowMinChange } =
     useFilterHandlers(state);
 
-  // =====================
-  // Data Fetching & Processing
-  // =====================
   const data = useDataFetchingLogic(state);
 
-  // Refresh + all five mutation-success callbacks re-run the current query
-  // via the data hook's reload (fixes the page-0 no-op).
+  // The five mutation-success callbacks re-run the current query via the data
+  // hook's reload, also on page 0.
   const { handleReload } = useRefreshHandler(data.reload);
 
-  // =====================
-  // Render
-  // =====================
   return (
     <PagePanel
       overlays={
@@ -96,7 +77,6 @@ const InventoryBoard: React.FC = () => {
         />
       }
     >
-      {/* Header */}
       <Stack
         direction="row"
         sx={{
@@ -119,7 +99,6 @@ const InventoryBoard: React.FC = () => {
           />
         </Stack>
 
-        {/* Toolbar */}
         <InventoryToolbar
           onAddNew={handleAddNew}
           onEdit={handleEdit}
@@ -129,7 +108,6 @@ const InventoryBoard: React.FC = () => {
         />
       </Stack>
 
-      {/* Filter Panel */}
       <Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 }, ml: railGutter, mr: railGutter }}>
         <InventoryFilterPanel
           q={state.q}
@@ -143,7 +121,6 @@ const InventoryBoard: React.FC = () => {
         />
       </Paper>
 
-      {/* Table Container */}
       <Paper
         variant="outlined"
         sx={{

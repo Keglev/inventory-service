@@ -3,11 +3,12 @@
  * @module pages/inventory/dialogs/EditItemDialog/EditItemDialog
  *
  * @summary
- * Root dialog for the item-rename flow. Renders the title, the
- * EditItemForm body, and the cancel/change actions, and delegates all
- * state, queries, and submission to useEditItemForm.
+ * Root dialog for the item-rename flow.
  *
  * @enterprise
+ * Renders the title, the EditItemForm body, and the cancel/change actions, and delegates
+ * all state, queries, and submission to useEditItemForm.
+ *
  * - Single-dialog architecture. Unlike DeleteItemDialog (two dialogs,
  *   form + confirmation), rename is a single modal because the change is
  *   reversible by another rename. No second confirmation step is offered.
@@ -56,12 +57,10 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
 }) => {
   const { t } = useTranslation(['common', 'inventory']);
 
-  // Orchestrate all form state, queries, and handlers
   const form = useEditItemForm(open, onClose, onItemRenamed);
 
   return (
     <Dialog open={open} onClose={form.handleClose} fullWidth maxWidth="sm">
-      {/* Dialog title with help button */}
       <DialogTitle>
         <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Box>{t('inventory:dialogs.editItemTitle')}</Box>
@@ -69,12 +68,10 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
         </Stack>
       </DialogTitle>
 
-      {/* Form with three-step workflow */}
       <DialogContent dividers>
         <EditItemForm state={form} />
       </DialogContent>
 
-      {/* Action buttons: Cancel and Change */}
       <DialogActions sx={{ gap: 1 }}>
         <Button onClick={form.handleClose} disabled={form.formState.isSubmitting}>
           {t('inventory:buttons.cancel')}

@@ -3,11 +3,12 @@
  * @module pages/inventory/dialogs/EditItemDialog/useEditItemForm
  *
  * @summary
- * Orchestrator hook for the rename flow. Owns selection state, the
- * three React Query hooks (suppliers, item search, item details), and
- * the submit handler that calls renameItem.
+ * Orchestrator hook for the rename flow.
  *
  * @enterprise
+ * Owns selection state, the three React Query hooks (suppliers, item search, item
+ * details), and the submit handler that calls renameItem.
+ *
  * - Single hook rather than the three-way split used in DeleteItemDialog.
  *   The rename flow has no two-stage confirmation, no error-mapping
  *   utility worth extracting, and one mutation -- the cost of splitting
@@ -24,12 +25,7 @@
  * - editItemSchema validates only itemId + newName; rename does not
  *   write a StockHistory row, so no reason field is needed. This is
  *   different from itemFormSchema (create, which carries no reason at
- *   all) and quantityAdjustSchema (loose reason string) -- the CB-E
- *   asymmetry does not surface in this file.
- *
- * Size note: over the 120-line hook alarm. WAIVED per the single-hook rationale
- * above — one cohesive rename-form lifecycle (selection state, the three queries,
- * two effects, one mutation); nothing separable to extract.
+ *   all) and quantityAdjustSchema (loose reason string).
  */
 
 import * as React from 'react';
@@ -62,19 +58,12 @@ export interface UseEditItemFormReturn extends ItemSelectionState, ItemSelection
 }
 
 /**
- * Orchestrator hook managing edit item form workflow
- * 
+ * Orchestrator hook managing the rename form workflow.
+ *
  * @param isOpen - Whether dialog is currently open (controls query firing)
  * @param onClose - Callback when dialog closes
  * @param onItemRenamed - Callback after successful rename
  * @returns Complete form state and handlers
- * 
- * @enterprise
- * - Smart dependency-driven queries: suppliers only fetched when dialog opens
- * - The supplier's item list loads once when a supplier is selected; typing is matched in the browser
- * - Item details fetched only when item is selected (populated from search)
- * - Form state reset on supplier change to prevent cross-supplier contamination
- * - Complete error handling with user-friendly messages and duplicate detection
  */
 export function useEditItemForm(
   isOpen: boolean,
@@ -84,18 +73,10 @@ export function useEditItemForm(
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
 
-  // ================================
-  // State Management
-  // ================================
-
   const {
     selectedSupplier, setSelectedSupplier, selectedItem, setSelectedItem,
     itemQuery, setItemQuery, formError, setFormError,
   } = useItemSelectionState();
-
-  // ================================
-  // Data Queries
-  // ================================
 
   // Suppliers loaded once when dialog opens
   const suppliersQuery = useSuppliersQuery(isOpen);
@@ -105,10 +86,6 @@ export function useEditItemForm(
 
   // Item details fetched when specific item selected
   const itemDetailsQuery = useItemDetailsQuery(selectedItem?.id);
-
-  // ================================
-  // Form Management
-  // ================================
 
   const {
     control,
@@ -124,14 +101,7 @@ export function useEditItemForm(
     },
   });
 
-  // ================================
-  // Effects
-  // ================================
-
-  /**
-   * Reset form when supplier changes
-   * Prevents cross-supplier data contamination
-   */
+  // A supplier change resets the item, so no value from another supplier survives
   React.useEffect(() => {
     setSelectedItem(null);
     setItemQuery('');
@@ -139,10 +109,7 @@ export function useEditItemForm(
     setValue('newName', '');
     setFormError('');
   }, [selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
-  /**
-   * Pre-fill new name with current item name when details load
-   * Uses fetched data (not search placeholder)
-   */
+  // Pre-fills the new name with the fetched name (the search result's until it loads)
   React.useEffect(() => {
     if (!selectedItem) return;
     setValue('itemId', selectedItem.id);
@@ -150,14 +117,7 @@ export function useEditItemForm(
     setValue('newName', effectiveName);
   }, [selectedItem, itemDetailsQuery.data, setValue]);
 
-  // ================================
-  // Handlers
-  // ================================
-
-  /**
-   * Close dialog with complete state cleanup
-   * Prevents state pollution between sessions
-   */
+  // Clears every value, so the next open starts empty
   const handleClose = () => {
     setSelectedSupplier(null);
     setSelectedItem(null);
@@ -167,16 +127,6 @@ export function useEditItemForm(
     onClose();
   };
 
-  /**
-   * Submit form with validation and API call
-   * 
-   * @enterprise
-   * - Validates item selection before submission
-   * - Calls backend PATCH /api/inventory/{id}/name?name={newName}
-   * - Detects duplicate name conflicts with specific error
-   * - Admin-only operation with clear authorization feedback
-   * - Triggers parent refresh after successful rename
-   */
   const onSubmit = handleSubmit(async (values) => {
     if (!selectedItem) {
       setFormError(t('errors:inventory.selection.noItemSelected'));

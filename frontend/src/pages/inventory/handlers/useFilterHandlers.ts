@@ -16,8 +16,7 @@
  *   search term invalidates the current page position. Debounce of the
  *   search term is handled downstream in useInventoryPageData.
  * - Pagination reset preserves the user's pageSize choice and only
- *   resets the page index. Row-density preference survives filter
- *   changes.
+ *   resets the page index.
  */
 
 import { useCallback } from 'react';
@@ -53,8 +52,7 @@ export function useFilterHandlers(state: InventoryStateReturn) {
   const handleBelowMinChange = useCallback(
     (value: boolean) => {
       state.setBelowMinOnly(value);
-      // Without a supplier, unticking hides the grid; a selected row would
-      // otherwise stay targeted by the toolbar actions.
+      // Unticking without a supplier also clears the selected row.
       if (!value && !state.supplierId) state.setSelectedId(null);
       state.setPaginationModel({ page: 0, pageSize: state.paginationModel.pageSize });
     },

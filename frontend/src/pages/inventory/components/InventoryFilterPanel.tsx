@@ -3,21 +3,20 @@
  * @module pages/inventory/components/InventoryFilterPanel
  *
  * @summary
- * Filter controls for the inventory table: supplier dropdown, search
- * field, and below-minimum-quantity checkbox. Responsive column on
- * mobile, row on desktop.
+ * Filter controls for the inventory table: supplier picker, search field, and
+ * below-minimum-quantity checkbox.
  *
  * @enterprise
+ * - Responsive column on mobile, row on desktop.
  * - Pure presentation, callback props only. No useState, no useEffect.
  *   Filter state lives in useInventoryState; this component just
  *   reflects and dispatches.
- * - The supplier is picked by typing (SupplierPickerField, two letters,
- *   S2-9); an empty field means all suppliers, and the parent setter
+ * - The supplier is picked by typing (SupplierPickerField, two letters);
+ *   an empty field means all suppliers, and the parent setter
  *   receives null. Different from the AnalyticsFilters convention
  *   (supplierId === undefined for "all"); both encode "no filter" but
  *   the wire shape differs.
- * - belowMinOnly is sent to the server (belowMinimumOnly; S2-1 said
- *   "client-side"). It is NOT the same as the analytics LowStockTable
+ * - belowMinOnly is sent to the server (belowMinimumOnly). It is NOT the same as the analytics LowStockTable
  *   view: this one filters the board's rows; LowStockTable shows a curated descending-deficit
  *   list, coloured by the shared severity rule (config/inventoryPolicy).
  */

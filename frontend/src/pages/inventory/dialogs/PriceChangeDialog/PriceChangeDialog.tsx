@@ -3,11 +3,11 @@
  * @module pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog
  *
  * @summary
- * Root dialog for the price-change flow. Renders title, the
- * PriceChangeForm body, and the cancel/apply actions. All state and
- * submission live in usePriceChangeForm.
+ * Root dialog for the price-change flow: title, the PriceChangeForm body, and the
+ * cancel/apply actions.
  *
  * @enterprise
+ * - All state and submission live in usePriceChangeForm.
  * - Single-dialog architecture. Price change is reversible by another
  *   price change, so no second confirmation step is offered. Same
  *   pattern as EditItemDialog (rename), different from DeleteItemDialog
@@ -15,15 +15,13 @@
  * - Backend invariants surfaced in the UI:
  *   (1) newPrice must be > 0 (priceChangeSchema enforces, backend
  *       re-validates);
- *   (2) backend does not record a reason for price changes, so the form
- *       carries no reason field.
+ *   (2) the backend records the change as PRICE_CHANGE itself, so the
+ *       form carries no reason field.
  * - Help opens the in-app drawer via the shared HelpIconButton component,
  *   matching ItemFormDialog.
- * - There is no substring error-mapping in this flow. Failures get a
- *   single generic message regardless of cause (admin-only, validation,
- *   conflict) -- accepted as policy for this dialog; the delete/rename/
- *   create flows carry structured mapping because their causes are
- *   user-actionable.
+ * - Failures map by the backend status token in usePriceChangeForm
+ *   ('forbidden' -> admin-only, 'not_found' -> item gone, else a generic
+ *   message), never by substrings of the message.
  */
 
 import {
@@ -49,7 +47,6 @@ export function PriceChangeDialog({
 }: PriceChangeDialogProps) {
   const { t } = useTranslation(['common', 'inventory']);
 
-  // All form state and handlers delegated to hook
   const state = usePriceChangeForm({ isOpen: open, onClose, onPriceChanged, readOnly });
 
   return (
@@ -59,7 +56,6 @@ export function PriceChangeDialog({
       maxWidth="sm"
       fullWidth
     >
-      {/* Title with help icon */}
       <DialogTitle>
         <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Box>{t('inventory:toolbar.changePrice')}</Box>
@@ -67,12 +63,10 @@ export function PriceChangeDialog({
         </Stack>
       </DialogTitle>
 
-      {/* Form content */}
       <DialogContent dividers>
         <PriceChangeForm state={state} />
       </DialogContent>
 
-      {/* Dialog actions */}
       <SubmitDialogActions
         onCancel={() => state.handleClose()}
         onSubmit={() => state.onSubmit()}

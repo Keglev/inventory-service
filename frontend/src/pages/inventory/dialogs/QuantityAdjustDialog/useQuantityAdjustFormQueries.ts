@@ -3,15 +3,14 @@
  * @module pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustFormQueries
  *
  * @summary
- * Query coordinator for the quantity-adjust flow: suppliers, item
- * search, item details, and item price. Owns two sync effects that
- * keep react-hook-form coherent with selection state.
+ * Query coordinator for the quantity-adjust flow: suppliers, item search, item details,
+ * and item price.
  *
  * @enterprise
- * - Four queries, more than any other dialog in this family. The fourth
- *   (useItemPriceQuery) exists because the inventory item details
- *   endpoint does not return a guaranteed current price; analytics
- *   price-trend is the authoritative source for the most recent price.
+ * Owns two sync effects that keep react-hook-form coherent with selection state.
+ *
+ * - Four queries, more than any other dialog in this family; the fourth
+ *   (useItemPriceQuery) reads the latest price-trend point.
  * - Two effects: supplier-change resets item, query, itemId, newQuantity,
  *   and clears errors; item-pick mirrors the itemId and pre-fills
  *   newQuantity from the details query's onHand.
@@ -49,47 +48,19 @@ export const useQuantityAdjustFormQueries = (
   setValue: UseFormSetValue<QuantityAdjustForm>,
   isDialogOpen: boolean
 ): QuantityAdjustFormQueries => {
-  // ================================
-  // Data Queries
-  // ================================
 
-  /**
-   * Load suppliers for dropdown.
-   * Uses shared hook for consistent caching and error handling.
-   */
   const suppliersQuery = useSuppliersQuery(isDialogOpen);
 
-  /**
-   * Items of the selected supplier matching the query (name or SKU).
-   * The supplier's list loads once; typing is matched in the browser.
-   */
+  // The supplier's list loads once; typing is matched in the browser
   const itemsQuery = useItemSearchQuery(state.selectedSupplier, state.itemQuery);
 
-  /**
-   * Fetch full item details including current quantity when item is selected.
-   * Uses shared hook for consistent data fetching.
-   */
   const itemDetailsQuery = useItemDetailsQuery(state.selectedItem?.id);
 
-  /**
-   * Fetch current price for the selected item via specialized hook.
-   * Uses price trend API to get the most recent price.
-   */
   const itemPriceQuery = useItemPriceQuery(state.selectedItem, state.selectedSupplier?.id);
 
-  // ================================
-  // Effects
-  // ================================
-
-  // Destructure individual setters so the dependency array uses stable
-  // React useState setter references instead of the whole `setters` object
-  // (which is recreated on every render, causing the effect to fire every render).
   const { setSelectedItem, setItemQuery, setFormError } = state;
 
-  /**
-   * Reset item search when supplier changes.
-   * Prevents cross-supplier item selection errors.
-   */
+  // A supplier change resets the item search, so no item from another supplier survives
   React.useEffect(() => {
     setSelectedItem(null);
     setItemQuery('');
@@ -99,10 +70,6 @@ export const useQuantityAdjustFormQueries = (
     setFormError('');
   }, [state.selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
 
-  /**
-   * Update form value when item is selected.
-   * Use current quantity from selected item data.
-   */
   React.useEffect(() => {
     if (state.selectedItem && itemDetailsQuery.data) {
       setValue('itemId', state.selectedItem.id);
@@ -113,24 +80,11 @@ export const useQuantityAdjustFormQueries = (
     }
   }, [state.selectedItem, itemDetailsQuery.data, setValue]);
 
-  // ================================
-  // Derived Values
-  // ================================
-
-  /**
-   * Effective current quantity:
-   * - Prefer value from itemDetailsQuery (GET /api/inventory/{id})
-   * - Fall back to selectedItem.onHand (search placeholder) if details not loaded yet
-   */
+  // Fetched details first, the search result's values until they load
   const effectiveCurrentQty = state.selectedItem
     ? itemDetailsQuery.data?.onHand ?? state.selectedItem.onHand ?? 0
     : 0;
 
-  /**
-   * Effective current price:
-   * - Prefer value from itemPriceQuery (analytics API)
-   * - Fall back to selectedItem.price (search placeholder)
-   */
   const effectiveCurrentPrice =
     itemPriceQuery.data !== null && itemPriceQuery.data !== undefined
       ? itemPriceQuery.data

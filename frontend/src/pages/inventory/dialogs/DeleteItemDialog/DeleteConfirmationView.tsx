@@ -3,11 +3,12 @@
  * @module pages/inventory/dialogs/DeleteItemDialog/DeleteConfirmationView
  *
  * @summary
- * Confirmation step of the delete flow. Renders the irreversible-action
- * warning, the confirmation prompt, the item-details review, and any
- * post-submit error.
+ * Confirmation step of the delete flow.
  *
  * @enterprise
+ * Renders the irreversible-action warning, the confirmation prompt, the item-details
+ * review, and any post-submit error.
+ *
  * - Warning comes BEFORE the confirmation prompt by design. The user reads
  *   the consequences before being asked to confirm, not after.
  * - Item details are re-rendered here, not just at the form step, so the
@@ -30,12 +31,6 @@ export function DeleteConfirmationView({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {/* 
-        IRREVERSIBLE ACTION WARNING
-        - Red alert emphasizing this cannot be undone
-        - Motivates user to carefully review item details below
-        - Sets appropriate tone for destructive operation
-      */}
       <Alert severity="warning" icon={false}>
         <Box>
           <Typography variant="body1" sx={{ fontWeight: 600 }}>
@@ -49,21 +44,10 @@ export function DeleteConfirmationView({
         </Box>
       </Alert>
 
-      {/* 
-        CONFIRMATION PROMPT
-        - Direct question asking for final user confirmation
-        - Placed after warning to ensure user reads it
-      */}
       <Typography>
         {t('inventory:deleteFlow.confirmationPrompt')}
       </Typography>
 
-      {/* 
-        ITEM DETAILS REVIEW
-        - Shows item name and on-hand quantity one final time
-        - Allows user to verify they're deleting the correct item
-        - Placement after warning ensures careful review
-      */}
       {state.selectedItem && state.itemDetailsQuery.data && (
         <Box>
           <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
@@ -73,11 +57,6 @@ export function DeleteConfirmationView({
         </Box>
       )}
 
-      {/* 
-        Confirmation-level error display
-        - Shows API errors or validation failures during deletion
-        - Allows user to cancel and try again
-      */}
       {state.formError && (
         <Alert severity="error" sx={{ mt: 1 }}>
           {state.formError}

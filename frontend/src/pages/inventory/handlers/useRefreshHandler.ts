@@ -3,15 +3,13 @@
  * @module pages/inventory/handlers/useRefreshHandler
  *
  * @summary
- * Refresh handler for the inventory board's reload button and for the
- * success callback shared by all six inventory mutation dialogs.
+ * Refresh handler: the success callback shared by the five inventory mutation dialogs.
  *
  * @enterprise
  * - Refresh calls a dedicated reload function that re-runs the current
- *   inventory query directly. It no longer pokes paginationModel back to
- *   page 0: that approach silently no-opped when the user was already on
- *   page 0 (React bails on an equal setState), so the refresh button and
- *   every mutation-success callback failed to refetch on the first page.
+ *   inventory query directly. Resetting paginationModel to page 0 would
+ *   no-op on page 0 itself (React bails on an equal setState), so the
+ *   first page would never refetch.
  * - The reload preserves the user's current page, page size, and filters,
  *   so a mutation refetches the view the user is looking at rather than
  *   jumping them back to the first page.

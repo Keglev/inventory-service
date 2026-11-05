@@ -4,7 +4,7 @@
  *
  * @summary
  * Step 1 of the quantity-adjust form: the shared supplier search field
- * (SupplierPickerField, two letters; S2-9).
+ * (SupplierPickerField, two letters).
  *
  * @enterprise
  * - Pure presentation. Selecting a supplier triggers the upstream

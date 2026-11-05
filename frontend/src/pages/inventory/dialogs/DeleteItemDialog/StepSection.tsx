@@ -7,8 +7,7 @@
  * title, plus indented content.
  *
  * @enterprise
- * Extracted from DeleteFormView, so each step of the flow is laid out by one
- * component.
+ * One component lays out each step of the flow, so the steps cannot drift apart.
  */
 
 import { Box, Typography } from '@mui/material';

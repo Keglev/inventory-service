@@ -3,18 +3,16 @@
  * @module pages/inventory/dialogs/ItemFormDialog/ItemForm
  *
  * @summary
- * Field layout for the create-item flow: supplier, name, code,
- * quantity and price. Wired to the shared react-hook-form
- * instance from useItemForm.
+ * Field layout for the create-item flow: supplier, name, code, quantity and price.
  *
  * @enterprise
+ * - Wired to the shared react-hook-form instance from useItemForm.
  * - No reason field: the first stock of a new item is always recorded as
  *   INITIAL_STOCK by the backend. Later price and quantity changes go
  *   through dedicated dialogs (PriceChangeDialog, QuantityAdjustDialog),
  *   which carry their own reasons.
- * - Code / SKU field is editable and required (backend-enforced unique),
- *   reflecting the current backend behavior that codes are not yet
- *   user-editable. Will revisit if the backend exposes code edits.
+ * - Code / SKU is required (backend-enforced unique) and set once, here:
+ *   the backend offers no later edit of it.
  * - Price field uses a Euro adornment, consistent with the German-first
  *   appearance policy.
  */
@@ -32,33 +30,24 @@ import type { CreateItemForm } from '../../validation/inventoryValidation';
 import type { UseItemFormReturn } from './useItemForm';
 
 /**
- * ItemForm - Render all form fields
- * 
+ * ItemForm - The create-item fields, bound to the form from useItemForm.
+ *
  * @param state - Complete form state and handlers from useItemForm
- * 
- * @enterprise
- * - Error banner at top for generic form errors
- * - Supplier picked in the shared SupplierPickerField (two letters, S2-9),
- *   controlled by supplierValue
- * - Code / SKU field editable, required
- * - Quantity and price with numeric constraints
  */
 export function ItemForm({ state }: { state: UseItemFormReturn }) {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
 
   return (
     <Box sx={{ display: 'grid', gap: 2, mt: 1 }}>
-      {/* Error banner for non-field errors */}
       {state.formError && <Alert severity="error">{state.formError}</Alert>}
 
-      {/* Supplier: the shared search field, two letters (S2-9) */}
+      {/* Supplier: the shared search field, two letters */}
       <SupplierPickerField
         suppliers={state.suppliers}
         loading={state.suppliersLoading}
         value={state.supplierValue}
         onSelect={(opt) => {
           state.setSupplierValue(opt);
-          // Update RHF with supplier ID
           const nextSupplierId: CreateItemForm['supplierId'] =
             opt ? (opt.id as CreateItemForm['supplierId']) : ('' as CreateItemForm['supplierId']);
           state.setValue('supplierId', nextSupplierId, { shouldValidate: true });
@@ -67,7 +56,6 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
         errorText={fieldErrorText(state.formState.errors.supplierId, t)}
       />
 
-      {/* Name field */}
       <TextField
         label={t('inventory:table.name')}
         {...state.register('name')}
@@ -75,7 +63,7 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
         helperText={fieldErrorText(state.formState.errors.name, t)}
       />
 
-      {/* Code / SKU field - required, unique per item (backend-enforced) */}
+      {/* Code / SKU: required, unique per item (backend-enforced) */}
       <TextField
         label={t('inventory:table.code')}
         {...state.register('code')}
@@ -83,7 +71,6 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
         helperText={fieldErrorText(state.formState.errors.code, t)}
       />
 
-      {/* Quantity field */}
       <TextField
         label={t('inventory:table.quantity')}
         type="number"
@@ -93,7 +80,6 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
         helperText={fieldErrorText(state.formState.errors.quantity, t)}
       />
 
-      {/* Price field */}
       <TextField
         label={t('inventory:table.price')}
         type="number"

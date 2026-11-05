@@ -23,11 +23,7 @@ export function DeleteItemContent({
   showConfirmation,
 }: DeleteItemContentProps) {
   return (
-    /* 
-      Route based on showConfirmation state
-      - false: render form view (supplier -> item -> reason -> preview)
-      - true: render confirmation view (warning + review)
-    */
+    /* Form view (supplier -> item -> preview) until confirmation, then warning + review */
     showConfirmation ? (
       <DeleteConfirmationView state={state} />
     ) : (

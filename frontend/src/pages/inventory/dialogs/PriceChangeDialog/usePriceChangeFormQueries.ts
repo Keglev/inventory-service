@@ -3,11 +3,11 @@
  * @module pages/inventory/dialogs/PriceChangeDialog/usePriceChangeFormQueries
  *
  * @summary
- * Query coordinator for the price-change flow: suppliers, item search,
- * item details. Owns two sync effects that keep react-hook-form state
- * coherent with selection state.
+ * Query coordinator for the price-change flow: suppliers, item search, item details.
  *
  * @enterprise
+ * Owns two sync effects that keep react-hook-form state coherent with selection state.
+ *
  * - Same lazy-firing pattern as DeleteItemDialog and EditItemDialog:
  *   suppliers fires when the dialog opens; the supplier's item list
  *   loads once when a supplier is selected (typing is matched in the
@@ -47,9 +47,6 @@ export function usePriceChangeFormQueries(
   setValue: UseFormSetValue<PriceChangeForm>,
   clearErrors: UseFormClearErrors<PriceChangeForm>
 ): PriceChangeFormQueries {
-  // ================================
-  // Queries
-  // ================================
 
   const suppliersQuery = useSuppliersQuery(isOpen);
   const itemsQuery = useItemSearchQuery(selectedSupplier, itemQuery);
@@ -60,14 +57,7 @@ export function usePriceChangeFormQueries(
   const effectiveCurrentQty =
     selectedItem ? (itemDetailsQuery.data?.onHand ?? selectedItem.onHand ?? 0) : 0;
 
-  // ================================
-  // Effects
-  // ================================
-
-  /**
-   * Reset form fields when supplier changes
-   * Prevents cross-supplier selection errors and stale form data
-   */
+  // A supplier change resets the fields, so no value from another supplier survives
   React.useEffect(() => {
     if (!isOpen) return;
     setValue('itemId', '');
@@ -75,10 +65,7 @@ export function usePriceChangeFormQueries(
     clearErrors();
   }, [selectedSupplier, isOpen, setValue, clearErrors]);
 
-  /**
-   * Pre-fill form with current price when item is selected
-   * Uses fetched item details (not placeholder values from search)
-   */
+  // Pre-fills the current price from the fetched details (the search result's until they load)
   React.useEffect(() => {
     if (!selectedItem) return;
     setValue('itemId', selectedItem.id);

@@ -27,28 +27,10 @@ export function useDeleteItemQueries(
   itemQuery: string,
   selectedItemId?: string
 ) {
-  /**
-   * Suppliers query
-   * Fires: when dialog opens
-   * Caches: globally across component tree via React Query
-   * Returns: loading state, error, and supplier list with id/label
-   */
   const suppliersQuery = useSuppliersQuery(dialogOpen);
 
-  /**
-   * Item picker data
-   * Fires: once when a supplier is selected; typing is matched in the browser
-   * Dependency: selectedSupplier ensures we filter by supplier context
-   * Returns: items matching the query by name or SKU, and a loading flag
-   */
   const itemsQuery = useItemSearchQuery(selectedSupplier, itemQuery);
 
-  /**
-   * Item details query
-   * Fires: only when specific item is selected
-   * Dependency: selectedItemId (item.id) to fetch detailed data
-   * Returns: name, onHand quantity, and other item details for preview
-   */
   const itemDetailsQuery = useItemDetailsQuery(selectedItemId);
 
   return {

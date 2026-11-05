@@ -7,9 +7,8 @@
  * (ItemSearchField), gated by a selected supplier.
  *
  * @enterprise
- * - Extracted to a standalone component instead of bundled in a
- *   multi-field file. The trade-off is more files; the benefit is
- *   independent unit tests for each step.
+ * - A standalone component, not part of a multi-field file: more files,
+ *   but each step has its own unit tests.
  * - Disabled when no supplier is selected, with a placeholder hint that
  *   tells the user why. Matching (name or SKU, two characters) happens
  *   upstream in useItemSearchQuery; this component only shows it.

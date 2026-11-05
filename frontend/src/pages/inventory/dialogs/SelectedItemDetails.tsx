@@ -11,7 +11,7 @@
  * - One panel for both dialogs, so both show the same rows in the same
  *   order and format. The total is shown only where it is what the user
  *   changes: a price change moves the total; a quantity adjustment shows
- *   quantity and price only (owner's choice from the mockup).
+ *   quantity and price only.
  * - Renders nothing when no item is selected: the dialog input is disabled
  *   in that state, so the panel would carry no useful information.
  * - Prices use formatNumber with the user's number format and a Euro

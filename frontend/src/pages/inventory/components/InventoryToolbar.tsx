@@ -7,12 +7,11 @@
  * Delete, Adjust quantity, Change price.
  *
  * @enterprise
- * - Pure presentation. Each button is a callback; no disabled logic
- *   here. The parent (InventoryBoard) decides which actions are
- *   meaningful given the current selection.
+ * - Pure presentation. Each button is a plain opener callback from the
+ *   parent; no action depends on a selection and none is disabled here.
  * - "Edit" opens the rename dialog (openEditName) -- intentional, per
- *   the rule documented in useToolbarHandlers: only ADMIN can rename,
- *   and the toolbar surfaces only the rename path. Every other
+ *   the rule documented in useToolbarHandlers: the name is the only field
+ *   without a button of its own. Every other
  *   mutation dialog selects its own target internally.
  */
 

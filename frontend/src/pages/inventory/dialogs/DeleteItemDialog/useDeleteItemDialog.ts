@@ -3,11 +3,12 @@
  * @module pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog
  *
  * @summary
- * Orchestrator hook for the delete flow. Composes useDeleteItemState,
- * useDeleteItemQueries, and useDeleteItemHandlers into a single
- * UseDeleteItemDialogReturn object consumed by every view and field.
+ * Orchestrator hook for the delete flow.
  *
  * @enterprise
+ * Composes useDeleteItemState, useDeleteItemQueries, and useDeleteItemHandlers into a
+ * single UseDeleteItemDialogReturn object consumed by every view and field.
+ *
  * - Composition over a god-hook. Each sub-hook owns one concern (state,
  *   data, behavior). This file is the only place that knows about all
  *   three.
@@ -37,10 +38,8 @@ export function useDeleteItemDialog(
   onItemDeleted: () => void,
   readOnly: boolean = false
 ): UseDeleteItemDialogReturn {
-  // Step 1: Manage all selection and dialog state
   const state = useDeleteItemState();
 
-  // Step 2: Coordinate data queries based on selection state
   const queries = useDeleteItemQueries(
     dialogOpen,
     state.selectedSupplier,
@@ -48,7 +47,6 @@ export function useDeleteItemDialog(
     state.selectedItem?.id
   );
 
-  // Step 3: Bind event handlers with state and queries
   const handlers = useDeleteItemHandlers(
     state,
     onClose,
@@ -56,31 +54,25 @@ export function useDeleteItemDialog(
     readOnly
   );
 
-  // Compose: return backwards-compatible shape for DeleteItemDialog components
   return {
-    // Selection state - from useDeleteItemState
     selectedSupplier: state.selectedSupplier,
     selectedItem: state.selectedItem,
     itemQuery: state.itemQuery,
 
-    // Dialog state - from useDeleteItemState
     formError: state.formError,
     showConfirmation: state.showConfirmation,
     isSubmitting: state.isSubmitting,
 
-    // Queries - from useDeleteItemQueries
     suppliersQuery: queries.suppliersQuery,
     itemsQuery: queries.itemsQuery,
     itemDetailsQuery: queries.itemDetailsQuery,
 
-    // State setters - from useDeleteItemState
     setSelectedSupplier: state.setSelectedSupplier,
     setSelectedItem: state.setSelectedItem,
     setItemQuery: state.setItemQuery,
     setFormError: state.setFormError,
     setShowConfirmation: state.setShowConfirmation,
 
-    // Handlers - from useDeleteItemHandlers
     handleClose: handlers.handleClose,
     handleCancelConfirmation: handlers.handleCancelConfirmation,
     onSubmit: handlers.onSubmit,

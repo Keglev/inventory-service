@@ -11,9 +11,8 @@
  *   locale and format changes re-render columns. Field identifiers stay
  *   constant across renders so DataGrid's internal column-key cache is
  *   stable.
- * - Value-getter field-name tolerance for onHand (falls back to quantity)
- *   and minQty (falls back to minimumQuantity) is retained here; tracked
- *   under CB-B (dead multi-field tolerance vs single-shape backend).
+ * - Value getters fall back from onHand to quantity and from minQty to
+ *   minimumQuantity; rows arrive normalized, so the fallbacks are defensive.
  * - The date column shows the backend's createdAt (InventoryItemDTO); the
  *   backend has no update timestamp, so the column is labeled "Created".
  * - Placeholder glyph is rendered for missing or unparseable values so
@@ -47,7 +46,7 @@ export const useInventoryColumns = (showSupplier = false): GridColDef[] => {
   const { userPreferences } = useSettings();
 
   return React.useMemo<GridColDef[]>(() => {
-    // Across all suppliers (below-minimum list) a row must say whose item it is;
+    // Across all suppliers a row must say whose item it is;
     // with one supplier chosen the column would repeat one name.
     const supplierColumn: GridColDef[] = showSupplier
       ? [{

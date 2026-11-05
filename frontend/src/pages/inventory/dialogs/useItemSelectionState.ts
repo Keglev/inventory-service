@@ -7,10 +7,9 @@
  * chosen item, the item search text and the dialog's error message.
  *
  * @enterprise
- * The delete, edit, price-change and quantity-adjust dialogs each declared
- * these four values themselves (jscpd, LO-3), with the error typed as
- * `string | null` in one and `string` in the others. One hook keeps them
- * identical; an empty string means "no error" in every dialog. Pure useState,
+ * Shared by the delete, edit, price-change and quantity-adjust dialogs, so the
+ * four values are identical in each; an empty string means "no error" in every
+ * dialog. Pure useState,
  * so a dialog's own effects and queries stay in its own hook.
  */
 

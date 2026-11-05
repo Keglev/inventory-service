@@ -3,19 +3,17 @@
  * @module pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm
  *
  * @summary
- * Orchestrator hook for the price-change flow. Composes
- * useItemSelectionState, usePriceChangeFormQueries, and a react-hook-form
- * instance. Owns the submit pipeline that calls changePrice.
+ * Orchestrator hook for the price-change flow; owns the submit pipeline that calls changePrice.
  *
  * @enterprise
+ * - Composes useItemSelectionState, usePriceChangeFormQueries and a react-hook-form instance.
  * - Three-way composition same as DeleteItemDialog. State and queries
  *   are exported individually; the orchestrator is the consumer-facing
  *   entry.
  * - priceChangeSchema validates itemId and newPrice (must be > 0).
- *   No reason field -- backend does not record a reason for price
- *   changes. Different from itemFormSchema (create) and
- *   quantityAdjustSchema (adjust). CB-E asymmetry does not surface
- *   here.
+ *   No reason field -- the backend records the change as PRICE_CHANGE
+ *   itself. Different from itemFormSchema (create) and
+ *   quantityAdjustSchema (adjust).
  * - Failures are classified by the backend status token: 'forbidden' ->
  *   admin-only, 'not_found' -> item no longer exists, anything else ->
  *   a generic "failed to change price" message. This keys on the
@@ -55,10 +53,8 @@ export function usePriceChangeForm({
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
 
-  // Compose state management
   const state = useItemSelectionState();
 
-  // Form management
   const {
     control,
     handleSubmit: rhfHandleSubmit,
@@ -74,7 +70,6 @@ export function usePriceChangeForm({
     },
   });
 
-  // Compose query management with form effects
   const queries = usePriceChangeFormQueries(
     isOpen,
     state.selectedSupplier,
@@ -139,15 +134,11 @@ export function usePriceChangeForm({
   });
 
   return {
-    // State
     ...state,
-    // Queries
     ...queries,
-    // Form
     control,
     formState,
     setValue,
-    // Handlers
     onSubmit,
     handleClose,
   };

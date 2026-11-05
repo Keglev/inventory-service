@@ -36,61 +36,34 @@ export function useDeleteItemHandlers(
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
 
-  /**
-   * Close dialog handler
-   * Action: calls provided onClose callback + resets all local state
-   * Effect: makes dialog invisible and clears selection/form data
-   * Usage: triggered by cancel buttons or successful deletion
-   */
   const handleClose = React.useCallback(() => {
     state.resetAll();
     onClose();
   }, [state, onClose]);
 
-  /**
-   * Cancel confirmation handler
-   * Action: close confirmation dialog, return to form
-   * Effect: shows toast notification of cancellation
-   * Usage: when user clicks "No" on confirmation dialog
-   */
   const handleCancelConfirmation = React.useCallback(() => {
     toast(t('inventory:status.operationCanceled'), 'info');
     state.setShowConfirmation(false);
   }, [state, t, toast]);
 
-  /**
-   * Form submission handler
-   * Validation: ensures item is selected
-   * Action: shows confirmation dialog with warning
-   * Usage: triggered by "Delete" button in form view
-   * Not memoized: handleSubmit returns a new function on every render, and
-   * `state` is a new object each render, so a useCallback here never held.
-   */
+  // Not memoized: handleSubmit returns a new function on every render, and `state` is
+  // a new object each render, so a useCallback here would never hold.
   const onSubmit = state.handleSubmit(async () => {
     if (!state.selectedItem) {
       state.setFormError(t('errors:inventory.selection.noItemSelected'));
       return;
     }
-    // Validation passed: show confirmation dialog
     state.setShowConfirmation(true);
   });
 
-  /**
-   * Confirmed deletion handler
-   * Validation: item selected, not in readonly mode
-   * Action: calls DELETE API with the item ID (deletion is a pure catalog
-   * removal; the backend enforces the quantity-zero gate)
-   * Response: success closes dialog, error shows message
-   * Error handling: delegates to deleteItemErrorHandler for user messages
-   */
+  // Deletion is a pure catalog removal; the backend enforces the quantity-zero gate.
   const onConfirmedDelete = React.useCallback(async () => {
-    // Validation: item required
     if (!state.selectedItem) {
       state.setFormError(t('errors:inventory.selection.noItemSelected'));
       return;
     }
 
-    // Guard: readonly mode blocks actual deletion
+    // Demo mode reaches the confirmation but never deletes
     if (readOnly) {
       state.setFormError(
         t('common:demoDisabled')
@@ -98,16 +71,13 @@ export function useDeleteItemHandlers(
       return;
     }
 
-    // Clear previous errors before submission
     state.setFormError('');
     state.setShowConfirmation(false);
 
     try {
-      // Execute deletion: calls DELETE /api/inventory/{id}
       const success = await deleteItem(state.selectedItem.id);
 
       if (success.ok) {
-        // Success path: show message + close + notify parent
         toast(
           t(
             'inventory:status.itemDeletedSuccessfully'
@@ -117,7 +87,6 @@ export function useDeleteItemHandlers(
         onItemDeleted();
         handleClose();
       } else {
-        // Error path: use error handler to map backend error to user message
         const errorResult = handleDeleteError(success, t);
         state.setFormError(errorResult.message);
         state.setShowConfirmation(false);

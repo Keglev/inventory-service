@@ -3,20 +3,20 @@
  * @module pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm
  *
  * @summary
- * Orchestrator hook for the quantity-adjust flow. Composes state,
- * queries, and react-hook-form. Owns the submit pipeline that
- * computes a delta and calls adjustQuantity.
+ * Orchestrator hook for the quantity-adjust flow; owns the submit pipeline that computes
+ * a delta and calls adjustQuantity.
  *
  * @enterprise
+ * - Composes state, queries, and react-hook-form.
  * - Three-way composition same as PriceChangeDialog and
  *   DeleteItemDialog. Sub-hooks are independently exported.
  * - Submission pipeline:
- *     newQuantity - actualCurrentQuantity = delta
+ *     newQuantity - effectiveCurrentQty = delta
  *     adjustQuantity({ id, delta, reason }) -> ItemWriteResult
  *   Failures are mapped by backend errorToken: forbidden -> notAllowed,
  *   not_found -> itemNotFound, unprocessable_content (stale delta pushed
  *   stock negative) -> stockCannotGoNegative, else generic.
- *   The backend expects a delta, not an absolute. actualCurrentQuantity
+ *   The backend expects a delta, not an absolute. effectiveCurrentQty
  *   comes from the live itemDetailsQuery to avoid double-counting if
  *   the user holds the dialog open while the item changes elsewhere.
  * - quantityAdjustSchema constrains the reason to the direction-aware
@@ -24,8 +24,7 @@
  *   offers only the reasons valid for the current direction. The schema
  *   mirrors the backend StockHistoryValidator's accepted set.
  * - useQuantityAdjustFormQueries receives the combined state object
- *   (ItemSelectionState & ItemSelectionStateSetters) as a
- *   single parameter, eliminating the prior two-slot ambiguity.
+ *   (ItemSelectionState & ItemSelectionStateSetters) as a single parameter.
  */
 
 import { useForm } from 'react-hook-form';
@@ -60,14 +59,8 @@ export const useQuantityAdjustForm = (
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
 
-  // ================================
-  // Composition: State Management
-  // ================================
   const state = useItemSelectionState();
 
-  // ================================
-  // Composition: Form Management
-  // ================================
   const { control, handleSubmit, formState, reset, setValue } = useForm<QuantityAdjustForm>({
     resolver: zodResolver(quantityAdjustSchema),
     defaultValues: {
@@ -78,22 +71,9 @@ export const useQuantityAdjustForm = (
     },
   });
 
-  // ================================
-  // Composition: Query Management
-  // ================================
   const queries = useQuantityAdjustFormQueries(state, setValue, open);
 
-  // ================================
-  // Event Handlers
-  // ================================
-
-  /**
-   * Handle dialog close with state cleanup.
-   * Ensures clean state for next dialog open.
-   * 
-   * @enterprise
-   * Prevents state pollution between dialog sessions.
-   */
+  // Clears every value, so the next open starts empty
   const handleDialogClose = () => {
     state.setSelectedSupplier(null);
     state.setSelectedItem(null);
@@ -103,16 +83,6 @@ export const useQuantityAdjustForm = (
     onClose();
   };
 
-  /**
-   * Handle form submission with quantity adjustment.
-   * Validates input and applies quantity change with audit trail.
-   * 
-   * @enterprise
-   * - Calculates quantity delta for backend compatibility
-   * - Maintains audit trail through reason tracking
-   * - Provides user feedback on operation success/failure
-   * - Triggers parent component refresh for data consistency
-   */
   const onSubmit = handleSubmit(async (values) => {
     if (!state.selectedItem) {
       state.setFormError(t('errors:inventory.selection.noItemSelected'));
@@ -130,10 +100,8 @@ export const useQuantityAdjustForm = (
     state.setFormError('');
 
     try {
-      // Use the actual current quantity from the fetched item details
+      // The delta is taken from the fetched current quantity, not the search result's
       const actualCurrentQty = queries.effectiveCurrentQty;
-
-      // Calculate the delta from the ACTUAL current quantity
       const delta = values.newQuantity - actualCurrentQty;
 
       const result = await adjustQuantity({
@@ -143,7 +111,6 @@ export const useQuantityAdjustForm = (
       });
 
       if (result.ok) {
-        // Show success message with the new quantity
         toast(
           t('inventory:quantity.quantityUpdatedTo', {
             quantity: values.newQuantity,
@@ -171,16 +138,9 @@ export const useQuantityAdjustForm = (
     }
   });
 
-  // ================================
-  // Return Unified Interface
-  // ================================
-
   return {
-    // State values and setters
     ...state,
-    // Query results
     ...queries,
-    // Form management
     control,
     formState,
     setValue,
