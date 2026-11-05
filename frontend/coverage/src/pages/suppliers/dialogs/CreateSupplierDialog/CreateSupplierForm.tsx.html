@@ -181,10 +181,8 @@
 <a name='L116'></a><a href='#L116'>116</a>
 <a name='L117'></a><a href='#L117'>117</a>
 <a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a>
-<a name='L120'></a><a href='#L120'>120</a>
-<a name='L121'></a><a href='#L121'>121</a>
-<a name='L122'></a><a href='#L122'>122</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L119'></a><a href='#L119'>119</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -301,19 +299,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file CreateSupplierForm.tsx
- * @module dialogs/CreateSupplierDialog/CreateSupplierForm
+ * @module pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm
  *
  * @summary
  * Form fields for supplier creation.
- * Pure presentation component with no business logic.
  *
  * @enterprise
+ * Pure presentation component with no business logic.
+ *
  * - Stateless component receiving all props from parent
  * - Uses React Hook Form register for field binding
  * - Displays validation errors inline
@@ -378,7 +373,6 @@ export const SupplierFormFields: React.FC&lt;CreateSupplierFormProps&gt; = ({
     &lt;Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}&gt;
       {formError &amp;&amp; &lt;Alert severity="error"&gt;{formError}&lt;/Alert&gt;}
 &nbsp;
-      {/* Supplier Name - Required */}
       &lt;TextField
         {...register('name')}
         label={t('suppliers:table.name') + ' *'}
@@ -390,7 +384,6 @@ export const SupplierFormFields: React.FC&lt;CreateSupplierFormProps&gt; = ({
         autoFocus
       /&gt;
 &nbsp;
-      {/* Contact Name - Optional */}
       &lt;TextField
         {...register('contactName')}
         label={t('suppliers:table.contactName')}
@@ -401,7 +394,6 @@ export const SupplierFormFields: React.FC&lt;CreateSupplierFormProps&gt; = ({
         disabled={isSubmitting}
       /&gt;
 &nbsp;
-      {/* Phone - Optional */}
       &lt;TextField
         {...register('phone')}
         label={t('suppliers:table.phone')}
@@ -412,7 +404,6 @@ export const SupplierFormFields: React.FC&lt;CreateSupplierFormProps&gt; = ({
         disabled={isSubmitting}
       /&gt;
 &nbsp;
-      {/* Email - Optional but validated */}
       &lt;TextField
         {...register('email')}
         label={t('suppliers:table.email')}

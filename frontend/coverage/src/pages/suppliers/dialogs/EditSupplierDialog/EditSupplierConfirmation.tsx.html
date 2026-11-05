@@ -266,6 +266,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -329,7 +330,6 @@
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -401,13 +401,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file EditSupplierConfirmation.tsx
- * @module dialogs/EditSupplierDialog/EditSupplierConfirmation
+ * @module pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation
  *
  * @summary
  * Confirmation dialog for supplier changes.
- * Displays changes summary before applying updates.
  *
  * @enterprise
+ * Displays changes summary before applying updates.
+ *
  * - Pure presentation component
  * - Shows supplier info (name field is read-only in this UI; not a backend constraint)
  * - Displays what will change (before -&gt; after)
@@ -522,7 +523,6 @@ export const EditSupplierConfirmation: React.FC&lt;EditSupplierConfirmationProps
 &nbsp;
               &lt;Divider sx={{ my: 2 }} /&gt;
 &nbsp;
-              {/* Changes Summary */}
               &lt;Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}&gt;
                 {t('suppliers:confirmations.changes')}
               &lt;/Typography&gt;

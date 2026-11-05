@@ -231,9 +231,8 @@
 <a name='L166'></a><a href='#L166'>166</a>
 <a name='L167'></a><a href='#L167'>167</a>
 <a name='L168'></a><a href='#L168'>168</a>
-<a name='L169'></a><a href='#L169'>169</a>
-<a name='L170'></a><a href='#L170'>170</a>
-<a name='L171'></a><a href='#L171'>171</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L169'></a><a href='#L169'>169</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -348,10 +347,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -405,13 +401,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file EditSupplierDialog.tsx
- * @module dialogs/EditSupplierDialog/EditSupplierDialog
+ * @module pages/suppliers/dialogs/EditSupplierDialog/EditSupplierDialog
  *
  * @summary
  * Dialog container for editing supplier contact information.
- * Orchestrates form logic hook and view components.
  *
  * @enterprise
+ * Orchestrates form logic hook and view components.
+ *
  * - Separation of concerns: Dialog wrapper, form logic, view components
  * - Two-step workflow: search/select -&gt; edit info
  * - Manages dialog lifecycle (open/close/reset)
@@ -507,7 +504,6 @@ export const EditSupplierDialog: React.FC&lt;EditSupplierDialogProps&gt; = ({
 &nbsp;
   return (
     &lt;&gt;
-      {/* Main Edit Dialog */}
       &lt;Dialog open={open &amp;&amp; !form.showConfirmation} onClose={handleClose} fullWidth maxWidth="sm"&gt;
         &lt;DialogTitle&gt;
           &lt;Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}&gt;
@@ -518,7 +514,6 @@ export const EditSupplierDialog: React.FC&lt;EditSupplierDialogProps&gt; = ({
 &nbsp;
         &lt;DialogContent dividers&gt;
           &lt;Box sx={{ display: 'grid', gap: 2.5, mt: 1 }}&gt;
-            {/* Error Display */}
             {form.formError &amp;&amp; (
               &lt;Alert severity="error" onClose={() =&gt; form.setFormError('')}&gt;
                 {form.formError}
@@ -560,7 +555,6 @@ export const EditSupplierDialog: React.FC&lt;EditSupplierDialogProps&gt; = ({
         &lt;/DialogActions&gt;
       &lt;/Dialog&gt;
 &nbsp;
-      {/* Confirmation Dialog */}
       &lt;EditSupplierConfirmation
         open={form.showConfirmation}
         supplier={form.selectedSupplier}

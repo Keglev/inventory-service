@@ -128,9 +128,7 @@
 <a name='L63'></a><a href='#L63'>63</a>
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L66'></a><a href='#L66'>66</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -200,16 +198,15 @@
  * @module pages/auth/AuthCallback
  *
  * @summary
- * OAuth2 redirect target. Verifies the session via GET /api/me, hydrates
- * AuthContext with the returned profile, then redirects to /dashboard.
- * On failure, redirects to /login?error=session.
+ * OAuth2 redirect target: verifies the session via GET /api/me, then redirects to /dashboard.
  *
  * @enterprise
+ * - Hydrates AuthContext with the returned profile; on failure, redirects to
+ *   /login?error=session.
  * - Session verification is mount-only and guarded against unmount races
  *   via a cancelled flag, preventing setState on an unmounted component.
  * - Backend contract (AuthController.me): { email, fullName, role, pictureUrl }.
- *   pictureUrl is currently not consumed by AuthContext (acceptable; avatar
- *   surfaces fetch separately).
+ *   AuthContext keeps no pictureUrl, so the avatar shows initials.
  *
  * @i18n
  * Uses 'auth' namespace. Key: verifying.

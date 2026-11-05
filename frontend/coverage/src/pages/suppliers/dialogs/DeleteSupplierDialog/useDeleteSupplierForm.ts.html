@@ -214,25 +214,7 @@
 <a name='L149'></a><a href='#L149'>149</a>
 <a name='L150'></a><a href='#L150'>150</a>
 <a name='L151'></a><a href='#L151'>151</a>
-<a name='L152'></a><a href='#L152'>152</a>
-<a name='L153'></a><a href='#L153'>153</a>
-<a name='L154'></a><a href='#L154'>154</a>
-<a name='L155'></a><a href='#L155'>155</a>
-<a name='L156'></a><a href='#L156'>156</a>
-<a name='L157'></a><a href='#L157'>157</a>
-<a name='L158'></a><a href='#L158'>158</a>
-<a name='L159'></a><a href='#L159'>159</a>
-<a name='L160'></a><a href='#L160'>160</a>
-<a name='L161'></a><a href='#L161'>161</a>
-<a name='L162'></a><a href='#L162'>162</a>
-<a name='L163'></a><a href='#L163'>163</a>
-<a name='L164'></a><a href='#L164'>164</a>
-<a name='L165'></a><a href='#L165'>165</a>
-<a name='L166'></a><a href='#L166'>166</a>
-<a name='L167'></a><a href='#L167'>167</a>
-<a name='L168'></a><a href='#L168'>168</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L152'></a><a href='#L152'>152</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -303,37 +285,25 @@
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
@@ -348,9 +318,7 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -399,17 +367,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file useDeleteSupplierForm.ts
- * @module dialogs/DeleteSupplierDialog/useDeleteSupplierForm
+ * @module pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm
  *
  * @summary
- * Hook for supplier deletion workflow.
- * Handles selection, confirmation, and deletion submission.
+ * Hook for the supplier deletion workflow: selection, confirmation and the DELETE.
  *
  * @enterprise
- * - Focuses on deletion-specific logic only
- * - Delegates search to useSupplierSearch hook
- * - Business rule enforcement (admin-only, linked items check)
- * - Server error mapping with intelligent heuristics
+ * - Focuses on deletion-specific logic only; search is delegated to useSupplierSearch
+ * - Blocks a non-ADMIN in the client; the linked-stock rule is the backend's (409)
+ * - Server errors are classified from the structured envelope, not the message text
  */
 &nbsp;
 import * as React from 'react';
@@ -470,21 +436,14 @@ export const useDeleteSupplierForm = (
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const { user } = useAuth();
 &nbsp;
-  // Search functionality
   const search = useSupplierSearch();
 &nbsp;
-  // Selection state
   const [selectedSupplier, setSelectedSupplier] = React.useState&lt;SupplierRow | null&gt;(null);
 &nbsp;
-  // Confirmation state
   const [showConfirmation, setShowConfirmation] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [error, setError] = React.useState&lt;string | null&gt;(null);
 &nbsp;
-  /**
-   * Handle supplier selection from search results.
-   * Clears search and shows confirmation step.
-   */
   const handleSelectSupplier = React.useCallback((supplier: SupplierRow) =&gt; {
     setSelectedSupplier(supplier);
     search.resetSearch();
@@ -492,17 +451,12 @@ export const useDeleteSupplierForm = (
     setShowConfirmation(true);
   }, [search]);
 &nbsp;
-  /**
-   * Handle delete confirmation and submission.
-   * Checks authorization, sends DELETE request, maps errors.
-   */
   const handleConfirmDelete = React.useCallback(async () =&gt; {
     if (!selectedSupplier) {
       setError(t('errors:supplier.selection.noSupplierSelected'));
       return;
     }
 &nbsp;
-    // Check authorization
     if (user?.role !== 'ADMIN') {
       setError(t('errors:supplier.adminOnly'));
       return;
@@ -515,11 +469,9 @@ export const useDeleteSupplierForm = (
       const response = await deleteSupplier(selectedSupplier.id);
 &nbsp;
       if (response.success) {
-        // Success: notify parent
         onDeleted();
       } else {
-        // Classified from the structured envelope: on delete, a 409 is the
-        // linked-items rule, not a duplicate name.
+        // On delete, a 409 is the linked-stock rule, not a duplicate name.
         setError(supplierErrorMessage(response, t, 'delete'));
       }
     } catch (err) {

@@ -166,9 +166,7 @@
 <a name='L101'></a><a href='#L101'>101</a>
 <a name='L102'></a><a href='#L102'>102</a>
 <a name='L103'></a><a href='#L103'>103</a>
-<a name='L104'></a><a href='#L104'>104</a>
-<a name='L105'></a><a href='#L105'>105</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L104'></a><a href='#L104'>104</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -277,12 +275,11 @@
  *
  * @summary
  * Centralized state management for suppliers board page.
- * Manages search, pagination, sorting, dialog toggles, and selection.
  *
  * @enterprise
- * - Single source of truth for UI state
- * - Separated from data fetching and processing logic
- * - Allows components to be pure and testable
+ * - Single source of truth for UI state: search, pagination, sorting, dialog toggles
+ *   and selection
+ * - Separated from data fetching and processing logic, so components stay pure
  */
 &nbsp;
 import * as React from 'react';
@@ -342,7 +339,7 @@ export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn =&gt; {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [paginationModel, setPaginationModel] = React.useState&lt;GridPaginationModel&gt;({
     page: 0,
-    // Ten rows fill a 1920x1080 screen without the former show-all card (S2-15).
+    // Ten rows fill a 1920x1080 screen.
     pageSize: 10,
   });
   const [sortModel, setSortModel] = React.useState&lt;GridSortModel&gt;([

@@ -170,11 +170,7 @@
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -286,15 +282,13 @@
  * @module pages/suppliers/components/SuppliersSearchPanel
  *
  * @summary
- * Search panel component for suppliers board.
- * Handles search input, results dropdown, and selected supplier display.
+ * Search panel for the suppliers board: search input, results and the selected supplier.
  *
  * @enterprise
  * - The shared SupplierSearchField (matching in the browser, at most six
  *   results plus a count of the rest)
  * - Selected supplier info display with clear button
  * - Pure presentation component
- * - i18n support
  */
 &nbsp;
 import * as React from 'react';
@@ -375,8 +369,8 @@ export const SuppliersSearchPanel: React.FC&lt;SuppliersSearchPanelProps&gt; = (
         /&gt;
       &lt;/Box&gt;
 &nbsp;
-      {/* Selected supplier: compact one-line indicator with clear action.
-          The former detail card duplicated the table row below. */}
+      {/* Selected supplier: a one-line indicator with a clear action; the table row
+          below shows the details. */}
       {selectedSupplier &amp;&amp; (
         &lt;Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1 }}&gt;
           &lt;Typography variant="body2" sx={{ fontWeight: 600 }}&gt;

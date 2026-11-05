@@ -163,10 +163,8 @@
 <a name='L98'></a><a href='#L98'>98</a>
 <a name='L99'></a><a href='#L99'>99</a>
 <a name='L100'></a><a href='#L100'>100</a>
-<a name='L101'></a><a href='#L101'>101</a>
-<a name='L102'></a><a href='#L102'>102</a>
-<a name='L103'></a><a href='#L103'>103</a>
-<a name='L104'></a><a href='#L104'>104</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L101'></a><a href='#L101'>101</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -245,10 +243,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
@@ -271,13 +265,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file useEditSupplierFormState.ts
- * @module dialogs/EditSupplierDialog/useEditSupplierFormState
+ * @module pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState
  *
  * @summary
  * Hook for managing supplier edit form state.
- * Handles form initialization, validation, and lifecycle.
  *
  * @enterprise
+ * Handles form initialization, validation, and lifecycle.
+ *
  * - React Hook Form with Zod validation
  * - Form reset and setValue management
  * - Supplier data pre-fill on selection
@@ -348,10 +343,6 @@ export const useEditSupplierFormState = (): UseEditSupplierFormStateReturn =&gt;
     },
   });
 &nbsp;
-  /**
-   * Populate form with supplier data.
-   * Pre-fills form fields when supplier is selected.
-   */
   const populateWithSupplier = React.useCallback(
     (supplier: SupplierRow) =&gt; {
       setValue('supplierId', supplier.id);

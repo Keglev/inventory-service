@@ -226,18 +226,7 @@
 <a name='L161'></a><a href='#L161'>161</a>
 <a name='L162'></a><a href='#L162'>162</a>
 <a name='L163'></a><a href='#L163'>163</a>
-<a name='L164'></a><a href='#L164'>164</a>
-<a name='L165'></a><a href='#L165'>165</a>
-<a name='L166'></a><a href='#L166'>166</a>
-<a name='L167'></a><a href='#L167'>167</a>
-<a name='L168'></a><a href='#L168'>168</a>
-<a name='L169'></a><a href='#L169'>169</a>
-<a name='L170'></a><a href='#L170'>170</a>
-<a name='L171'></a><a href='#L171'>171</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L164'></a><a href='#L164'>164</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -400,23 +389,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file DeleteSupplierConfirmation.tsx
- * @module dialogs/DeleteSupplierDialog/DeleteSupplierConfirmation
+ * @module pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierConfirmation
  *
  * @summary
- * Confirmation step for supplier deletion dialog.
- * Displays selected supplier details and deletion warning.
+ * Confirmation step of the supplier deletion dialog: the supplier's details, a warning,
+ * and any backend error.
  *
  * @enterprise
  * - Pure presentation component, no business logic
- * - Shows supplier details (name, contact, email, phone)
- * - Displays warning message before deletion
- * - Shows loading state during deletion
- * - Displays error messages from backend
  */
 &nbsp;
 import * as React from 'react';
@@ -490,7 +472,6 @@ export const DeleteSupplierConfirmation: React.FC&lt;DeleteSupplierConfirmationP
       &lt;/DialogTitle&gt;
 &nbsp;
       &lt;DialogContent&gt;
-        {/* Warning Alert */}
         &lt;Alert severity="warning" sx={{ mb: 2 }}&gt;
           &lt;Typography variant="body2" sx={{ fontWeight: 500 }}&gt;
             {t(
@@ -499,7 +480,6 @@ export const DeleteSupplierConfirmation: React.FC&lt;DeleteSupplierConfirmationP
           &lt;/Typography&gt;
         &lt;/Alert&gt;
 &nbsp;
-        {/* Selected Supplier Info */}
         &lt;Paper
           variant="outlined"
           sx={{
@@ -548,7 +528,6 @@ export const DeleteSupplierConfirmation: React.FC&lt;DeleteSupplierConfirmationP
           &lt;/Stack&gt;
         &lt;/Paper&gt;
 &nbsp;
-        {/* Error Message */}
         {error &amp;&amp; (
           &lt;Alert severity="error" sx={{ mb: 2 }}&gt;
             &lt;Typography variant="body2"&gt;{error}&lt;/Typography&gt;

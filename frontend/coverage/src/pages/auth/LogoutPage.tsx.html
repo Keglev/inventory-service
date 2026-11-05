@@ -131,13 +131,7 @@
 <a name='L66'></a><a href='#L66'>66</a>
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -210,20 +204,17 @@
  * @module pages/auth/LogoutPage
  *
  * @summary
- * Public route that performs logout via a top-level form POST to
- * `&lt;API origin&gt;/logout?return=&lt;origin&gt;/logout-success` (api/apiBase). Clears
- * React Query cache and AuthContext on mount, then navigates the browser away.
+ * Public route that performs logout via a top-level form POST to `&lt;API
+ * origin&gt;/logout?return=&lt;origin&gt;/logout-success` (api/apiBase).
  *
  * @enterprise
+ * - Clears the React Query cache and AuthContext on mount, then navigates the browser away.
  * - Form-POST navigation (not XHR) avoids CORS/XHR-redirect issues on the
  *   Spring Security default /logout endpoint and guarantees server-side
  *   session invalidation followed by a clean cross-origin redirect.
- * - Assumes CSRF is disabled on /logout. If CSRF protection is enabled in
- *   the future, either allow GET logout or include the CSRF token as a
- *   hidden field on the form.
- * - The only sign-out path the backend offers. The JSON endpoint POST
- *   /api/auth/logout was removed after the API access log of 2026-10-12 to
- *   2026-10-28 showed no call to it.
+ * - CSRF is off for /logout on the backend (08-concepts, CSRF row); a
+ *   CSRF-protected /logout would need the token as a hidden form field.
+ * - The only sign-out path the backend offers (backend ADR-0018).
  *
  * @i18n
  * Uses 'auth' namespace. Key: logoutSigningOut.
@@ -259,7 +250,7 @@ const LogoutPage: React.FC = () =&gt; {
     return () =&gt; {
       try { document.body.removeChild(form); } catch { /* noop */ }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only: one logout per visit to /logout
   }, []);
 &nbsp;
   // Progress UI while navigation occurs
