@@ -4,9 +4,10 @@
  *
  * @summary
  * Custom hook that provides search panel event handlers for SuppliersBoard.
- * Manages: Search input change, result selection, clear selection.
  *
  * @enterprise
+ * Manages: Search input change, result selection, clear selection.
+ *
  * - Separation of concerns: handler logic isolated from component
  * - Clean orchestrator interface
  */

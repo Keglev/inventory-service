@@ -1,12 +1,13 @@
 /**
  * @file EditSupplierSearchStep.tsx
- * @module dialogs/EditSupplierDialog/EditSupplierSearchStep
+ * @module pages/suppliers/dialogs/EditSupplierDialog/EditSupplierSearchStep
  *
  * @summary
  * Step 1 component for supplier search and selection.
- * Displays search input and interactive results.
  *
  * @enterprise
+ * Displays search input and interactive results.
+ *
  * - Pure presentation component
  * - Search through the shared SupplierSearchField (matching in the browser)
  */

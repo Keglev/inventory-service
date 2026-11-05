@@ -3,11 +3,12 @@
  * @module pages/auth/LoginPage
  *
  * @summary
- * Public login screen for Google OAuth2 SSO (SSO-only UX). Local
- * email/password fields are intentionally absent to keep the auth model
- * unambiguous in the portfolio.
+ * Public login screen for Google OAuth2 SSO (SSO-only UX).
  *
  * @enterprise
+ * Local email/password fields are intentionally absent to keep the auth model unambiguous
+ * in the portfolio.
+ *
  * - SSO-only by design: removes credential-handling responsibility from the
  *   frontend and shifts it to the IdP. Demo Mode is a client-only session with
  *   no server-side token: loginAsDemo issues no request, and the demo session's

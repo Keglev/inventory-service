@@ -8,13 +8,13 @@
  * resolves them to translated, user-facing copy.
  *
  * @enterprise
- * - Replaces substring matching on the server's free-text message. That
- *   approach broke silently whenever the backend reworded a message, and it
- *   could not survive localisation of the server text at all.
+ * - No substring matching on the server's free-text message: that breaks
+ *   silently whenever the backend rewords a message, and cannot survive
+ *   localisation of the server text at all.
  * - Classification keys on the status code and the status token (the `error`
  *   field, which is HttpStatus.name().toLowerCase()), never on message text.
  * - 409 is emitted for two distinct rules — a duplicate supplier name on
- *   create/update, and a supplier that still has linked items on delete. The
+ *   create/update, and a supplier whose linked item still holds stock on delete. The
  *   two cannot occur on the same call, so the operation disambiguates them;
  *   that is why the caller passes its operation rather than the classifier
  *   guessing.
@@ -58,9 +58,9 @@ const isNotFound = (e: SupplierErrorEnvelope): boolean =>
  * True when the failure is a duplicate supplier name, which the caller can
  * attach directly to the name input.
  *
- * The fieldErrors check is the precise signal; the status check is the
- * fallback that keeps this correct against a backend that has not yet been
- * redeployed with field attribution.
+ * The fieldErrors check is the precise signal (the backend names the field,
+ * DuplicateResourceException "name"); the status check covers a 409 that names
+ * no field.
  */
 export const isSupplierNameConflict = (e: SupplierErrorEnvelope): boolean =>
   Boolean(e.fieldErrors && typeof e.fieldErrors.name === 'string') || isConflict(e);

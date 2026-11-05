@@ -3,20 +3,17 @@
  * @module pages/auth/LogoutPage
  *
  * @summary
- * Public route that performs logout via a top-level form POST to
- * `<API origin>/logout?return=<origin>/logout-success` (api/apiBase). Clears
- * React Query cache and AuthContext on mount, then navigates the browser away.
+ * Public route that performs logout via a top-level form POST to `<API
+ * origin>/logout?return=<origin>/logout-success` (api/apiBase).
  *
  * @enterprise
+ * - Clears the React Query cache and AuthContext on mount, then navigates the browser away.
  * - Form-POST navigation (not XHR) avoids CORS/XHR-redirect issues on the
  *   Spring Security default /logout endpoint and guarantees server-side
  *   session invalidation followed by a clean cross-origin redirect.
- * - Assumes CSRF is disabled on /logout. If CSRF protection is enabled in
- *   the future, either allow GET logout or include the CSRF token as a
- *   hidden field on the form.
- * - The only sign-out path the backend offers. The JSON endpoint POST
- *   /api/auth/logout was removed after the API access log of 2026-10-12 to
- *   2026-10-28 showed no call to it.
+ * - CSRF is off for /logout on the backend (08-concepts, CSRF row); a
+ *   CSRF-protected /logout would need the token as a hidden form field.
+ * - The only sign-out path the backend offers (backend ADR-0018).
  *
  * @i18n
  * Uses 'auth' namespace. Key: logoutSigningOut.
@@ -52,7 +49,7 @@ const LogoutPage: React.FC = () => {
     return () => {
       try { document.body.removeChild(form); } catch { /* noop */ }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only: one logout per visit to /logout
   }, []);
 
   // Progress UI while navigation occurs

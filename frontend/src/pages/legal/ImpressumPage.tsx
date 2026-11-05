@@ -3,11 +3,12 @@
  * @module pages/legal/ImpressumPage
  *
  * @summary
- * Public Impressum (legal notice) page. All content lives in the 'legal'
- * i18n namespace, so the language toggle flips de/en like the rest of
- * the app.
+ * Public Impressum (legal notice) page.
  *
  * @enterprise
+ * All content lives in the 'legal' i18n namespace, so the language toggle flips de/en like
+ * the rest of the app.
+ *
  * - § 5 DDG information for a private, non-commercial portfolio:
  *   name + contact email, explicit non-commercial framing, § 18 (2) MStV
  *   responsibility note. No street address by deliberate choice.

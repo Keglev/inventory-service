@@ -3,14 +3,12 @@
  * @module pages/suppliers/components/SuppliersToolbar
  *
  * @summary
- * Toolbar component for suppliers board.
- * Displays title and action buttons (Create, Edit, Delete).
+ * Toolbar for the suppliers board: title and the Create, Edit and Delete buttons.
  *
  * @enterprise
  * - Pure presentation component, no business logic
- * - Action buttons disabled based on selection state
+ * - Edit and Delete are enabled by the parent (selection, demo session or ADMIN role)
  * - Responsive layout with MUI Stack
- * - i18n support for all labels
  */
 
 import * as React from 'react';
@@ -23,7 +21,7 @@ import { useTranslation } from 'react-i18next';
  * @interface SuppliersToolbarProps
  */
 export interface SuppliersToolbarProps {
-  /** Whether Create action is enabled */
+  /** Opens the Create dialog */
   onCreateClick: () => void;
   /** Whether Edit action is enabled (selection OR demo session OR ADMIN role) */
   editEnabled: boolean;

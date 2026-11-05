@@ -1,16 +1,14 @@
 /**
  * @file DeleteSupplierDialog.tsx
- * @module dialogs/DeleteSupplierDialog/DeleteSupplierDialog
+ * @module pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierDialog
  *
  * @summary
  * Dialog container for deleting suppliers.
- * Composes form logic hook and view components for two-step workflow.
  *
  * @enterprise
- * - Separation of concerns: Dialog wrapper, form logic, view components
+ * - Separation of concerns: dialog wrapper, form logic (useDeleteSupplierForm),
+ *   view components; this file owns the open/close/reset lifecycle
  * - Two-step workflow: search -> confirm deletion
- * - Orchestrates lifecycle (open/close/reset)
- * - Clean, readable component hierarchy
  */
 
 import * as React from 'react';
@@ -32,7 +30,7 @@ import type { DeleteSupplierDialogProps } from './DeleteSupplierDialog.types';
  *
  * Business rules:
  * - Only ADMIN role can delete (enforced by backend)
- * - Cannot delete if supplier has linked items (409 Conflict)
+ * - Cannot delete while a linked item holds stock (quantity above zero; 409 Conflict)
  * - Backend returns 204 No Content on success
  *
  * @component
@@ -56,7 +54,6 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
   const { t } = useTranslation(['suppliers']);
   const toast = useToast();
 
-  // Form logic hook
   const form = useDeleteSupplierForm(() => {
     toast(t('suppliers:actions.deleteSuccess'), 'success');
     onSupplierDeleted();
@@ -71,7 +68,7 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
       form.resetForm();
       onClose();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `form` is a new object each render; its stable members are listed
   }, [form.isDeleting, form.resetForm, onClose]);
 
   /**
@@ -81,7 +78,7 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
     form.setShowConfirmation(false);
     form.setSelectedSupplier(null);
     form.setError(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `form` is a new object each render; its stable members are listed
   }, [form.setShowConfirmation, form.setSelectedSupplier, form.setError]);
 
   return (

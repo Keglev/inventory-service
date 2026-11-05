@@ -1,6 +1,6 @@
 /**
  * @file mapSupplierErrors.ts
- * @module dialogs/EditSupplierDialog/mapSupplierErrors
+ * @module pages/suppliers/dialogs/EditSupplierDialog/mapSupplierErrors
  *
  * @summary
  * Maps a failed supplier update to translated, user-facing copy.

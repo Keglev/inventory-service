@@ -1,12 +1,13 @@
 /**
  * @file EditSupplierInfoStep.tsx
- * @module dialogs/EditSupplierDialog/EditSupplierInfoStep
+ * @module pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep
  *
  * @summary
  * Step 2 component for editing supplier contact information.
- * Displays form fields for contact info (name is read-only).
  *
  * @enterprise
+ * Displays form fields for contact info (name is read-only).
+ *
  * - Pure presentation component
  * - Supplier name field is read-only in this UI by design; backend permits name updates
  * - Editable fields: contactName, phone, email
@@ -95,7 +96,6 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
 
       <Divider sx={{ my: 2 }} />
 
-      {/* Contact Name */}
       <Controller
         name="contactName"
         control={control}
@@ -113,7 +113,6 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
         )}
       />
 
-      {/* Phone */}
       <Controller
         name="phone"
         control={control}
@@ -131,7 +130,6 @@ export const EditSupplierInfoStep: React.FC<EditSupplierInfoStepProps> = ({
         )}
       />
 
-      {/* Email */}
       <Controller
         name="email"
         control={control}

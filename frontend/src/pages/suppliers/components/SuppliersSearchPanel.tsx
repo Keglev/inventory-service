@@ -3,15 +3,13 @@
  * @module pages/suppliers/components/SuppliersSearchPanel
  *
  * @summary
- * Search panel component for suppliers board.
- * Handles search input, results dropdown, and selected supplier display.
+ * Search panel for the suppliers board: search input, results and the selected supplier.
  *
  * @enterprise
  * - The shared SupplierSearchField (matching in the browser, at most six
  *   results plus a count of the rest)
  * - Selected supplier info display with clear button
  * - Pure presentation component
- * - i18n support
  */
 
 import * as React from 'react';
@@ -92,8 +90,8 @@ export const SuppliersSearchPanel: React.FC<SuppliersSearchPanelProps> = ({
         />
       </Box>
 
-      {/* Selected supplier: compact one-line indicator with clear action.
-          The former detail card duplicated the table row below. */}
+      {/* Selected supplier: a one-line indicator with a clear action; the table row
+          below shows the details. */}
       {selectedSupplier && (
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1 }}>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>

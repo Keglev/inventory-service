@@ -1,12 +1,13 @@
 /**
  * @file CreateSupplierForm.tsx
- * @module dialogs/CreateSupplierDialog/CreateSupplierForm
+ * @module pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm
  *
  * @summary
  * Form fields for supplier creation.
- * Pure presentation component with no business logic.
  *
  * @enterprise
+ * Pure presentation component with no business logic.
+ *
  * - Stateless component receiving all props from parent
  * - Uses React Hook Form register for field binding
  * - Displays validation errors inline
@@ -71,7 +72,6 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {formError && <Alert severity="error">{formError}</Alert>}
 
-      {/* Supplier Name - Required */}
       <TextField
         {...register('name')}
         label={t('suppliers:table.name') + ' *'}
@@ -83,7 +83,6 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
         autoFocus
       />
 
-      {/* Contact Name - Optional */}
       <TextField
         {...register('contactName')}
         label={t('suppliers:table.contactName')}
@@ -94,7 +93,6 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
         disabled={isSubmitting}
       />
 
-      {/* Phone - Optional */}
       <TextField
         {...register('phone')}
         label={t('suppliers:table.phone')}
@@ -105,7 +103,6 @@ export const SupplierFormFields: React.FC<CreateSupplierFormProps> = ({
         disabled={isSubmitting}
       />
 
-      {/* Email - Optional but validated */}
       <TextField
         {...register('email')}
         label={t('suppliers:table.email')}

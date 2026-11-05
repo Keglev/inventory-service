@@ -4,9 +4,10 @@
  *
  * @summary
  * Custom hook that provides toolbar action event handlers for SuppliersBoard.
- * Manages: Create, Edit, Delete button click handlers.
  *
  * @enterprise
+ * Manages: Create, Edit, Delete button click handlers.
+ *
  * - Separation of concerns: handler logic isolated from component
  * - Clean orchestrator interface
  */

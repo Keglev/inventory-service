@@ -3,16 +3,15 @@
  * @module pages/auth/AuthCallback
  *
  * @summary
- * OAuth2 redirect target. Verifies the session via GET /api/me, hydrates
- * AuthContext with the returned profile, then redirects to /dashboard.
- * On failure, redirects to /login?error=session.
+ * OAuth2 redirect target: verifies the session via GET /api/me, then redirects to /dashboard.
  *
  * @enterprise
+ * - Hydrates AuthContext with the returned profile; on failure, redirects to
+ *   /login?error=session.
  * - Session verification is mount-only and guarded against unmount races
  *   via a cancelled flag, preventing setState on an unmounted component.
  * - Backend contract (AuthController.me): { email, fullName, role, pictureUrl }.
- *   pictureUrl is currently not consumed by AuthContext (acceptable; avatar
- *   surfaces fetch separately).
+ *   AuthContext keeps no pictureUrl, so the avatar shows initials.
  *
  * @i18n
  * Uses 'auth' namespace. Key: verifying.
