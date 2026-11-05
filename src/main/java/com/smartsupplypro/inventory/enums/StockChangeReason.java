@@ -5,7 +5,7 @@ package com.smartsupplypro.inventory.enums;
  */
 public enum StockChangeReason {
 
-    /* Initial stock entry. In this app is used also when reposing old stock */
+    /** Opening stock of a new item; also offered for a restock in the quantity adjust dialog. */
     INITIAL_STOCK,
     MANUAL_UPDATE,
     /** Price-only correction; does not affect available quantity. */

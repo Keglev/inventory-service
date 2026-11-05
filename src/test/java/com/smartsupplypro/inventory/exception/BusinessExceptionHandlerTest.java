@@ -22,7 +22,7 @@ class BusinessExceptionHandlerTest {
         return Objects.requireNonNull(r.getBody(), "Response body should not be null");
     }
 
-    /** 400 responses when the request fails validation or a business rule is broken. */
+    /** 400 responses when the request fails validation. */
     @Nested class WhenInvalidRequest {
         @Test void should_use_the_exception_message_when_the_request_is_invalid() {
             var response = handler.handleInvalidRequest(
