@@ -187,11 +187,7 @@
 <a name='L122'></a><a href='#L122'>122</a>
 <a name='L123'></a><a href='#L123'>123</a>
 <a name='L124'></a><a href='#L124'>124</a>
-<a name='L125'></a><a href='#L125'>125</a>
-<a name='L126'></a><a href='#L126'>126</a>
-<a name='L127'></a><a href='#L127'>127</a>
-<a name='L128'></a><a href='#L128'>128</a>
-<a name='L129'></a><a href='#L129'>129</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L125'></a><a href='#L125'>125</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -246,9 +242,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">12x</span>
@@ -264,7 +257,6 @@
 <span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -371,12 +363,9 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   // WHY: re-subscribe the heartbeat when isDemo flips (login/logout transitions) so the DEMO short-circuit applies correctly.
   const { user } = useAuth();
 &nbsp;
-  // ---- Heartbeat: detect server-side invalidation ----
-  // Every request refreshes the server session, so a ping on a timer kept an
-  // unattended tab signed in forever. The interval pings only when the user
-  // did something since the last ping; the server's session timeout (Spring
-  // Boot's 30 min) is then the one idle limit, shared by all tabs because
-  // they share the session (fork 10 C).
+  // Heartbeat: every request refreshes the server session, so it pings only if the user acted
+  // since the last ping; the server's 30-minute session timeout is then the one idle limit,
+  // shared by all tabs (they share the session).
   React.useEffect(() =&gt; {
     let timer: number | null = null;
     let activeSinceLastPing = false;
@@ -393,9 +382,8 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
         // httpClient sends the session cookie by default (withCredentials).
         await httpClient.get(pingEndpoint);
       } catch (error) {
-        // WHY: only the server saying the session is gone ends it. Offline, a
-        // timeout or a 5xx says nothing about the session, and ending it there
-        // logged the user out in every tab on a network blip.
+        // WHY: only a 401 ends the session. Offline, a timeout or a 5xx says nothing about
+        // the session; ending it on one would log every tab out on a network blip.
         if (!isAxiosError(error) || error.response?.status !== 401) return;
         // LogoutPage calls AuthContext.logout, which tells the other tabs.
         navigate('/logout', { replace: true });
@@ -435,7 +423,7 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
     };
   }, [user?.isDemo, pingEndpoint, pingIntervalMs, navigate]);
 &nbsp;
-  // ---- Cross-tab sync for logout ----
+  // Cross-tab sync for logout
   React.useEffect(() =&gt; {
     const onStorage = (ev: StorageEvent) =&gt; {
       if (ev.key === FORCE_LOGOUT_FLAG &amp;&amp; ev.newValue === '1') {

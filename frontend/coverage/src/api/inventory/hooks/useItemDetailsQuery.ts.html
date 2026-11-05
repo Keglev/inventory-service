@@ -136,7 +136,9 @@
 <a name='L71'></a><a href='#L71'>71</a>
 <a name='L72'></a><a href='#L72'>72</a>
 <a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -183,6 +185,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -211,7 +215,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file useItemDetailsQuery.ts
- * @module api/inventory/hooks
+ * @module api/inventory/hooks/useItemDetailsQuery
  *
  * @summary
  * Fetches complete item data from GET /api/inventory/{id}, used to pre-fill edit
@@ -256,6 +260,8 @@ export function useItemDetailsQuery(itemId: string | undefined | null) {
 &nbsp;
       try {
         const response = await http.get(`/api/inventory/${encodeURIComponent(itemId)}`);
+        // An axios response carries the body in `data`; a record without that key is read as
+        // the body itself (only test mocks resolve that way).
         const data: Record&lt;string, unknown&gt; = isRecord(response) &amp;&amp; 'data' in response
           ? (response as { data: unknown }).data as Record&lt;string, unknown&gt;
           : isRecord(response) ? response : {};

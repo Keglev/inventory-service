@@ -133,13 +133,7 @@
 <a name='L68'></a><a href='#L68'>68</a>
 <a name='L69'></a><a href='#L69'>69</a>
 <a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -218,15 +212,12 @@
  * @enterprise
  * - User preferences only (locale-sensitive, persisted to localStorage under
  *   'appSettings'). Runtime system facts (backend status, database product) come
- *   from the shared health query (features/health/useHealthCheck); this context
- *   no longer fetches /api/health (FW5 fork 3).
+ *   from the shared health query (features/health/useHealthCheck), not from here.
  * - Format preferences are language-independent: the i18n language sets the
  *   initial default (first load) and the reset baseline only. Once chosen, a
  *   date/number format is sticky and a language change never rewrites it — a
  *   German UI with a US date format is a valid, persisted combination.
- * - Consumed via hooks/useSettings.ts — the factory-built consumer hook with
- *   16 production call sites. The former sibling duplicate
- *   context/settings/useSettings.ts has been removed.
+ * - Consumed via hooks/useSettings.ts, the factory-built consumer hook.
  */
 &nbsp;
 import * as React from 'react';

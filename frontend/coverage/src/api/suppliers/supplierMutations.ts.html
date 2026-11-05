@@ -204,9 +204,7 @@
 <a name='L139'></a><a href='#L139'>139</a>
 <a name='L140'></a><a href='#L140'>140</a>
 <a name='L141'></a><a href='#L141'>141</a>
-<a name='L142'></a><a href='#L142'>142</a>
-<a name='L143'></a><a href='#L143'>143</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L142'></a><a href='#L142'>142</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -355,7 +353,6 @@
  * POST / PUT / DELETE operations for the supplier resource.
  *
  * @enterprise
- * - errorMessage and extractApiError are borrowed from api/shared — not supplier-owned helpers.
  * - Error shape from the backend is {error, message, timestamp, fieldErrors?}. The status code, the
  *   status token and fieldErrors are carried through alongside the message, because callers classify
  *   failures from the envelope rather than by matching substrings in the free-text message.
@@ -434,7 +431,7 @@ export const createSupplier = async (
  * Updates a supplier via PUT /api/suppliers/:id.
  *
  * @param id - Supplier ID
- * @param supplier - Full DTO to PUT; id in the path takes precedence over any id field in the body.
+ * @param supplier - Full DTO to PUT; an id in the body must equal the path id (the backend answers 400 otherwise).
  * @returns Updated supplier, or error message
  *
  * @example

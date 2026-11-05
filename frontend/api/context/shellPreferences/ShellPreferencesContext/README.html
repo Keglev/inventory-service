@@ -126,15 +126,15 @@ context/shellPreferences/ShellPreferencesContext/README · Smart Supply Pro · A
         <p>ShellPreferencesContext.tsx</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>One owner instead of two copied hooks
-        (useLocale/useThemeMode in the public shell, useShellSettings in
-        the app shell); FW5 fork 4, finding A-R1.</li>
-        <li>Persistence keys are unchanged: the language shares
-        i18next's detector key (LANGUAGE_KEY), so the German-first seed
-        in i18n/index.ts still decides the first visit.</li>
-        <li>The provider renders no ThemeProvider: each shell keeps
-        applying the theme, so routes outside the shells look exactly as
-        before.</li>
+        <li>One owner for both shells, so the public and the
+        authenticated shell cannot drift apart in language or colour
+        scheme.</li>
+        <li>The language shares i18next's detector key (LANGUAGE_KEY),
+        so the German-first seed in i18n/index.ts decides the first
+        visit.</li>
+        <li>The provider renders no ThemeProvider: each shell applies
+        the theme, so routes outside the shells are not themed by
+        it.</li>
         <li>Toasts stay with the shells; this layer only changes
         state.</li>
         </ul>

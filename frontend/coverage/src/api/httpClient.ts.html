@@ -140,11 +140,7 @@
 <a name='L75'></a><a href='#L75'>75</a>
 <a name='L76'></a><a href='#L76'>76</a>
 <a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L78'></a><a href='#L78'>78</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -172,14 +168,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -187,9 +180,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
@@ -230,11 +222,12 @@
  * @module api/httpClient
  *
  * @summary
- * Singleton Axios instance used by every feature-level API module. Session-cookie
- * authentication, shared request headers and cross-cutting 401 handling are wired
- * here so individual feature modules stay focused on their own resources.
+ * Singleton Axios instance used by every feature-level API module.
  *
  * @enterprise
+ * Session-cookie authentication, shared request headers and cross-cutting 401 handling are
+ * wired here so individual feature modules stay focused on their own resources.
+ *
  * Base-URL contract: `VITE_API_BASE` is origin-only, with no `/api` suffix; call
  * sites append `/api` on each request path themselves. The origin is resolved
  * once, by api/apiBase, for every reader (this client, the login redirect, the
@@ -243,6 +236,10 @@
  *
  * Production guidance: deploy behind Nginx so frontend and backend share the
  * same origin; this keeps session cookies first-party and avoids CORS.
+ *
+ * A 401 redirects to `/login`, except on a public page (no redirect loop), for the
+ * `/me` session probe (there a 401 means "not signed in") and in a demo session;
+ * every error still rejects, a redirected 401 included.
  *
  * Keep this file thin, and import nothing from outside `src/api/` to avoid
  * circular dependencies. Interceptor reference:
@@ -263,16 +260,7 @@ const httpClient = axios.create({
 httpClient.defaults.headers.common['Accept'] = 'application/json';
 httpClient.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 &nbsp;
-/**
- * Redirects unauthenticated requests to `/login`.
- *
- * Suppressed when the user is already on a public page (to prevent
- * redirect loops), when the failing call is the `/me` session probe
- * (a 401 is the expected "not logged in" signal there), or when a
- * demo session is active.
- *
- * Every error still rejects, a redirected 401 included.
- */
+// 401 -&gt; /login, with the exceptions listed in the header
 httpClient.interceptors.response.use(
   (res) =&gt; res,
   (error: AxiosError) =&gt; {

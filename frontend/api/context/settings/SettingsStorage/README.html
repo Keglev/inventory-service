@@ -127,8 +127,7 @@ context/settings/SettingsStorage/README · Smart Supply Pro · API</title>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
         <li>Pure persistence layer — no React, no context. Used only by
-        SettingsContext.tsx (Provider) and index.ts (re-export for
-        advanced consumers; no production caller verified).</li>
+        SettingsContext.tsx (Provider).</li>
         <li>All three I/O helpers swallow exceptions and log warnings.
         Rationale: localStorage can throw (Safari private mode, quota
         exceeded, disabled storage); preference persistence is
@@ -140,8 +139,8 @@ context/settings/SettingsStorage/README · Smart Supply Pro · API</title>
         the i18n supportedLngs ['de', 'en'] contract.</li>
         <li>loadPreferencesFromStorage uses
         <code>as UserPreferences</code> without runtime validation —
-        corrupt storage with wrong shape passes through silently.
-        Acceptable today; could harden later if shape changes.</li>
+        corrupt storage with the wrong shape passes through
+        unchecked.</li>
         </ul>
         <h2 id="functions">Functions</h2>
         <ul>

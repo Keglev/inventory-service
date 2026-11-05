@@ -173,16 +173,7 @@
 <a name='L108'></a><a href='#L108'>108</a>
 <a name='L109'></a><a href='#L109'>109</a>
 <a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L111'></a><a href='#L111'>111</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -249,10 +240,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -270,20 +257,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -304,8 +288,7 @@
  * @module api/inventory/listFetcher
  *
  * @summary
- * Inventory list fetcher API call.
- * Handles HTTP request, Spring Page envelope parsing, and error recovery.
+ * Fetches one page of inventory rows from GET /api/inventory/search.
  *
  * @enterprise
  * - Single API endpoint: GET /api/inventory/search, the paginated backend
@@ -366,10 +349,6 @@ const extractTotal = (data: unknown, fallback: number): number =&gt;
  * @param params - Query params: page, pageSize, q (search), supplierId,
  *   sort (grid field names), belowMinimumOnly
  * @returns Paginated response with items and total count
- *
- * Size note: 41 code lines, one line over the api-layer 40-line target;
- * accepted as a single cohesive request-build/normalize/error path (never
- * split to hit a number).
  */
 export const getInventoryPage = async (
   params: InventoryListParams,
@@ -388,14 +367,12 @@ export const getInventoryPage = async (
       },
     });
 &nbsp;
-    // Extract response.data from Axios response
     const data: unknown = typeof resp === 'object' &amp;&amp; resp !== null &amp;&amp; 'data' in resp
       ? (resp as unknown as Record&lt;string, unknown&gt;).data
       : <span class="branch-1 cbranch-no" title="branch not covered" >{};</span>
 &nbsp;
     const rowsRaw = extractRows(data);
 &nbsp;
-    // Normalize all rows and filter out failed normalizations
     const items: InventoryRow[] = rowsRaw
       .map(toInventoryRow)
       .filter((r): r is InventoryRow =&gt; r !== null);
@@ -407,7 +384,6 @@ export const getInventoryPage = async (
       pageSize,
     };
   } catch (error) {
-    // Network error: return empty page
     logError('[getInventoryPage] Error fetching inventory:', error);
     return {
       items: [],

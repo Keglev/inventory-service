@@ -125,13 +125,9 @@ api/inventory/rowNormalizers/README · Smart Supply Pro · API</title>
         <h2 id="file">File</h2>
         <p>rowNormalizers.ts</p>
         <h2 id="enterprise">Enterprise</h2>
-        <ul>
-        <li>Single responsibility: DTO -&gt; InventoryRow
-        transformation</li>
-        <li>Handles backend field name mappings transparently</li>
-        <li>Type-safe with full TypeScript support</li>
-        <li>Reusable for both single rows and batch operations</li>
-        </ul>
+        <p>Backend fields map to frontend names (quantity -&gt; onHand,
+        minimumQuantity -&gt; minQty, sku -&gt; code), so the grid never
+        reads DTO names directly.</p>
         <h2 id="functions">Functions</h2>
         <ul>
         <li><a

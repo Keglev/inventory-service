@@ -244,7 +244,7 @@ export function isArrayOfRecords(x: unknown): x is Rec[] {
     return Array.isArray(x) &amp;&amp; x.every(isRecord);
 }
 &nbsp;
-/** Tries a fallback key list so callers tolerate backend field renames without branching; returns `''` when no key resolves. */
+/** Returns the value of the first key that holds a string (a number is stringified), or `''` when none does. */
 export function firstStringOrEmpty(r: Rec, keys: string[]): string {
     for (const k of keys) {
         const v = r[k];
@@ -254,7 +254,7 @@ export function firstStringOrEmpty(r: Rec, keys: string[]): string {
     return '';
 }
 &nbsp;
-/** Same contract as firstStringOrEmpty but returns a coerced number; prevents NaN from reaching callers when a numeric key is missing. */
+/** Returns the first present key's value coerced to a number, or 0 when no key is present, so NaN never reaches callers. */
 export function firstNumberOrZero(r: Rec, keys: string[]): number {
     for (const k of keys) {
         if (k in r) return asNumber(r[k]);

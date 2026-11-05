@@ -122,6 +122,9 @@ api/httpClient/README · Smart Supply Pro · API</title>
         <h2 id="file">File</h2>
         <p>httpClient.ts</p>
         <h2 id="enterprise">Enterprise</h2>
+        <p>Session-cookie authentication, shared request headers and
+        cross-cutting 401 handling are wired here so individual feature
+        modules stay focused on their own resources.</p>
         <p>Base-URL contract: <code>VITE_API_BASE</code> is origin-only,
         with no <code>/api</code> suffix; call sites append
         <code>/api</code> on each request path themselves. The origin is
@@ -132,6 +135,10 @@ api/httpClient/README · Smart Supply Pro · API</title>
         <p>Production guidance: deploy behind Nginx so frontend and
         backend share the same origin; this keeps session cookies
         first-party and avoids CORS.</p>
+        <p>A 401 redirects to <code>/login</code>, except on a public
+        page (no redirect loop), for the <code>/me</code> session probe
+        (there a 401 means "not signed in") and in a demo session; every
+        error still rejects, a redirected 401 included.</p>
         <p>Keep this file thin, and import nothing from outside
         <code>src/api/</code> to avoid circular dependencies.
         Interceptor reference: <a

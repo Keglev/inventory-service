@@ -138,7 +138,11 @@
 <a name='L73'></a><a href='#L73'>73</a>
 <a name='L74'></a><a href='#L74'>74</a>
 <a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -218,12 +222,14 @@
  * @module api/analytics/reasonBreakdown
  *
  * @summary
- * Fetcher for GET /api/analytics/reason-breakdown: per-reason stock movement
- * totals, sign-split into increase (positive changes) and decrease (absolute
- * value of negative changes). A reason can carry both sides at once
- * (e.g. MANUAL_UPDATE corrections in both directions).
+ * Fetcher for GET /api/analytics/reason-breakdown: per-reason stock movement totals,
+ * sign-split into increase (positive changes) and decrease (absolute value of negative
+ * changes).
  *
  * @enterprise
+ * A reason can carry both sides at once (e.g. MANUAL_UPDATE corrections in both
+ * directions).
+ *
  * - The endpoint accepts ISO DATE bounds (yyyy-MM-dd), not date-times;
  *   the backend widens them to full-day timestamps itself.
  * - Tolerant parsing per the analytics API house style: malformed rows are

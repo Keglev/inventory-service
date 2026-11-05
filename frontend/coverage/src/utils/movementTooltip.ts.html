@@ -174,8 +174,8 @@
  *
  * @enterprise
  * - Consumers: the Analytics line card (MovementLineCard) and the Dashboard bar
- *   chart (MonthlyMovementMini). They show the same data and held the same nine
- *   tooltip lines until FO5; one copy keeps the two from drifting apart.
+ *   chart (MonthlyMovementMini). They show the same data; one copy keeps their
+ *   tooltips from drifting apart.
  * - Styling and order stay at the call site: each chart spreads
  *   chartTooltipProps and writes itemSorter={MOVEMENT_ORDER} on its Tooltip,
  *   which the tooltip and legend contract tests read in every chart file.

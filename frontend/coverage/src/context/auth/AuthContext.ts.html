@@ -207,8 +207,7 @@
 <a name='L142'></a><a href='#L142'>142</a>
 <a name='L143'></a><a href='#L143'>143</a>
 <a name='L144'></a><a href='#L144'>144</a>
-<a name='L145'></a><a href='#L145'>145</a>
-<a name='L146'></a><a href='#L146'>146</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L145'></a><a href='#L145'>145</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -266,7 +265,6 @@
 <span class="cline-any cline-yes">34x</span>
 <span class="cline-any cline-yes">34x</span>
 <span class="cline-any cline-yes">34x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -355,7 +353,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file AuthContext.ts
- * @module context/auth
+ * @module context/auth/AuthContext
  * @summary
  * AuthProvider component owning the dual-session auth model (server
  * /api/me + client-only DEMO) plus cross-tab logout broadcast.
@@ -412,10 +410,9 @@ export const AuthProvider: React.FC&lt;React.PropsWithChildren&gt; = ({ children
   const [logoutInProgress, setLogoutInProgress] = useState&lt;boolean&gt;(false);
   const logoutTimerRef = useRef&lt;number | null&gt;(null);
 &nbsp;
-  // WHY: a successful re-login (server or demo) after logout must clear
-  // logoutInProgress so guards stop suppressing routes, and cancel the pending
-  // safety-valve timer. Done where a user is set rather than in an effect on
-  // user, which rendered once more with the stale flag.
+  // WHY: a re-login (server or demo) after logout clears logoutInProgress and the pending
+  // safety-valve timer here, where a user is set: an effect on user would render once
+  // more with the stale flag, and guards would keep suppressing routes.
   const setUser = useCallback((next: AppUser | null) =&gt; {
     <span class="missing-if-branch" title="else path not taken" >E</span>if (next) {
       setLogoutInProgress(false);
@@ -429,7 +426,7 @@ export const AuthProvider: React.FC&lt;React.PropsWithChildren&gt; = ({ children
 &nbsp;
   /** One-time server-session hydration via /api/me; a demo session skips it. */
   useEffect(() =&gt; {
-    if (initialDemo) return; // demo sessions don't call /api/me
+    if (initialDemo) return;
 &nbsp;
     const ac = new AbortController();
     (async () =&gt; {

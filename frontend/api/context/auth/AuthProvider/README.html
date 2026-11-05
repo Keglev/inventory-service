@@ -18,7 +18,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frontend API ·
-api/analytics/hooks/README · Smart Supply Pro · API</title>
+context/auth/AuthProvider/README · Smart Supply Pro · API</title>
 
   <!-- Set the theme before the stylesheet paints, otherwise the page flashes
        the default theme for one frame before the saved choice applies. -->
@@ -119,36 +119,38 @@ api/analytics/hooks/README · Smart Supply Pro · API</title>
         href="../../../README.html"><strong>frontend</strong></a></p>
         <hr />
         <p><a href="../../../README.html">frontend</a> /
-        api/analytics/hooks</p>
-        <h1 id="apianalyticshooks">api/analytics/hooks</h1>
+        context/auth/AuthProvider</p>
+        <h1 id="contextauthauthprovider">context/auth/AuthProvider</h1>
         <h2 id="file">File</h2>
-        <p>useDashboardMetrics.ts</p>
+        <p>AuthProvider.tsx</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Caches KPI data for 2 minutes to balance freshness and
-        performance</li>
-        <li>Conditional fetching support for performance
-        optimization</li>
-        <li>Graceful fallbacks on error</li>
-        <li>Comprehensive TypeDoc documentation</li>
+        <li>Exists so consumers expecting
+        <code>import AuthProvider from '.../AuthProvider'</code> (a .tsx
+        Provider convention) get a stable import path. The actual
+        implementation stays in AuthContext.ts to keep the auth context
+        module .ts-only (no JSX pragma needed — see AuthContext.ts
+        @enterprise).</li>
         </ul>
-        <h2 id="functions">Functions</h2>
-        <ul>
-        <li><a
-        href="functions/useDashboardMetrics.html">useDashboardMetrics</a></li>
-        </ul>
+        <h2 id="references">References</h2>
+        <h3 id="default">default</h3>
+        <p>Renames and re-exports <a
+        href="../AuthContext/variables/AuthProvider.html">AuthProvider</a></p>
       </article>
     </main>
 
         <nav class="toc" aria-label="On this page">
       <p class="toc-title">On this page</p>
       <ul>
-      <li><a href="#apianalyticshooks"
-      id="toc-apianalyticshooks">api/analytics/hooks</a>
+      <li><a href="#contextauthauthprovider"
+      id="toc-contextauthauthprovider">context/auth/AuthProvider</a>
       <ul>
       <li><a href="#file" id="toc-file">File</a></li>
       <li><a href="#enterprise" id="toc-enterprise">Enterprise</a></li>
-      <li><a href="#functions" id="toc-functions">Functions</a></li>
+      <li><a href="#references" id="toc-references">References</a>
+      <ul>
+      <li><a href="#default" id="toc-default">default</a></li>
+      </ul></li>
       </ul></li>
       </ul>
     </nav>

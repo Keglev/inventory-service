@@ -177,7 +177,7 @@ export const supplierListQuery = {
   queryKey: ['suppliers', 'list'] as const,
   queryFn: getAllSuppliers,
   staleTime: 60_000,  // 1 min — see @enterprise above
-  gcTime: 5 * 60_000, // 5 min; gcTime renamed from cacheTime in TanStack Query v5
+  gcTime: 5 * 60_000,
 };
 &nbsp;
 /**

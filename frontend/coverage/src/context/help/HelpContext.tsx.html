@@ -182,8 +182,8 @@
  * id + open/close) for the help system.
  *
  * @enterprise
- * - Mounted ONCE at the app composition root (App.tsx — same level
- *   as HelpPanel, which subscribes via useHelp()).
+ * - Mounted ONCE at the app composition root (App.tsx); the HelpPanel in each
+ *   shell (AppShell, AppPublicShell) subscribes via useHelp().
  * - The .tsx/.types.ts split is required by Vite's fast refresh:
  *   files exporting React components must not also export non-
  *   component values. The Context OBJECT lives in HelpContext.types.ts

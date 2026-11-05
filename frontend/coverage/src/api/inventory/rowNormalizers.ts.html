@@ -135,21 +135,7 @@
 <a name='L70'></a><a href='#L70'>70</a>
 <a name='L71'></a><a href='#L71'>71</a>
 <a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L73'></a><a href='#L73'>73</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -186,7 +172,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -199,16 +184,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -230,15 +212,11 @@
  * @module api/inventory/rowNormalizers
  *
  * @summary
- * DTO normalization for inventory list rows.
- * Converts raw API responses to strongly-typed InventoryRow shapes.
- * Maps backend fields (quantity, minimumQuantity, sku) -&gt; frontend fields (onHand, minQty, code).
+ * Normalizes one inventory DTO into the grid's InventoryRow shape.
  *
  * @enterprise
- * - Single responsibility: DTO -&gt; InventoryRow transformation
- * - Handles backend field name mappings transparently
- * - Type-safe with full TypeScript support
- * - Reusable for both single rows and batch operations
+ * Backend fields map to frontend names (quantity -&gt; onHand, minimumQuantity -&gt; minQty,
+ * sku -&gt; code), so the grid never reads DTO names directly.
  */
 &nbsp;
 import type { InventoryRow } from './types';
@@ -247,7 +225,6 @@ import { pickString, pickNumber } from '../shared/fieldPickers';
 /**
  * Normalize a raw API response object into a strongly-typed InventoryRow.
  * Maps backend fields:
- *  - id -&gt; itemId
  *  - quantity -&gt; onHand
  *  - minimumQuantity -&gt; minQty
  *  - createdAt -&gt; createdAt (creation timestamp; backend has no update field)
@@ -267,7 +244,6 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null =&gt; {
 &nbsp;
   const r = raw as Record&lt;string, unknown&gt;;
 &nbsp;
-  // ID is required
   const id = pickString(r, 'id');
   if (!id) return null;
 &nbsp;
@@ -280,17 +256,14 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null =&gt; {
 &nbsp;
   const supplierName = pickString(r, 'supplierName') ?? null;
 &nbsp;
-  // quantity -&gt; onHand
   const onHand = pickNumber(r, 'quantity') ?? 0;
 &nbsp;
-  // minimumQuantity -&gt; minQty
   const minQty = pickNumber(r, 'minimumQuantity') ?? null;
 &nbsp;
-  // price -&gt; price (unit price); totalValue -&gt; totalValue (falls back to price x onHand)
+  // totalValue falls back to price x onHand
   const price = pickNumber(r, 'price') ?? null;
   const totalValue = pickNumber(r, 'totalValue') ?? (price != null ? <span class="branch-0 cbranch-no" title="branch not covered" >price * onHand : n</span>ull);
 &nbsp;
-  // createdAt -&gt; createdAt (creation timestamp for display)
   const createdAt = pickString(r, 'createdAt') ?? null;
 &nbsp;
   return {

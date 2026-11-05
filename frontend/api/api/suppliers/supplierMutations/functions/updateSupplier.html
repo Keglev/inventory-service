@@ -128,7 +128,7 @@ api/suppliers/supplierMutations/functions/updateSupplier · Smart Supply Pro · 
         href="../type-aliases/SupplierWriteResult.html"><code>SupplierWriteResult</code></a>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/suppliers/supplierMutations.ts#L99">api/suppliers/supplierMutations.ts:99</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/suppliers/supplierMutations.ts#L98">api/suppliers/supplierMutations.ts:98</a></p>
         <p>Updates a supplier via PUT /api/suppliers/:id.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="id">id</h3>
@@ -137,8 +137,8 @@ api/suppliers/supplierMutations/functions/updateSupplier · Smart Supply Pro · 
         <h3 id="supplier">supplier</h3>
         <p><a
         href="../../types/interfaces/SupplierDTO.html"><code>SupplierDTO</code></a></p>
-        <p>Full DTO to PUT; id in the path takes precedence over any id
-        field in the body.</p>
+        <p>Full DTO to PUT; an id in the body must equal the path id
+        (the backend answers 400 otherwise).</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
         href="../type-aliases/SupplierWriteResult.html"><code>SupplierWriteResult</code></a>&gt;</p>

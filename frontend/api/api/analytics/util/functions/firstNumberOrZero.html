@@ -129,9 +129,8 @@ api/analytics/util/functions/firstNumberOrZero · Smart Supply Pro · API</title
         </blockquote>
         <p>Defined in: <a
         href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/analytics/util.ts#L51">api/analytics/util.ts:51</a></p>
-        <p>Same contract as firstStringOrEmpty but returns a coerced
-        number; prevents NaN from reaching callers when a numeric key is
-        missing.</p>
+        <p>Returns the first present key's value coerced to a number, or
+        0 when no key is present, so NaN never reaches callers.</p>
         <h2 id="parameters">Parameters</h2>
         <h3 id="r">r</h3>
         <p><a href="../type-aliases/Rec.html"><code>Rec</code></a></p>

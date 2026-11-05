@@ -124,20 +124,19 @@ api/shared/itemSearch/README · Smart Supply Pro · API</title>
         <h2 id="file">File</h2>
         <p>itemSearch.ts</p>
         <h2 id="enterprise">Enterprise</h2>
+        <p>Two supplier-aware fetch strategies (global and
+        supplier-scoped) against GET /api/inventory/search, plus the
+        normalization helper they depend on.</p>
         <ul>
-        <li>Co-located here (rather than under analytics, where they
-        originated) because both the inventory type-ahead hook
-        (useItemSearchQuery) and the analytics pickers consume them. A
-        single physical home removes the cross-layer import that
-        previously had an inventory hook reaching into the analytics
-        module.</li>
-        <li>Backed by the paginated backend search: name, supplierId,
-        and size are real server parameters, so no parameter probing is
-        needed.</li>
+        <li>Lives in api/shared because both the inventory type-ahead
+        hook (useItemSearchQuery) and the analytics pickers consume
+        them, so neither layer imports from the other.</li>
+        <li>Backed by the paginated backend search: name, supplierId and
+        size are server parameters.</li>
         <li>listItemsForSupplier loads one supplier's whole item list in
         a single page, for the inventory dialogs that filter it in the
-        browser (ADR-0014); it reports whether the page held every
-        item.</li>
+        browser (frontend ADR-0014); it reports whether the page held
+        every item.</li>
         <li>Supplier scoping is enforced by the backend query; an empty
         result for a supplier is returned as empty, never refilled with
         cross-supplier rows.</li>

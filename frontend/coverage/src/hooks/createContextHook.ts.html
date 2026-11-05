@@ -139,8 +139,8 @@
  * @summary Factory that builds a type-safe context-access hook with a guarded
  *   null-check and consistent error messaging.
  * @enterprise
- * - Used ONLY by 3 sibling hooks (useAuth, useHelp, useSettings) to eliminate
- *   the useContext + null-check + throw triplet repeated per context.
+ * - Used ONLY by the sibling consumer hooks (useAuth, useHelp, useSettings,
+ *   useShellPreferences) to share the useContext + null-check + throw triplet.
  * - Returns a closure capturing hookName so each derived hook throws with its
  *   own identity ("useAuth must be used within...").
  * - Generic factory: callers parameterize T and pass a Context&lt;T|undefined&gt;.

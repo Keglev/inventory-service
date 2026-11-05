@@ -187,12 +187,8 @@
 <a name='L122'></a><a href='#L122'>122</a>
 <a name='L123'></a><a href='#L123'>123</a>
 <a name='L124'></a><a href='#L124'>124</a>
-<a name='L125'></a><a href='#L125'>125</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -220,6 +216,12 @@
 <span class="cline-any cline-yes">164x</span>
 <span class="cline-any cline-yes">124x</span>
 <span class="cline-any cline-yes">124x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">44x</span>
@@ -315,27 +317,22 @@
  * @file formatters.ts
  * @module utils/formatters
  * @summary Locale-aware date and number formatting helpers used across analytics,
- *   dashboard, inventory, supplier, and settings surfaces. 'DE' and 'EN_US' are
- *   app-internal format codes, not BCP-47 locale tags.
+ *   dashboard, inventory, supplier, and settings surfaces.
  *
  * @enterprise
+ * 'DE' and 'EN_US' are app-internal format codes, not BCP-47 locale tags.
+ *
  * - Cross-feature utility used by api/analytics, app/settings, hooks, utils and
  *   the analytics, dashboard, inventory and supplier pages; a change here reaches
  *   all of them.
  * - Type-only dependency on SettingsContext for DateFormat / NumberFormat union
  *   types; no runtime coupling to context state.
- * - Thousands separation is manual regex, not Intl.NumberFormat — historical
- *   choice.
+ * - Thousands separation is a manual regex, not Intl.NumberFormat, so DE and
+ *   EN_US output is byte-identical across browsers and Node versions.
  * - Pure functions: no state, no side effects, safe to call in render paths.
  */
 import type { DateFormat, NumberFormat } from '../context/settings/SettingsContext';
 &nbsp;
-/**
- * @example
- * formatDate(new Date(2025, 10, 27), 'DD.MM.YYYY')  // -&gt; '27.11.2025'
- * formatDate(new Date(2025, 10, 27), 'YYYY-MM-DD')  // -&gt; '2025-11-27'
- * formatDate(new Date(2025, 10, 27), 'MM/DD/YYYY')  // -&gt; '11/27/2025'
- */
 // A bare ISO day ('2026-10-05') names a calendar day, but new Date() reads it as
 // UTC midnight, which is the previous day west of UTC. Parse it as a local day.
 const ISO_DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -346,6 +343,12 @@ const toDate = (value: Date | string): Date =&gt; {
   return day ? new Date(Number(day[1]), Number(day[2]) - 1, Number(day[3])) : new Date(value);
 };
 &nbsp;
+/**
+ * @example
+ * formatDate(new Date(2025, 10, 27), 'DD.MM.YYYY')  // -&gt; '27.11.2025'
+ * formatDate(new Date(2025, 10, 27), 'YYYY-MM-DD')  // -&gt; '2025-11-27'
+ * formatDate(new Date(2025, 10, 27), 'MM/DD/YYYY')  // -&gt; '11/27/2025'
+ */
 export const formatDate = (date: Date | string, format: DateFormat): string =&gt; {
   const d = toDate(date);
 &nbsp;
@@ -405,7 +408,7 @@ export const getDaysAgoIso = (n: number): string =&gt; {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 &nbsp;
-/** Today's local calendar day as YYYY-MM-DD (FO3: one day helper, not two copies). */
+/** Today's local calendar day as YYYY-MM-DD. */
 export const getTodayIso = (): string =&gt; getDaysAgoIso(0);
 &nbsp;
 /**

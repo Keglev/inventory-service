@@ -99,9 +99,7 @@
 <a name='L34'></a><a href='#L34'>34</a>
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a>
-<a name='L37'></a><a href='#L37'>37</a>
-<a name='L38'></a><a href='#L38'>38</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -144,9 +142,8 @@
  *   milliseconds using useState + useEffect + setTimeout.
  * @enterprise
  * - Outlier in /hooks: NOT a context bridge. Pure behavioral hook.
- * - One production consumer: pages/analytics/blocks/PriceTrendCard.tsx
- *   (debounces the chart's interactive filter to reduce re-render chatter;
- *   default 250 ms is overridden per-call site).
+ * - Consumers: the inventory board's search box (useInventoryPageData, 300 ms)
+ *   and the analytics item search (useItemSearchOptions, 250 ms).
  * - Generic over T — value identity drives the effect dependency, so
  *   reference-stable inputs are the caller's responsibility.
  * - Cleanup clears the pending timeout on value or delay change, preventing

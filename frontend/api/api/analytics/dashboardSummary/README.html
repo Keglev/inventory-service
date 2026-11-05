@@ -125,6 +125,10 @@ api/analytics/dashboardSummary/README · Smart Supply Pro · API</title>
         <h2 id="file">File</h2>
         <p>dashboardSummary.ts</p>
         <h2 id="enterprise">Enterprise</h2>
+        <p>The dashboard consumes only the unfiltered (all-suppliers)
+        low-stock list; the backend populates it when no supplier filter
+        is supplied and defaults the date window itself, so this call
+        needs no params.</p>
         <p>Tolerant per the analytics API house style: malformed rows
         are dropped and transport errors collapse to an empty list.</p>
         <h2 id="functions">Functions</h2>

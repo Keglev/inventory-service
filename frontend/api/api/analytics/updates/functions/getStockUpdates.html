@@ -132,9 +132,8 @@ api/analytics/updates/functions/getStockUpdates · Smart Supply Pro · API</titl
         href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/analytics/updates.ts#L54">api/analytics/updates.ts:54</a></p>
         <p>GET
         /api/analytics/stock-updates?startDate&amp;endDate[&amp;supplierId][&amp;itemName]</p>
-        <p>Fetches every stock update in the window with tolerant field
-        mapping so backend renames don't break the UI. The endpoint has
-        no row limit; use <a
+        <p>Fetches every stock update in the window. The endpoint has no
+        row limit; use <a
         href="getStockUpdatesPage.html">getStockUpdatesPage</a> where
         the rows are shown one page at a time. Returns an empty array
         when the response is missing or malformed.</p>

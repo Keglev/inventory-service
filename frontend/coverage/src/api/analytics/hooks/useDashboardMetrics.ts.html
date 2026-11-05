@@ -120,23 +120,7 @@
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a>
-<a name='L60'></a><a href='#L60'>60</a>
-<a name='L61'></a><a href='#L61'>61</a>
-<a name='L62'></a><a href='#L62'>62</a>
-<a name='L63'></a><a href='#L63'>63</a>
-<a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -195,17 +179,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file useDashboardMetrics.ts
- * @module api/analytics/hooks
+ * @module api/analytics/hooks/useDashboardMetrics
  *
  * @summary
- * Dashboard KPI metrics hook for inventory overview.
- * Provides real-time counts of inventory items, suppliers, and low-stock alerts.
+ * Dashboard KPI metrics hook: inventory item, supplier and low-stock counts.
  *
  * @enterprise
- * - Caches KPI data for 2 minutes to balance freshness and performance
- * - Conditional fetching support for performance optimization
- * - Graceful fallbacks on error
- * - Comprehensive TypeDoc documentation
+ * - Cached for 2 minutes (staleTime), so the counts are at most that old; the
+ *   header bell and the notifications menu read the same cached query.
+ * - Each count fetcher answers 0 on error, so a failed request shows 0, not an error.
  */
 &nbsp;
 import { useQuery } from '@tanstack/react-query';
@@ -218,20 +200,14 @@ import { getItemCount, getSupplierCount, getLowStockCount } from '../metrics';
  * @param enabled - Whether to fetch (defaults to true, typically tied to page visibility)
  * @returns React Query result with KPI metrics object
  *
- * @enterprise
- * - Only fetches when enabled (performance optimization)
- * - 2-minute cache reduces backend load
- * - Automatically handles loading and error states
- * - Returns graceful null values on error (no breaking)
- *
  * @example
  * ```typescript
  * const { data: metrics, isLoading } = useDashboardMetrics();
  *
  * return (
  *   &lt;&gt;
- *     &lt;StatCard title="Items" value={metrics?.itemCount} loading={isLoading} /&gt;
- *     &lt;StatCard title="Suppliers" value={metrics?.supplierCount} loading={isLoading} /&gt;
+ *     &lt;StatCard title="Items" value={metrics?.inventoryCount} loading={isLoading} /&gt;
+ *     &lt;StatCard title="Suppliers" value={metrics?.suppliersCount} loading={isLoading} /&gt;
  *     &lt;StatCard title="Low Stock" value={metrics?.lowStockCount} loading={isLoading} /&gt;
  *   &lt;/&gt;
  * );
@@ -254,8 +230,8 @@ export function useDashboardMetrics(enabled: boolean = true) {
       };
     },
     enabled,
-    staleTime: 2 * 60_000, // 2 minutes
-    gcTime: 10 * 60_000,   // 10 minutes (formerly cacheTime)
+    staleTime: 2 * 60_000,
+    gcTime: 10 * 60_000,
   });
 }
 &nbsp;</pre></td></tr></table></pre>

@@ -250,12 +250,13 @@
  * @module api/analytics/finance
  *
  * @summary
- * Fetches WAC-based (weighted-average-cost) financial figures for a given date
- * window and optional supplier, from GET /api/analytics/financial/summary with
- * `from`/`to` params (not the `start`/`end` used by other analytics endpoints).
- * The body is the bare FinancialSummaryDTO; the backend wraps it in no envelope.
+ * Fetches WAC-based (weighted-average-cost) financial figures for a given date window and
+ * optional supplier, from GET /api/analytics/financial/summary with `from`/`to` params
+ * (not the `start`/`end` used by other analytics endpoints).
  *
  * @enterprise
+ * The body is the bare FinancialSummaryDTO; the backend wraps it in no envelope.
+ *
  * Numeric fields default to 0 and `method` to '' on missing or invalid data and
  * the function never throws, so the financial card renders zeros instead of an
  * error when the backend sends nothing usable.
@@ -277,7 +278,6 @@ import type { Rec } from './util';
  *   to: '2025-11-30',
  *   supplierId: 'SUP-001'
  * });
- * return &lt;FinanceDashboard data={summary} /&gt;;
  * ```
  */
 export type FinancialSummary = {

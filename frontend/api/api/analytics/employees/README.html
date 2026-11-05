@@ -125,6 +125,11 @@ api/analytics/employees/README · Smart Supply Pro · API</title>
         <p>employees.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
+        <li>GET /api/analytics/by-employee: change counts per employee
+        per time bucket, with server-side granularity (daily | weekly |
+        monthly).</li>
+        <li>GET /api/analytics/employee-changes: paginated newest-first
+        change list.</li>
         <li>employee-changes returns a Spring Data page; only
         <code>content</code> and the total are read, the total through
         extractPageTotal (same contract family as the inventory and

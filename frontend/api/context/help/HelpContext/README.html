@@ -125,8 +125,9 @@ context/help/HelpContext/README · Smart Supply Pro · API</title>
         <p>HelpContext.tsx</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>Mounted ONCE at the app composition root (App.tsx — same
-        level as HelpPanel, which subscribes via useHelp()).</li>
+        <li>Mounted ONCE at the app composition root (App.tsx); the
+        HelpPanel in each shell (AppShell, AppPublicShell) subscribes
+        via useHelp().</li>
         <li>The .tsx/.types.ts split is required by Vite's fast refresh:
         files exporting React components must not also export non-
         component values. The Context OBJECT lives in

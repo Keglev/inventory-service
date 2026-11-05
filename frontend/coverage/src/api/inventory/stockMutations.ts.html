@@ -117,7 +117,9 @@
 <a name='L52'></a><a href='#L52'>52</a>
 <a name='L53'></a><a href='#L53'>53</a>
 <a name='L54'></a><a href='#L54'>54</a>
-<a name='L55'></a><a href='#L55'>55</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -176,10 +178,11 @@
  * @module api/inventory/stockMutations
  *
  * @summary
- * Quantity-adjustment mutations for inventory items. Returns a structured result
- * ({ ok, error, errorToken, status }).
+ * Quantity-adjustment mutations for inventory items.
  *
  * @enterprise
+ * Returns a structured result ({ ok, error, errorToken, status }).
+ *
  * All stock changes route through PATCH /api/inventory/{id}/quantity so error
  * handling and endpoint encoding are uniform across the app, and callers map
  * failures by backend status token.

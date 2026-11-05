@@ -195,17 +195,7 @@
 <a name='L130'></a><a href='#L130'>130</a>
 <a name='L131'></a><a href='#L131'>131</a>
 <a name='L132'></a><a href='#L132'>132</a>
-<a name='L133'></a><a href='#L133'>133</a>
-<a name='L134'></a><a href='#L134'>134</a>
-<a name='L135'></a><a href='#L135'>135</a>
-<a name='L136'></a><a href='#L136'>136</a>
-<a name='L137'></a><a href='#L137'>137</a>
-<a name='L138'></a><a href='#L138'>138</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L133'></a><a href='#L133'>133</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -350,7 +340,7 @@
  * normalizers.
  */
 &nbsp;
-/** Server sort expression (e.g., "name,asc" or "onHand,desc"). */
+/** Grid sort expression ("field,dir" with grid field names, e.g. "onHand,desc"); toServerSort maps the field. */
 export type ServerSort = string;
 &nbsp;
 /** Filter &amp; pagination params accepted by the list endpoint. */
@@ -373,7 +363,7 @@ export interface InventoryListParams {
 export interface InventoryRow {
   id: string;            // UI-stable id (string for consistency)
   name: string;
-  code?: string | null;  // Code/SKU (nullable - DB may not have SKU yet)
+  code?: string | null;  // Code/SKU
   supplierName?: string | null;
   supplierId?: string | number | null;
   onHand: number;        // current stock
@@ -392,13 +382,8 @@ export interface InventoryListResponse {
 }
 &nbsp;
 /**
- * Full item details fetched from backend /api/inventory/{id} endpoint.
- * Contains complete item information including actual current values.
- * Used by forms and dialogs to display/edit full item data.
- *
- * @remarks
- * This interface represents the complete item data fetched after user selects an item.
- * Use this for displaying actual current values and pre-filling forms.
+ * Full item details from GET /api/inventory/{id}, fetched after the user picks an
+ * item; forms and dialogs show and pre-fill the current values from it.
  */
 export interface ItemDetails {
   /** Unique item identifier */
@@ -462,7 +447,7 @@ export interface AdjustQuantityRequest {
   id: string;
   /** Positive = purchase/inbound; negative = correction/outbound. */
   delta: number;
-  /** Business reason (server may map to enum). */
+  /** StockChangeReason name; the server rejects any other value. */
   reason: string;
 }
 &nbsp;
