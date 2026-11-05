@@ -115,9 +115,7 @@
 <a name='L50'></a><a href='#L50'>50</a>
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
-<a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L53'></a><a href='#L53'>53</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -178,10 +176,9 @@
  * chosen item, the item search text and the dialog's error message.
  *
  * @enterprise
- * The delete, edit, price-change and quantity-adjust dialogs each declared
- * these four values themselves (jscpd, LO-3), with the error typed as
- * `string | null` in one and `string` in the others. One hook keeps them
- * identical; an empty string means "no error" in every dialog. Pure useState,
+ * Shared by the delete, edit, price-change and quantity-adjust dialogs, so the
+ * four values are identical in each; an empty string means "no error" in every
+ * dialog. Pure useState,
  * so a dialog's own effects and queries stay in its own hook.
  */
 &nbsp;

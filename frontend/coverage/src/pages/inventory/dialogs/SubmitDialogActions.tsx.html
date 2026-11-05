@@ -142,9 +142,7 @@
 <a name='L77'></a><a href='#L77'>77</a>
 <a name='L78'></a><a href='#L78'>78</a>
 <a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L80'></a><a href='#L80'>80</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -230,8 +228,7 @@
  *   over the submit button while the request runs.
  *
  * @enterprise
- * - ItemFormDialog and PriceChangeDialog carried the same 20 lines (jscpd, G-L7).
- *   Each dialog keeps what differs: its submit label, its extra disable rule and
+ * - Shared by ItemFormDialog and PriceChangeDialog. Each dialog keeps what differs: its submit label, its extra disable rule and
  *   its test id; this component owns the layout and the busy state.
  * - Both buttons are disabled while submitting, so a second click cannot send the
  *   request twice and cancel cannot close the dialog under a running request.

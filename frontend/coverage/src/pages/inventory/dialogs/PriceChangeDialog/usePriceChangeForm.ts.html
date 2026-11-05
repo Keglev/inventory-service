@@ -208,18 +208,7 @@
 <a name='L143'></a><a href='#L143'>143</a>
 <a name='L144'></a><a href='#L144'>144</a>
 <a name='L145'></a><a href='#L145'>145</a>
-<a name='L146'></a><a href='#L146'>146</a>
-<a name='L147'></a><a href='#L147'>147</a>
-<a name='L148'></a><a href='#L148'>148</a>
-<a name='L149'></a><a href='#L149'>149</a>
-<a name='L150'></a><a href='#L150'>150</a>
-<a name='L151'></a><a href='#L151'>151</a>
-<a name='L152'></a><a href='#L152'>152</a>
-<a name='L153'></a><a href='#L153'>153</a>
-<a name='L154'></a><a href='#L154'>154</a>
-<a name='L155'></a><a href='#L155'>155</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L146'></a><a href='#L146'>146</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -274,7 +263,6 @@
 <span class="cline-any cline-yes">47x</span>
 <span class="cline-any cline-yes">47x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">47x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -284,9 +272,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">47x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -367,28 +353,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file usePriceChangeForm.ts
  * @module pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm
  *
  * @summary
- * Orchestrator hook for the price-change flow. Composes
- * useItemSelectionState, usePriceChangeFormQueries, and a react-hook-form
- * instance. Owns the submit pipeline that calls changePrice.
+ * Orchestrator hook for the price-change flow; owns the submit pipeline that calls changePrice.
  *
  * @enterprise
+ * - Composes useItemSelectionState, usePriceChangeFormQueries and a react-hook-form instance.
  * - Three-way composition same as DeleteItemDialog. State and queries
  *   are exported individually; the orchestrator is the consumer-facing
  *   entry.
  * - priceChangeSchema validates itemId and newPrice (must be &gt; 0).
- *   No reason field -- backend does not record a reason for price
- *   changes. Different from itemFormSchema (create) and
- *   quantityAdjustSchema (adjust). CB-E asymmetry does not surface
- *   here.
+ *   No reason field -- the backend records the change as PRICE_CHANGE
+ *   itself. Different from itemFormSchema (create) and
+ *   quantityAdjustSchema (adjust).
  * - Failures are classified by the backend status token: 'forbidden' -&gt;
  *   admin-only, 'not_found' -&gt; item no longer exists, anything else -&gt;
  *   a generic "failed to change price" message. This keys on the
@@ -428,10 +408,8 @@ export function usePriceChangeForm({
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
 &nbsp;
-  // Compose state management
   const state = useItemSelectionState();
 &nbsp;
-  // Form management
   const {
     control,
     handleSubmit: rhfHandleSubmit,
@@ -447,7 +425,6 @@ export function usePriceChangeForm({
     },
   });
 &nbsp;
-  // Compose query management with form effects
   const queries = usePriceChangeFormQueries(
     isOpen,
     state.selectedSupplier,
@@ -512,15 +489,11 @@ export function usePriceChangeForm({
   });
 &nbsp;
   return {
-    // State
     ...state,
-    // Queries
     ...queries,
-    // Form
     control,
     formState,
     setValue,
-    // Handlers
     onSubmit,
     handleClose,
   };

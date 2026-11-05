@@ -148,23 +148,7 @@
 <a name='L83'></a><a href='#L83'>83</a>
 <a name='L84'></a><a href='#L84'>84</a>
 <a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a>
-<a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a>
-<a name='L95'></a><a href='#L95'>95</a>
-<a name='L96'></a><a href='#L96'>96</a>
-<a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a>
-<a name='L99'></a><a href='#L99'>99</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L86'></a><a href='#L86'>86</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -222,13 +206,6 @@
 <span class="cline-any cline-yes">47x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">47x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">47x</span>
@@ -236,9 +213,6 @@
 <span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -264,11 +238,11 @@
  * @module pages/inventory/dialogs/PriceChangeDialog/usePriceChangeFormQueries
  *
  * @summary
- * Query coordinator for the price-change flow: suppliers, item search,
- * item details. Owns two sync effects that keep react-hook-form state
- * coherent with selection state.
+ * Query coordinator for the price-change flow: suppliers, item search, item details.
  *
  * @enterprise
+ * Owns two sync effects that keep react-hook-form state coherent with selection state.
+ *
  * - Same lazy-firing pattern as DeleteItemDialog and EditItemDialog:
  *   suppliers fires when the dialog opens; the supplier's item list
  *   loads once when a supplier is selected (typing is matched in the
@@ -308,9 +282,6 @@ export function usePriceChangeFormQueries(
   setValue: UseFormSetValue&lt;PriceChangeForm&gt;,
   clearErrors: UseFormClearErrors&lt;PriceChangeForm&gt;
 ): PriceChangeFormQueries {
-  // ================================
-  // Queries
-  // ================================
 &nbsp;
   const suppliersQuery = useSuppliersQuery(isOpen);
   const itemsQuery = useItemSearchQuery(selectedSupplier, itemQuery);
@@ -321,14 +292,7 @@ export function usePriceChangeFormQueries(
   const effectiveCurrentQty =
     selectedItem ? (itemDetailsQuery.data?.onHand ?? selectedItem.onHand ?? 0) : 0;
 &nbsp;
-  // ================================
-  // Effects
-  // ================================
-&nbsp;
-  /**
-   * Reset form fields when supplier changes
-   * Prevents cross-supplier selection errors and stale form data
-   */
+  // A supplier change resets the fields, so no value from another supplier survives
   React.useEffect(() =&gt; {
     <span class="missing-if-branch" title="if path not taken" >I</span>if (!isOpen) <span class="cstat-no" title="statement not covered" >return;</span>
     setValue('itemId', '');
@@ -336,10 +300,7 @@ export function usePriceChangeFormQueries(
     clearErrors();
   }, [selectedSupplier, isOpen, setValue, clearErrors]);
 &nbsp;
-  /**
-   * Pre-fill form with current price when item is selected
-   * Uses fetched item details (not placeholder values from search)
-   */
+  // Pre-fills the current price from the fetched details (the search result's until they load)
   React.useEffect(() =&gt; {
     if (!selectedItem) return;
     setValue('itemId', selectedItem.id);

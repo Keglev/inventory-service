@@ -116,10 +116,7 @@
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
 <a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a>
-<a name='L55'></a><a href='#L55'>55</a>
-<a name='L56'></a><a href='#L56'>56</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -157,7 +154,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -178,8 +174,8 @@
  * @module pages/inventory/handlers/useDataFetchingLogic
  *
  * @summary
- * Adapter between InventoryBoard state and useInventoryPageData. Owns the
- * pagination and sort-model transformations.
+ * Adapter between InventoryBoard state and useInventoryPageData; owns the pagination
+ * and sort-model transformations.
  *
  * @enterprise
  * - The sort-model array is joined into a comma-separated server query
@@ -209,14 +205,12 @@ export type InventoryStateReturn = InventoryState &amp; InventoryStateSetters;
  * @returns Data fetching result from useInventoryPageData
  */
 export function useDataFetchingLogic(state: InventoryStateReturn) {
-  // Prepare sort parameter for server
   const serverSort = useMemo(() =&gt; {
     return state.sortModel.length
       ? `${state.sortModel[0].field},${state.sortModel[0].sort ?? 'asc'}`
       : 'name,asc';
   }, [state.sortModel]);
 &nbsp;
-  // Execute data fetching with prepared parameters
   const data = useInventoryPageData(
     state.supplierId,
     state.q,

@@ -168,22 +168,7 @@
 <a name='L103'></a><a href='#L103'>103</a>
 <a name='L104'></a><a href='#L104'>104</a>
 <a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L106'></a><a href='#L106'>106</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -235,13 +220,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -251,11 +230,6 @@
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
@@ -314,9 +288,7 @@
  *   value is pushed via setValue whenever selectedItem changes, and its
  *   handleSubmit is used only to wrap onSubmit. The primary gate against
  *   submitting without a selection is the Delete button's disabled prop
- *   on the parent dialog, not the form's zod schema. Tracked under
- *   CB-APP49 -- either make the form authoritative (drop the local React
- *   state) or remove the form wiring entirely.
+ *   on the parent dialog, not the form's zod schema.
  * - Two effects: one resets dependent state when the supplier changes
  *   (item, query, form, error, confirmation flag) so a supplier swap
  *   starts a clean flow; one keeps the form's itemId mirroring the
@@ -353,17 +325,11 @@ export function useDeleteItemState() {
     [setSupplierState],
   );
 &nbsp;
-  // Form validation state
   const { handleSubmit, formState: { isSubmitting }, reset, setValue } = useForm&lt;DeleteItemForm&gt;({
     resolver: zodResolver(deleteItemSchema),
     defaultValues: { itemId: '' },
   });
 &nbsp;
-  /**
-   * Reset dependent state when supplier changes
-   * Ensures: item selection, search query, and form state are cleared
-   * Prevents: stale data from previous supplier selection
-   */
   React.useEffect(() =&gt; {
     setSelectedItem(null);
     setItemQuery('');
@@ -371,11 +337,6 @@ export function useDeleteItemState() {
     setFormError('');
   }, [selectedSupplier, setValue, setSelectedItem, setItemQuery, setFormError]);
 &nbsp;
-  /**
-   * Sync form validation state with UI item selection
-   * Ensures: form itemId matches selected item for submission
-   * Purpose: keep react-hook-form synchronized with local state
-   */
   React.useEffect(() =&gt; {
     if (selectedItem) {
       setValue('itemId', selectedItem.id);

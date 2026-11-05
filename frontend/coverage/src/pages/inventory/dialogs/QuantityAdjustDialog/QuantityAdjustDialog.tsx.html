@@ -148,24 +148,7 @@
 <a name='L83'></a><a href='#L83'>83</a>
 <a name='L84'></a><a href='#L84'>84</a>
 <a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a>
-<a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a>
-<a name='L95'></a><a href='#L95'>95</a>
-<a name='L96'></a><a href='#L96'>96</a>
-<a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L86'></a><a href='#L86'>86</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -210,14 +193,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -262,19 +238,14 @@
  * @module pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog
  *
  * @summary
- * Root dialog for the quantity-adjust flow. Title, form body, and
- * cancel/apply actions. All state and submission live in
- * useQuantityAdjustForm.
+ * Root dialog for the quantity-adjust flow: title, form body, and cancel/apply actions.
  *
  * @enterprise
+ * - All state and submission live in useQuantityAdjustForm.
  * - Single-dialog architecture. A quantity adjustment is reversible
  *   by another adjustment, so no second confirmation step is offered.
  *   Same pattern as EditItemDialog and PriceChangeDialog.
- * - This was the reference dialog for the canonical help-icon wiring:
- *   it uses the shared HelpIconButton component, not raw IconButton
- *   + HelpOutlineIcon. ItemFormDialog, PriceChangeDialog,
- *   DeleteItemDialog, and EditItemDialog have all converged on this
- *   pattern.
+ * - Help opens through the shared HelpIconButton, as in every dialog.
  * - Backend invariant: the reason must belong to the StockChangeReason
  *   enum that quantity adjustments actually support; backend
  *   StockHistoryValidator is the authority. The dialog offers only the
@@ -307,14 +278,7 @@ export const QuantityAdjustDialog: React.FC&lt;QuantityAdjustDialogProps&gt; = (
 }) =&gt; {
   const { t } = useTranslation(['common', 'inventory']);
 &nbsp;
-  // ================================
-  // Form Management via Orchestrator Hook
-  // ================================
   const form = useQuantityAdjustForm(open, onClose, onAdjusted, readOnly);
-&nbsp;
-  // ================================
-  // Render
-  // ================================
 &nbsp;
   return (
     &lt;Dialog open={open} onClose={form.handleClose} fullWidth maxWidth="sm"&gt;

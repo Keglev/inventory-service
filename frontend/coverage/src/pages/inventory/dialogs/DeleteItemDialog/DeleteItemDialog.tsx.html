@@ -202,7 +202,9 @@
 <a name='L137'></a><a href='#L137'>137</a>
 <a name='L138'></a><a href='#L138'>138</a>
 <a name='L139'></a><a href='#L139'>139</a>
-<a name='L140'></a><a href='#L140'>140</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -346,11 +348,12 @@
  * @module pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog
  *
  * @summary
- * Root component for the delete-item flow. Mounts two MUI Dialogs (form
- * and confirmation) driven by a single orchestrator hook, with help and
- * demo-mode wiring.
+ * Root component for the delete-item flow.
  *
  * @enterprise
+ * Mounts two MUI Dialogs (form and confirmation) driven by a single orchestrator hook,
+ * with help and demo-mode wiring.
+ *
  * - Two-dialog architecture, not one dialog with two states. The form
  *   Dialog and the confirmation Dialog are independent &lt;Dialog&gt; mounts
  *   keyed off showConfirmation. They share state through the
@@ -412,9 +415,9 @@ const DeleteActionButton: React.FC&lt;DeleteActionButtonProps&gt; = ({ onClick, 
 };
 &nbsp;
 export interface DeleteItemDialogProps {
-  open: boolean; // Dialog visibility state
-  onClose: () =&gt; void; // Callback when dialog closes
-  onItemDeleted: () =&gt; void; // Callback after successful deletion
+  open: boolean;
+  onClose: () =&gt; void;
+  onItemDeleted: () =&gt; void;
   readOnly?: boolean; // Demo mode: allow UI navigation but block actual deletion
 }
 &nbsp;
@@ -433,7 +436,7 @@ export const DeleteItemDialog: React.FC&lt;DeleteItemDialogProps&gt; = ({
 &nbsp;
   return (
     &lt;&gt;
-      {/* Form dialog: supplier -&gt; item -&gt; reason selection */}
+      {/* Form dialog: supplier -&gt; item -&gt; preview */}
       &lt;Dialog open={open &amp;&amp; !state.showConfirmation} onClose={state.handleClose} fullWidth maxWidth="sm"&gt;
         &lt;DialogTitle&gt;
           &lt;Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}&gt;

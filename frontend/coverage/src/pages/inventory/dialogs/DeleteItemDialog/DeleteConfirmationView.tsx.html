@@ -130,28 +130,8 @@
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a>
 <a name='L67'></a><a href='#L67'>67</a>
-<a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L68'></a><a href='#L68'>68</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -182,28 +162,6 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -244,11 +202,12 @@
  * @module pages/inventory/dialogs/DeleteItemDialog/DeleteConfirmationView
  *
  * @summary
- * Confirmation step of the delete flow. Renders the irreversible-action
- * warning, the confirmation prompt, the item-details review, and any
- * post-submit error.
+ * Confirmation step of the delete flow.
  *
  * @enterprise
+ * Renders the irreversible-action warning, the confirmation prompt, the item-details
+ * review, and any post-submit error.
+ *
  * - Warning comes BEFORE the confirmation prompt by design. The user reads
  *   the consequences before being asked to confirm, not after.
  * - Item details are re-rendered here, not just at the form step, so the
@@ -271,12 +230,6 @@ export function DeleteConfirmationView({
 &nbsp;
   return (
     &lt;Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}&gt;
-      {/* 
-        IRREVERSIBLE ACTION WARNING
-        - Red alert emphasizing this cannot be undone
-        - Motivates user to carefully review item details below
-        - Sets appropriate tone for destructive operation
-      */}
       &lt;Alert severity="warning" icon={false}&gt;
         &lt;Box&gt;
           &lt;Typography variant="body1" sx={{ fontWeight: 600 }}&gt;
@@ -290,21 +243,10 @@ export function DeleteConfirmationView({
         &lt;/Box&gt;
       &lt;/Alert&gt;
 &nbsp;
-      {/* 
-        CONFIRMATION PROMPT
-        - Direct question asking for final user confirmation
-        - Placed after warning to ensure user reads it
-      */}
       &lt;Typography&gt;
         {t('inventory:deleteFlow.confirmationPrompt')}
       &lt;/Typography&gt;
 &nbsp;
-      {/* 
-        ITEM DETAILS REVIEW
-        - Shows item name and on-hand quantity one final time
-        - Allows user to verify they're deleting the correct item
-        - Placement after warning ensures careful review
-      */}
       {state.selectedItem &amp;&amp; state.itemDetailsQuery.data &amp;&amp; (
         &lt;Box&gt;
           &lt;Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}&gt;
@@ -314,11 +256,6 @@ export function DeleteConfirmationView({
         &lt;/Box&gt;
       )}
 &nbsp;
-      {/* 
-        Confirmation-level error display
-        - Shows API errors or validation failures during deletion
-        - Allows user to cancel and try again
-      */}
       {state.formError &amp;&amp; (
         &lt;Alert severity="error" sx={{ mt: 1 }}&gt;
           {state.formError}

@@ -191,9 +191,7 @@
 <a name='L126'></a><a href='#L126'>126</a>
 <a name='L127'></a><a href='#L127'>127</a>
 <a name='L128'></a><a href='#L128'>128</a>
-<a name='L129'></a><a href='#L129'>129</a>
-<a name='L130'></a><a href='#L130'>130</a>
-<a name='L131'></a><a href='#L131'>131</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L129'></a><a href='#L129'>129</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -288,8 +286,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-yes">14x</span>
@@ -338,8 +334,8 @@
  *   this component sends MUI's native 0-based model up untouched.
  * - Row classification (row-critical / row-warning) is delegated to
  *   getRowClassName from useInventoryRowStyling. The CSS in this file
- *   only paints the classes; the threshold rule (deficit &gt;= 5) lives
- *   upstream.
+ *   only paints the classes; the severity rule (lowStockSeverity in
+ *   config/inventoryPolicy, frontend ADR-0012) lives upstream.
  * - Row backgrounds are translucent overlays derived from semantic
  *   palette tokens (info/warning/error via alpha), so both light and
  *   dark mode adapt automatically.
@@ -385,9 +381,8 @@ export const InventoryTable: React.FC&lt;InventoryTableProps&gt; = ({
 }) =&gt; {
   return (
     &lt;Box sx={{ width: '100%', position: 'relative' }}&gt;
-      {/* No fixed height: x-data-grid v8 sizes to its rows when the
-          parent is unconstrained, removing the dead space below short pages. */}
-      {/* Loading Overlay */}
+      {/* No fixed height: the data grid sizes to its rows when the parent is
+          unconstrained, removing the dead space below short pages. */}
       {loading &amp;&amp; (
         &lt;Stack
           sx={{
@@ -406,7 +401,6 @@ export const InventoryTable: React.FC&lt;InventoryTableProps&gt; = ({
           &lt;CircularProgress /&gt;
         &lt;/Stack&gt;
       )}
-      {/* DataGrid Table */}
       &lt;DataGrid
         rows={rows}
         columns={columns}

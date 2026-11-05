@@ -152,7 +152,9 @@
 <a name='L87'></a><a href='#L87'>87</a>
 <a name='L88'></a><a href='#L88'>88</a>
 <a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -247,9 +249,10 @@
  *
  * @summary
  * Maps a failed delete response to a user-facing message and severity.
- * Used by useDeleteItemHandlers when deleteItem returns ok: false.
  *
  * @enterprise
+ * Used by useDeleteItemHandlers when deleteItem returns ok: false.
+ *
  * - Branches on the backend's structured status token (errorToken =
  *   HttpStatus.name().toLowerCase()) rather than on substrings of the freeform
  *   message. The three delete failure categories map to distinct tokens:

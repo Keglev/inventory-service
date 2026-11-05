@@ -159,10 +159,8 @@
 <a name='L94'></a><a href='#L94'>94</a>
 <a name='L95'></a><a href='#L95'>95</a>
 <a name='L96'></a><a href='#L96'>96</a>
-<a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a>
-<a name='L99'></a><a href='#L99'>99</a>
-<a name='L100'></a><a href='#L100'>100</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L97'></a><a href='#L97'>97</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -220,13 +218,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -266,11 +260,12 @@
  * @module pages/inventory/dialogs/EditItemDialog/EditItemDialog
  *
  * @summary
- * Root dialog for the item-rename flow. Renders the title, the
- * EditItemForm body, and the cancel/change actions, and delegates all
- * state, queries, and submission to useEditItemForm.
+ * Root dialog for the item-rename flow.
  *
  * @enterprise
+ * Renders the title, the EditItemForm body, and the cancel/change actions, and delegates
+ * all state, queries, and submission to useEditItemForm.
+ *
  * - Single-dialog architecture. Unlike DeleteItemDialog (two dialogs,
  *   form + confirmation), rename is a single modal because the change is
  *   reversible by another rename. No second confirmation step is offered.
@@ -319,12 +314,10 @@ export const EditItemDialog: React.FC&lt;EditItemDialogProps&gt; = ({
 }) =&gt; {
   const { t } = useTranslation(['common', 'inventory']);
 &nbsp;
-  // Orchestrate all form state, queries, and handlers
   const form = useEditItemForm(open, onClose, onItemRenamed);
 &nbsp;
   return (
     &lt;Dialog open={open} onClose={form.handleClose} fullWidth maxWidth="sm"&gt;
-      {/* Dialog title with help button */}
       &lt;DialogTitle&gt;
         &lt;Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}&gt;
           &lt;Box&gt;{t('inventory:dialogs.editItemTitle')}&lt;/Box&gt;
@@ -332,12 +325,10 @@ export const EditItemDialog: React.FC&lt;EditItemDialogProps&gt; = ({
         &lt;/Stack&gt;
       &lt;/DialogTitle&gt;
 &nbsp;
-      {/* Form with three-step workflow */}
       &lt;DialogContent dividers&gt;
         &lt;EditItemForm state={form} /&gt;
       &lt;/DialogContent&gt;
 &nbsp;
-      {/* Action buttons: Cancel and Change */}
       &lt;DialogActions sx={{ gap: 1 }}&gt;
         &lt;Button onClick={form.handleClose} disabled={form.formState.isSubmitting}&gt;
           {t('inventory:buttons.cancel')}

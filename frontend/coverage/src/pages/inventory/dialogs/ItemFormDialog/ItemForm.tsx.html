@@ -159,30 +159,7 @@
 <a name='L94'></a><a href='#L94'>94</a>
 <a name='L95'></a><a href='#L95'>95</a>
 <a name='L96'></a><a href='#L96'>96</a>
-<a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a>
-<a name='L99'></a><a href='#L99'>99</a>
-<a name='L100'></a><a href='#L100'>100</a>
-<a name='L101'></a><a href='#L101'>101</a>
-<a name='L102'></a><a href='#L102'>102</a>
-<a name='L103'></a><a href='#L103'>103</a>
-<a name='L104'></a><a href='#L104'>104</a>
-<a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L97'></a><a href='#L97'>97</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -231,15 +208,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -288,18 +260,16 @@
  * @module pages/inventory/dialogs/ItemFormDialog/ItemForm
  *
  * @summary
- * Field layout for the create-item flow: supplier, name, code,
- * quantity and price. Wired to the shared react-hook-form
- * instance from useItemForm.
+ * Field layout for the create-item flow: supplier, name, code, quantity and price.
  *
  * @enterprise
+ * - Wired to the shared react-hook-form instance from useItemForm.
  * - No reason field: the first stock of a new item is always recorded as
  *   INITIAL_STOCK by the backend. Later price and quantity changes go
  *   through dedicated dialogs (PriceChangeDialog, QuantityAdjustDialog),
  *   which carry their own reasons.
- * - Code / SKU field is editable and required (backend-enforced unique),
- *   reflecting the current backend behavior that codes are not yet
- *   user-editable. Will revisit if the backend exposes code edits.
+ * - Code / SKU is required (backend-enforced unique) and set once, here:
+ *   the backend offers no later edit of it.
  * - Price field uses a Euro adornment, consistent with the German-first
  *   appearance policy.
  */
@@ -317,33 +287,24 @@ import type { CreateItemForm } from '../../validation/inventoryValidation';
 import type { UseItemFormReturn } from './useItemForm';
 &nbsp;
 /**
- * ItemForm - Render all form fields
- * 
+ * ItemForm - The create-item fields, bound to the form from useItemForm.
+ *
  * @param state - Complete form state and handlers from useItemForm
- * 
- * @enterprise
- * - Error banner at top for generic form errors
- * - Supplier picked in the shared SupplierPickerField (two letters, S2-9),
- *   controlled by supplierValue
- * - Code / SKU field editable, required
- * - Quantity and price with numeric constraints
  */
 export function ItemForm({ state }: { state: UseItemFormReturn }) {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
 &nbsp;
   return (
     &lt;Box sx={{ display: 'grid', gap: 2, mt: 1 }}&gt;
-      {/* Error banner for non-field errors */}
       {state.formError &amp;&amp; &lt;Alert severity="error"&gt;{state.formError}&lt;/Alert&gt;}
 &nbsp;
-      {/* Supplier: the shared search field, two letters (S2-9) */}
+      {/* Supplier: the shared search field, two letters */}
       &lt;SupplierPickerField
         suppliers={state.suppliers}
         loading={state.suppliersLoading}
         value={state.supplierValue}
         onSelect={(opt) =&gt; {
           state.setSupplierValue(opt);
-          // Update RHF with supplier ID
           const nextSupplierId: CreateItemForm['supplierId'] =
             opt ? (opt.id as CreateItemForm['supplierId']) : ('' as CreateItemForm['supplierId']);
           state.setValue('supplierId', nextSupplierId, { shouldValidate: true });
@@ -352,7 +313,6 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
         errorText={fieldErrorText(state.formState.errors.supplierId, t)}
       /&gt;
 &nbsp;
-      {/* Name field */}
       &lt;TextField
         label={t('inventory:table.name')}
         {...state.register('name')}
@@ -360,7 +320,7 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
         helperText={fieldErrorText(state.formState.errors.name, t)}
       /&gt;
 &nbsp;
-      {/* Code / SKU field - required, unique per item (backend-enforced) */}
+      {/* Code / SKU: required, unique per item (backend-enforced) */}
       &lt;TextField
         label={t('inventory:table.code')}
         {...state.register('code')}
@@ -368,7 +328,6 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
         helperText={fieldErrorText(state.formState.errors.code, t)}
       /&gt;
 &nbsp;
-      {/* Quantity field */}
       &lt;TextField
         label={t('inventory:table.quantity')}
         type="number"
@@ -378,7 +337,6 @@ export function ItemForm({ state }: { state: UseItemFormReturn }) {
         helperText={fieldErrorText(state.formState.errors.quantity, t)}
       /&gt;
 &nbsp;
-      {/* Price field */}
       &lt;TextField
         label={t('inventory:table.price')}
         type="number"

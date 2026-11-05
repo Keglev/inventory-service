@@ -203,12 +203,7 @@
 <a name='L138'></a><a href='#L138'>138</a>
 <a name='L139'></a><a href='#L139'>139</a>
 <a name='L140'></a><a href='#L140'>140</a>
-<a name='L141'></a><a href='#L141'>141</a>
-<a name='L142'></a><a href='#L142'>142</a>
-<a name='L143'></a><a href='#L143'>143</a>
-<a name='L144'></a><a href='#L144'>144</a>
-<a name='L145'></a><a href='#L145'>145</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L141'></a><a href='#L141'>141</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -308,9 +303,6 @@
 <span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -363,10 +355,9 @@
  * - Single useState-bag lets handler hooks receive one state object
  *   instead of threading individual setters. The cost is a wider
  *   re-render surface; the benefit is a stable handler signature across
- *   all five handler modules.
- * - paginationModel uses MUI's 0-based page convention. The 1-based
- *   conversion for the backend happens later in useDataFetchingLogic
- *   (see CB-F).
+ *   the handler hooks.
+ * - paginationModel uses MUI's 0-based page convention, which the backend's
+ *   Spring Pageable shares; no conversion happens anywhere.
  * - Defaults are deliberate. Sort 'name,asc' matches the alphabetical
  *   mental model for inventory browse; page size 10 fits one viewport
  *   on standard laptops without vertical scroll.
@@ -453,12 +444,9 @@ export const useInventoryState = (): InventoryState &amp; InventoryStateSetters 
   const [openAdjust, setOpenAdjust] = React.useState(false);
   const [openPrice, setOpenPrice] = React.useState(false);
 &nbsp;
-  // The bell links here with ?belowMinimum=1, also while the page is open:
-  // every arrival on that link shows all items below minimum. The location key
-  // changes on each navigation, also to the same URL; the params object does not.
-  // Adjusted during render (React's pattern for state that follows the route):
-  // an effect first rendered the page once more with the previous filter.
-  // The first render needs no adjustment: the initial state already matches.
+  // Every arrival on the bell's ?belowMinimum=1 link shows all items below minimum, also while
+  // the page is open (the location key changes on each navigation). Adjusted during render,
+  // not in an effect, so the page never renders once more with the previous filter.
   const [seenNavigationKey, setSeenNavigationKey] = React.useState(navigationKey);
   if (navigationKey !== seenNavigationKey) {
     setSeenNavigationKey(navigationKey);

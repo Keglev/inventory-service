@@ -144,15 +144,7 @@
 <a name='L79'></a><a href='#L79'>79</a>
 <a name='L80'></a><a href='#L80'>80</a>
 <a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L82'></a><a href='#L82'>82</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -194,17 +186,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -217,6 +199,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -246,11 +230,12 @@
  * @module pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog
  *
  * @summary
- * Orchestrator hook for the delete flow. Composes useDeleteItemState,
- * useDeleteItemQueries, and useDeleteItemHandlers into a single
- * UseDeleteItemDialogReturn object consumed by every view and field.
+ * Orchestrator hook for the delete flow.
  *
  * @enterprise
+ * Composes useDeleteItemState, useDeleteItemQueries, and useDeleteItemHandlers into a
+ * single UseDeleteItemDialogReturn object consumed by every view and field.
+ *
  * - Composition over a god-hook. Each sub-hook owns one concern (state,
  *   data, behavior). This file is the only place that knows about all
  *   three.
@@ -280,10 +265,8 @@ export function useDeleteItemDialog(
   onItemDeleted: () =&gt; void,
   readOnly: boolean = false
 ): UseDeleteItemDialogReturn {
-  // Step 1: Manage all selection and dialog state
   const state = useDeleteItemState();
 &nbsp;
-  // Step 2: Coordinate data queries based on selection state
   const queries = useDeleteItemQueries(
     dialogOpen,
     state.selectedSupplier,
@@ -291,7 +274,6 @@ export function useDeleteItemDialog(
     state.selectedItem?.id
   );
 &nbsp;
-  // Step 3: Bind event handlers with state and queries
   const handlers = useDeleteItemHandlers(
     state,
     onClose,
@@ -299,31 +281,25 @@ export function useDeleteItemDialog(
     readOnly
   );
 &nbsp;
-  // Compose: return backwards-compatible shape for DeleteItemDialog components
   return {
-    // Selection state - from useDeleteItemState
     selectedSupplier: state.selectedSupplier,
     selectedItem: state.selectedItem,
     itemQuery: state.itemQuery,
 &nbsp;
-    // Dialog state - from useDeleteItemState
     formError: state.formError,
     showConfirmation: state.showConfirmation,
     isSubmitting: state.isSubmitting,
 &nbsp;
-    // Queries - from useDeleteItemQueries
     suppliersQuery: queries.suppliersQuery,
     itemsQuery: queries.itemsQuery,
     itemDetailsQuery: queries.itemDetailsQuery,
 &nbsp;
-    // State setters - from useDeleteItemState
     setSelectedSupplier: state.setSelectedSupplier,
     setSelectedItem: state.setSelectedItem,
     setItemQuery: state.setItemQuery,
     setFormError: state.setFormError,
     setShowConfirmation: state.setShowConfirmation,
 &nbsp;
-    // Handlers - from useDeleteItemHandlers
     handleClose: handlers.handleClose,
     handleCancelConfirmation: handlers.handleCancelConfirmation,
     onSubmit: handlers.onSubmit,

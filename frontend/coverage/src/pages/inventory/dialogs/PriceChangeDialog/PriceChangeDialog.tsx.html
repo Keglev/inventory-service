@@ -152,15 +152,7 @@
 <a name='L87'></a><a href='#L87'>87</a>
 <a name='L88'></a><a href='#L88'>88</a>
 <a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a>
-<a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a>
-<a name='L95'></a><a href='#L95'>95</a>
-<a name='L96'></a><a href='#L96'>96</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L90'></a><a href='#L90'>90</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -208,7 +200,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -216,9 +207,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -258,11 +246,11 @@
  * @module pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog
  *
  * @summary
- * Root dialog for the price-change flow. Renders title, the
- * PriceChangeForm body, and the cancel/apply actions. All state and
- * submission live in usePriceChangeForm.
+ * Root dialog for the price-change flow: title, the PriceChangeForm body, and the
+ * cancel/apply actions.
  *
  * @enterprise
+ * - All state and submission live in usePriceChangeForm.
  * - Single-dialog architecture. Price change is reversible by another
  *   price change, so no second confirmation step is offered. Same
  *   pattern as EditItemDialog (rename), different from DeleteItemDialog
@@ -270,15 +258,13 @@
  * - Backend invariants surfaced in the UI:
  *   (1) newPrice must be &gt; 0 (priceChangeSchema enforces, backend
  *       re-validates);
- *   (2) backend does not record a reason for price changes, so the form
- *       carries no reason field.
+ *   (2) the backend records the change as PRICE_CHANGE itself, so the
+ *       form carries no reason field.
  * - Help opens the in-app drawer via the shared HelpIconButton component,
  *   matching ItemFormDialog.
- * - There is no substring error-mapping in this flow. Failures get a
- *   single generic message regardless of cause (admin-only, validation,
- *   conflict) -- accepted as policy for this dialog; the delete/rename/
- *   create flows carry structured mapping because their causes are
- *   user-actionable.
+ * - Failures map by the backend status token in usePriceChangeForm
+ *   ('forbidden' -&gt; admin-only, 'not_found' -&gt; item gone, else a generic
+ *   message), never by substrings of the message.
  */
 &nbsp;
 import {
@@ -304,7 +290,6 @@ export function PriceChangeDialog({
 }: PriceChangeDialogProps) {
   const { t } = useTranslation(['common', 'inventory']);
 &nbsp;
-  // All form state and handlers delegated to hook
   const state = usePriceChangeForm({ isOpen: open, onClose, onPriceChanged, readOnly });
 &nbsp;
   return (
@@ -314,7 +299,6 @@ export function PriceChangeDialog({
       maxWidth="sm"
       fullWidth
     &gt;
-      {/* Title with help icon */}
       &lt;DialogTitle&gt;
         &lt;Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}&gt;
           &lt;Box&gt;{t('inventory:toolbar.changePrice')}&lt;/Box&gt;
@@ -322,12 +306,10 @@ export function PriceChangeDialog({
         &lt;/Stack&gt;
       &lt;/DialogTitle&gt;
 &nbsp;
-      {/* Form content */}
       &lt;DialogContent dividers&gt;
         &lt;PriceChangeForm state={state} /&gt;
       &lt;/DialogContent&gt;
 &nbsp;
-      {/* Dialog actions */}
       &lt;SubmitDialogActions
         onCancel={() =&gt; state.handleClose()}
         onSubmit={() =&gt; state.onSubmit()}
