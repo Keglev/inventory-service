@@ -45,7 +45,7 @@ public class AppProperties {
         public void setLandingPath(String landingPath) { this.landingPath = landingPath; }
     }
 
-    /** CORS allowed origins, one per environment. Replaces hardcoded origin lists in config classes. */
+    /** CORS allowed origins, one per environment. */
     public static class Cors {
         private List<String> allowedOrigins = List.of("http://localhost:5173");
 
@@ -53,7 +53,7 @@ public class AppProperties {
         public void setAllowedOrigins(List<String> allowedOrigins) { this.allowedOrigins = allowedOrigins; }
     }
 
-    /** OAuth2 authorization request cookie settings for the stateless login flow. */
+    /** Cookie that carries the OAuth2 authorization request across the provider redirect. */
     public static class Cookie {
         private String authRequestName = "OAUTH2_AUTH_REQUEST";
         private int authRequestMaxAge = 180;

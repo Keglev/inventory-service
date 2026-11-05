@@ -15,11 +15,11 @@ import org.springframework.context.ConfigurableApplicationContext;
  * infrastructure prior to JVM startup, following 12-factor
  * separation of configuration from code.</p>
  *
- * <p>Active profiles: {@code dev} (detailed logging),
- * {@code test} (H2 in-memory), {@code prod} (Oracle Cloud).</p>
+ * <p>Profiles: {@code prod} (Oracle Autonomous Database), {@code test} (H2 in
+ * memory, Oracle mode), {@code e2e} (added to {@code test} for the Playwright run).</p>
  *
  * @see <a href="https://github.com/Keglev/inventory-service">GitHub Repository</a>
- * @see <a href="https://keglev.github.io/inventory-service/api.html">API Documentation</a>
+ * @see <a href="https://keglev.github.io/inventory-service/backend/api/index.html">API Documentation</a>
  */
 @SpringBootApplication
 public class InventoryServiceApplication {
@@ -34,6 +34,8 @@ public class InventoryServiceApplication {
         run(args);
     }
 
+    // --ssp.close=true closes the context once started: InventoryServiceApplicationMainTest
+    // runs main() through this path without leaving the application running.
     static ConfigurableApplicationContext run(String[] args) {
         ConfigurableApplicationContext applicationContext = SpringApplication.run(InventoryServiceApplication.class, args);
 

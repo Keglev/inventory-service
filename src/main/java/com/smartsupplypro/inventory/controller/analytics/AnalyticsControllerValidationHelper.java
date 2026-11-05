@@ -37,10 +37,9 @@ public class AnalyticsControllerValidationHelper {
      * Defaults each missing bound on its own: start to 30 days ago, end to now.
      *
      * <p>For the dashboard summary, which feeds both bounds to
-     * {@code LocalDateTime.toLocalDate()}. The stock-update window differs: the
-     * service keeps a lone bound open-ended there, because those queries accept a
-     * null bound; reusing that rule here let a lone date through as a null and
-     * answered 500.</p>
+     * {@code LocalDateTime.toLocalDate()} and so needs both. The stock-update window
+     * differs on purpose: its service keeps a lone bound open-ended, because those
+     * queries accept a null bound.</p>
      *
      * @param startDate requested start (nullable)
      * @param endDate requested end (nullable)
@@ -56,9 +55,6 @@ public class AnalyticsControllerValidationHelper {
 
     /**
      * Builds a {@link StockUpdateFilterDTO} from individual query parameters.
-     *
-     * <p>Extracted from {@link com.smartsupplypro.inventory.controller.StockUpdateAnalyticsController}
-     * to keep the endpoint method under 15 lines.</p>
      *
      * @param startDate  optional start datetime
      * @param endDate    optional end datetime

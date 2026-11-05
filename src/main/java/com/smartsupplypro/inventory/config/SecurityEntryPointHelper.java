@@ -46,11 +46,9 @@ public class SecurityEntryPointHelper {
         };
     }
 
-    // /logout accepts cross-site form posts, so this check is all that stands between
-    // the parameter and an open redirect. A string prefix is not an origin:
-    // https://app.example is a prefix of https://app.example.attacker.test and of
-    // https://app.example@attacker.test. User info is refused as well: the frontend never
-    // sends it, and a return URL has no use for credentials.
+    // /logout takes cross-site form posts, so this check alone stops an open redirect. A prefix
+    // is no origin (https://app.example.attacker.test, https://app.example@attacker.test);
+    // user info is refused too, as the frontend never sends it.
     private static boolean isSameOrigin(String candidate, String base) {
         if (candidate == null) return false;
         try {

@@ -30,7 +30,8 @@ import lombok.RequiredArgsConstructor;
  * Regular authenticated users are deliberately excluded — employee-level
  * activity is a supervision view. Demo mode is NOT a role: demo sessions are
  * anonymous requests admitted by the {@code app.demo-readonly} switch, so the
- * gate combines {@code hasRole('ADMIN')} with an anonymous-plus-demo check.</p>
+ * gate combines {@code hasRole('ADMIN')} with an anonymous-plus-demo check
+ * (backend ADR-0020).</p>
  */
 @RestController
 @RequestMapping(value = "/api/analytics", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -48,6 +49,7 @@ public class EmployeeAnalyticsController {
      * Gets change counts per employee per time bucket.
      *
      * @param granularity {@code daily}, {@code weekly}, or {@code monthly} (default monthly)
+     * @param supplierId  optional supplier filter
      * @param startDate   optional inclusive start date (ISO yyyy-MM-dd)
      * @param endDate     optional inclusive end date (ISO yyyy-MM-dd)
      * @return activity rows ordered by period, then creator
@@ -69,6 +71,7 @@ public class EmployeeAnalyticsController {
      *
      * @param createdBy optional creator (email) filter, case-insensitive; for anonymous
      *                  callers, resolved by {@link DemoIdentityMasking#resolveFilter}
+     * @param supplierId optional supplier filter
      * @param startDate optional inclusive start date (ISO yyyy-MM-dd)
      * @param endDate   optional inclusive end date (ISO yyyy-MM-dd)
      * @param page      zero-based page index (default 0)

@@ -35,7 +35,7 @@ import ch.qos.logback.classic.Level;
  * Unit tests for {@link HealthCheckController#checkDatabaseConnection(Authentication)} covering
  * who sees which UP fields, the fixed DOWN body on every failure path, the log line that keeps
  * the failure detail, and try-with-resources cleanup branches using mocked JDBC. Every expected
- * warning is captured and asserted, so none of them reaches the build log (NF-18).
+ * warning is captured and asserted, so none of them reaches the build log.
  */
 @ExtendWith(MockitoExtension.class)
 class HealthCheckControllerDbEndpointTest {

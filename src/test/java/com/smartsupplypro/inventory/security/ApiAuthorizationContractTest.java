@@ -55,9 +55,8 @@ class ApiAuthorizationContractTest {
         return handlers;
     }
 
-    // Guards against a broken scan, which finds none or a handful. The floor sits below the
-    // count left by the endpoint removals of 2026-10-28 (41 before them, 37 after the
-    // stock-history reads went) so each removal does not have to move it.
+    // Guards against a broken scan, which finds none or a handful. The floor sits well below
+    // the real count, so removing an endpoint does not have to move it.
     @Test
     void should_find_at_least_25_handlers_when_scanning_the_api_controllers() throws Exception {
         assertTrue(apiHandlers().size() >= 25, "scan found too few handlers to be meaningful");

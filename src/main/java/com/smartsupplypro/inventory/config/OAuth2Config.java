@@ -49,8 +49,8 @@ public class OAuth2Config {
     }
 
     /**
-     * Persists OAuth2 authorization requests in a cookie so the stateless session
-     * survives the provider redirect round-trip without server-side state.
+     * Persists OAuth2 authorization requests in a cookie, so the provider redirect
+     * round-trip needs no server-side session before sign-in.
      */
     @Bean
     public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {

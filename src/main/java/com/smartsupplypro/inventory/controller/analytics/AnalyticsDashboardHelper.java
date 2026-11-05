@@ -12,9 +12,6 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Aggregates multi-source analytics data for the dashboard summary endpoint.
- *
- * <p>Extracted from {@link com.smartsupplypro.inventory.controller.AnalyticsController}
- * to keep endpoint methods under 15 lines.</p>
  */
 @Component
 @RequiredArgsConstructor

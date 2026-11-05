@@ -25,8 +25,8 @@ import lombok.RequiredArgsConstructor;
 /**
  * REST controller for supplier resource operations.
  *
- * <p>All endpoints require authentication. Write operations
- * are restricted to ADMIN role.</p>
+ * <p>Reads need a signed-in user, or demo mode for anonymous callers. Write
+ * operations are restricted to ADMIN role.</p>
  *
  * @see SupplierService
  */

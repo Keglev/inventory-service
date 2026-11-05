@@ -35,7 +35,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(value = "/api/analytics", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Validated
-// One rule for every endpoint: any signed-in user, or anyone in demo mode
 @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
 public class StockAnalyticsController {
 

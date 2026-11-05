@@ -85,6 +85,7 @@ public class InventoryItemController {
             @RequestParam(required = false, defaultValue = "") String name,
             @RequestParam(required = false) String supplierId,
             @RequestParam(required = false, defaultValue = "false") boolean belowMinimumOnly,
+            // TODO(S-11): default sort "price" has no recorded reason; the item picker sends none
             @org.springframework.data.web.PageableDefault(size = 20, sort = "price") Pageable pageable) {
         return inventoryItemService.searchItems(name, supplierId, belowMinimumOnly, pageable);
     }
@@ -117,7 +118,9 @@ public class InventoryItemController {
      * quantity adjustment, which is where the stock movement is audited.
      *
      * @param id item identifier
-     * @throws ResponseStatusException 404 if item not found
+     * @throws java.util.NoSuchElementException when the item does not exist (answered 404)
+     * @throws com.smartsupplypro.inventory.exception.BusinessRuleViolationException when its
+     *         quantity is above zero (answered 409)
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")

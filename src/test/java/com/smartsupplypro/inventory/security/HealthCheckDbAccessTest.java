@@ -103,7 +103,7 @@ class HealthCheckDbAccessTest {
     void should_answer_a_fixed_down_body_when_the_database_fails() throws Exception {
         when(dataSource.getConnection()).thenThrow(new SQLException("ORA-12506: listener rejected"));
 
-        // The expected warning is captured, so it stays out of the build log (NF-18).
+        // The expected warning is captured, so it stays out of the build log.
         try (LogCapture log = LogCapture.of(HealthCheckController.class, Level.WARN)) {
             mvc.perform(get("/api/health/db"))
                 .andExpect(status().isServiceUnavailable())

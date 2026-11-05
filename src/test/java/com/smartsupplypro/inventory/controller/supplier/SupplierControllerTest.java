@@ -73,8 +73,8 @@ class SupplierControllerTest {
     }
 
     /**
-     * The payload the browser actually sends: no audit fields. The previous fixtures all
-     * supplied createdBy, which is why bean validation rejecting it went unnoticed.
+     * The payload the browser actually sends: no audit fields. A fixture that supplies
+     * createdBy would hide bean validation rejecting a request without it.
      */
     private SupplierDTO asSentByTheUi() {
         return SupplierDTO.builder()
