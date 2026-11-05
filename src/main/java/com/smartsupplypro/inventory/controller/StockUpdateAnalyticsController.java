@@ -50,7 +50,7 @@ public class StockUpdateAnalyticsController {
      * @param endDate    optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
      * @param itemName   optional item name filter
      * @param supplierId optional supplier filter
-     * @param createdBy  optional creator username filter; for anonymous callers,
+     * @param createdBy  optional creator (email) filter; for anonymous callers,
      *                   resolved by {@link DemoIdentityMasking#resolveFilter}
      * @param minChange  optional minimum quantity change filter
      * @param maxChange  optional maximum quantity change filter
@@ -80,7 +80,7 @@ public class StockUpdateAnalyticsController {
      * @param endDate    optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
      * @param itemName   optional item name filter
      * @param supplierId optional supplier filter
-     * @param createdBy  optional creator username filter; for anonymous callers,
+     * @param createdBy  optional creator (email) filter; for anonymous callers,
      *                   resolved by {@link DemoIdentityMasking#resolveFilter}
      * @param minChange  optional minimum quantity change filter
      * @param maxChange  optional maximum quantity change filter

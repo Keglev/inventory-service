@@ -51,10 +51,12 @@ public class HealthCheckController {
     }
 
     /**
-     * Basic health check for the frontend.
+     * Basic health check, polled by the frontend, the container health check and the
+     * deploy scripts.
      *
-     * @return {@code {"status":"ok","database":"ok"|"down","timestamp":<epochMillis>}},
-     *         200 OK when database is up, 503 Service Unavailable when database is down
+     * @return {@code {"status":"ok","database":"ok"|"down","databaseProduct":<name>|"unknown",
+     *         "timestamp":<epochMillis>}}, 200 OK when the database is up,
+     *         503 Service Unavailable when it is down
      */
     @GetMapping
     public ResponseEntity<Map<String, Object>> health() {
@@ -105,7 +107,7 @@ public class HealthCheckController {
         }
     }
 
-    // low-cost ping; runs every 15 min from the frontend health check
+    // SELECT 1, the cheapest round trip: the container health check polls /api/health every 30 s
     private boolean pingDatabase() {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement("SELECT 1 FROM DUAL");
@@ -136,10 +138,9 @@ public class HealthCheckController {
         }
     }
 
-    // One line, no stack trace (NF-18): the check repeats on every probe while the
-    // database is down. A driver can wrap the network or wallet error that a fix
-    // needs, so the deepest cause is named when there is one. Driver text can span
-    // lines; LogSanitizer keeps the warning on one line and bounds its length.
+    // One line, no stack trace: the check repeats on every probe while the database is down.
+    // A driver can wrap the network or wallet error a fix needs, so the deepest cause is
+    // named; LogSanitizer keeps the warning on one line and bounds its length.
     private static String describeFailure(Exception ex) {
         Throwable root = NestedExceptionUtils.getRootCause(ex);
         String top = describe(ex);

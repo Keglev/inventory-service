@@ -9,7 +9,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-/** Test-only dual-chain security config that mirrors the production entry-point split. */
+/**
+ * Test-only dual-chain security config: JSON API requests get 401, every other request is
+ * redirected to the OAuth2 login endpoint (production sends it to the frontend login page).
+ */
 @TestConfiguration
 @EnableMethodSecurity
 class ApiEntryPointTestSecurityConfig {

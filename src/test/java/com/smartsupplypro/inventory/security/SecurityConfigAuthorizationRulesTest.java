@@ -80,7 +80,7 @@ class SecurityConfigAuthorizationRulesTest {
 
         @Test
         void should_redirect_to_the_frontend_login_when_the_api_login_path_is_requested() throws Exception {
-            // The login page is the frontend's; this host used to render Spring's generated one.
+            // The login page is the frontend's, so this host redirects /login there.
             mvc.perform(get("/login").accept(MediaType.TEXT_HTML))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location", "https://frontend.test/login"));

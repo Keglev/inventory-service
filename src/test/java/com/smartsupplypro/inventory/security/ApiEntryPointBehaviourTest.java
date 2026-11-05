@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.annotation.Resource;
 
 /**
- * Tests for entry-point behavior: API JSON requests return 401 JSON;
- * non-API or non-JSON requests redirect to the OAuth2 login endpoint.
+ * Tests the entry-point split of {@link ApiEntryPointTestSecurityConfig}: API JSON requests
+ * return 401 JSON; non-API or non-JSON requests redirect to the OAuth2 login endpoint.
  */
 @WebMvcTest(controllers = ApiEntryPointBehaviourTest.StubController.class)
 @AutoConfigureMockMvc(addFilters = true)

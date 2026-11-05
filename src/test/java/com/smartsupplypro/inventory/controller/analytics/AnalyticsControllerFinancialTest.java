@@ -72,10 +72,10 @@ public class AnalyticsControllerFinancialTest {
 
     @BeforeEach
     void setup() {
-        // The real defaults: a hand-written stub here filled both bounds and hid B2 (a lone date -> 500)
+        // The real defaults: a stub filling both bounds would hide a lone date reaching the service
         when(validationHelper.completeDateWindow(any(), any())).thenCallRealMethod();
 
-        // the real summary-window check, not a hand-written copy of it (R51)
+        // the real summary-window check, not a hand-written copy of it
         doCallRealMethod().when(validationHelper)
             .validateDateTimeRange(any(), any(), anyString(), anyString());
 

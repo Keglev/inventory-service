@@ -26,10 +26,9 @@ import org.springframework.context.ConfigurableApplicationContext;
  * {@code web-application-type=none}, then immediately closes the context via a dedicated
  * test-only command-line flag ({@code --ssp.close=true}).
  *
- * <p><strong>Why not static mocking?</strong> Mockito static mocking normally requires the
- * {@code mockito-inline} artifact. In this codebase, the Spring Boot BOM pins Mockito core to a newer
- * release line where {@code mockito-inline} is not published, causing dependency resolution errors.
- * This approach avoids introducing that extra dependency while still covering the entry point.
+ * <p><strong>Why not static mocking?</strong> Mockito 5's default inline mock maker could stub
+ * {@code SpringApplication.run}, but that covers {@code main} without starting anything; this test
+ * starts a real context instead, so it also proves the application boots.
  */
 class InventoryServiceApplicationMainTest {
 

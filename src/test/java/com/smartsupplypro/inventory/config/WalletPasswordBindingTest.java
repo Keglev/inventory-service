@@ -18,7 +18,7 @@ import com.zaxxer.hikari.HikariConfig;
 /**
  * Pins how the production overlay hands the Oracle wallet password to the JDBC
  * driver: as a Hikari data-source property read from the environment, so the
- * password never has to appear on the JVM command line (ADR-0009 amendment).
+ * password never has to appear on the JVM command line (backend ADR-0009, amendment).
  */
 class WalletPasswordBindingTest {
 

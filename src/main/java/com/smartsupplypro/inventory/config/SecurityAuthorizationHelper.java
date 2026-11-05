@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
  * <p>This layer decides only who must be signed in: public endpoints, the demo
  * read-only permits, and authentication for everything else. Roles are enforced in
  * one place, by {@code @PreAuthorize} on each controller method, so the two layers
- * cannot disagree; ApiAuthorizationContractTest fails for any {@code /api} handler
- * without one.</p>
+ * cannot disagree; ApiAuthorizationContractTest fails for an {@code /api} handler
+ * without one that is not on its allowlist.</p>
  *
  * <p>When demo mode is active, read-only inventory, analytics, and supplier endpoints
  * are public so prospective users can explore data without logging in; the method
