@@ -23,7 +23,7 @@ import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConve
 import lombok.RequiredArgsConstructor;
 
 /**
- * Default implementation of WAC-based financial analytics.
+ * WAC-based financial analytics.
  *
  * <p>Replays the full stock event stream per item to maintain a running
  * Weighted Average Cost (WAC). Events before the requested period establish
@@ -42,7 +42,7 @@ public class FinancialAnalyticsService {
 
     private final StockHistoryRepository stockHistoryRepository;
 
-    // Reason sets define which financial bucket each outbound event belongs to
+    // Reason sets define which financial bucket each event belongs to
     private static final Set<StockChangeReason> RETURNS_IN =
             Set.of(StockChangeReason.RETURNED_BY_CUSTOMER);
     private static final Set<StockChangeReason> WRITE_OFFS =
@@ -88,8 +88,6 @@ public class FinancialAnalyticsService {
 
         return buildSummary(from, to, b);
     }
-
-    // -- Phase helpers ---------------------------------------------------------
 
     /**
      * Replays all events that occurred before {@code start} to build the opening WAC
@@ -208,8 +206,6 @@ public class FinancialAnalyticsService {
                 .build();
     }
 
-    // -- WAC algorithm — data structures --------------------------------------
-
     /** Current inventory state (running quantity + WAC) for a single item. */
     private record WacState(long qty, BigDecimal avgCost) {}
 
@@ -226,8 +222,6 @@ public class FinancialAnalyticsService {
         BigDecimal writeOffCost  = BigDecimal.ZERO;
         BigDecimal endingValue   = BigDecimal.ZERO;
     }
-
-    // -- WAC algorithm — core operations --------------------------------------
 
     /**
      * Recalculates WAC after an inbound stock movement.

@@ -34,10 +34,11 @@ public class InventoryItemValidationHelper {
 
     /**
      * Validates a DTO for item creation.
-     * Order: validate base fields -> check uniqueness -> validate supplier.
      *
      * @param dto the inventory item DTO to validate
      * @throws InvalidRequestException if a field is invalid or the supplier does not exist (400)
+     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException if the name and
+     *         price, or the SKU, already exist (409)
      */
     public void validateForCreation(InventoryItemDTO dto) {
         InventoryItemValidator.validateBase(dto);

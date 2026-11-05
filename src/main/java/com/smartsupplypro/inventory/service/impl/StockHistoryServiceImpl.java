@@ -45,10 +45,9 @@ public class StockHistoryServiceImpl implements StockHistoryService {
     /**
      * Returns a new primary key for a history row.
      *
-     * <p>Random, not time-based: one request can log several changes in the
-     * same millisecond (an update logs price and quantity back to back), and
-     * a key built from item id and clock millis made the second save merge
-     * into the first row instead of inserting a new one.</p>
+     * <p>Random, not time-based: two changes to one item can be logged in the same
+     * millisecond, and a key built from item id and clock millis would make the
+     * second save merge into the first row instead of inserting a new one.</p>
      */
     private static String newHistoryId() {
         return UUID.randomUUID().toString();
@@ -80,7 +79,7 @@ public class StockHistoryServiceImpl implements StockHistoryService {
 
         String supplierId = resolveSupplierId(itemId);
 
-        // Server-authoritative timestamp ensures consistency across distributed writes
+        // The server's clock sets the timestamp, never the client's
         StockHistory history = StockHistory.builder()
                 .id(newHistoryId())
                 .itemId(itemId)

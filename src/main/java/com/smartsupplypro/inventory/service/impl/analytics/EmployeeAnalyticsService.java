@@ -59,6 +59,7 @@ public class EmployeeAnalyticsService {
      * @param granularity {@code daily}, {@code weekly}, or {@code monthly} (null = monthly)
      * @param startDate   inclusive start date (nullable)
      * @param endDate     inclusive end date (nullable)
+     * @param supplierId  optional supplier filter
      * @return activity rows ordered by period ascending, then creator
      * @throws InvalidRequestException on unknown granularity or inverted window
      */
@@ -106,6 +107,7 @@ public class EmployeeAnalyticsService {
      * @param createdBy optional creator (email) filter, case-insensitive
      * @param startDate inclusive start date (nullable)
      * @param endDate   inclusive end date (nullable)
+     * @param supplierId optional supplier filter
      * @param pageable  page/size (unsorted; ordering is newest-first in SQL)
      * @return page of change rows with resolved item and supplier names
      * @throws InvalidRequestException on inverted window
@@ -142,8 +144,8 @@ public class EmployeeAnalyticsService {
 
     /**
      * Email -> display name map. Rows without an email are skipped; rows
-     * without a name fall back to the email. OAuth-provisioned users are not
-     * guaranteed to carry a name, so this must never NPE on production data.
+     * without a name fall back to the email. Provisioning stores the email as
+     * the name, so both guards are defensive.
      */
     private Map<String, String> loadDisplayNames() {
         Map<String, String> names = new HashMap<>();

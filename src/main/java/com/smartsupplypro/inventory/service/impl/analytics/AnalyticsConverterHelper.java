@@ -18,8 +18,6 @@ final class AnalyticsConverterHelper {
 
     private AnalyticsConverterHelper() {}
 
-    // -- Date/Time conversions -------------------------------------------------
-
     /**
      * Converts a date-like projection value to {@link LocalDate}.
      * Accepts {@code LocalDate}, {@code java.sql.Date}, {@code java.sql.Timestamp},
@@ -75,8 +73,6 @@ final class AnalyticsConverterHelper {
         throw new IllegalStateException("Expected numeric type but got: " + o);
     }
 
-    // -- Date window utilities -------------------------------------------------
-
     /**
      * Applies a 30-day default window when bounds are null and validates {@code start <= end}.
      *
@@ -103,8 +99,6 @@ final class AnalyticsConverterHelper {
     static LocalDateTime endOfDay(LocalDate d) {
         return LocalDateTime.of(d, LocalTime.MAX);
     }
-
-    // -- String utilities ------------------------------------------------------
 
     /**
      * Returns null if the string is blank, otherwise a trimmed value.

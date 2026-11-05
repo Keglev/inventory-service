@@ -8,8 +8,7 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
  * Service contract for immutable stock movement event logging and audit trail management.
  *
  * <p>Logs stock changes with price snapshots. The history is read through the
- * analytics repositories; the direct read API was removed after the access log
- * showed no caller (2026-10-28).</p>
+ * analytics repositories; there is no direct read API (backend ADR-0018).</p>
  *
  * @see com.smartsupplypro.inventory.service.impl.StockHistoryServiceImpl
  * @see com.smartsupplypro.inventory.model.StockHistory

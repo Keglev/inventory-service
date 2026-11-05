@@ -25,7 +25,7 @@ import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
 
 /**
- * Default implementation of {@link OAuth2UserService} for OpenID Connect providers,
+ * The application's {@link OAuth2UserService} for OpenID Connect providers,
  * with automatic local user provisioning and role assignment.
  *
  * <p>It is the only login path: a plain OAuth2 login (no {@code openid} scope) is

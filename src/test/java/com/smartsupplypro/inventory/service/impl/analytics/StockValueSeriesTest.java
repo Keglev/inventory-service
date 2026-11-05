@@ -34,7 +34,7 @@ class StockValueSeriesTest {
 
     @Test
     void should_open_the_window_with_the_position_built_before_it_when_a_sale_follows() {
-        // the old query started every item at zero on the first day, so this sale read -30
+        // a replay that starts at the window would open at zero and read this sale as -30
         List<Object[]> movements = List.of(
                 move("a", "2024-01-10", 100, "3.00"),
                 move("a", "2024-03-02", -10, "3.00"));

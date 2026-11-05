@@ -14,9 +14,9 @@ import lombok.RequiredArgsConstructor;
 /**
  * Audit trail helper for inventory item operations.
  *
- * <p>Centralises stock history logging for initial stock, quantity adjustments,
- * price changes, and full removals. All entries capture: itemId, quantityDelta,
- * reason, username, and price snapshot.</p>
+ * <p>Centralises stock history logging for initial stock, quantity adjustments
+ * and price changes. All entries capture: itemId, quantityDelta, reason, the
+ * creator's email, and price snapshot.</p>
  *
  * @see StockHistoryService
  */
