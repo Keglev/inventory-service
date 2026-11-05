@@ -46,6 +46,7 @@ final class OAuth2AuthorizationRequestCookieSerializer {
             return Base64.getUrlEncoder()
                     .encodeToString(MAPPER.writeValueAsString(m).getBytes(StandardCharsets.UTF_8));
         } catch (JacksonException e) {
+            // "{}" has no authorizationUri, so deserialize() rejects it and the sign-in starts over
             return Base64.getUrlEncoder().encodeToString("{}".getBytes(StandardCharsets.UTF_8));
         }
     }

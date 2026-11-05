@@ -92,7 +92,7 @@ class OAuth2LoginSuccessHandlerProvisioningTest {
                     new MockHttpServletRequest(), new MockHttpServletResponse(), t));
         }
 
-        // provisioning stores the email as the name, so a missing name must not fail the login (B7)
+        // provisioning stores the email as the name, so a missing name must not fail the login
         @Test
         void should_redirect_when_the_name_attribute_is_missing() throws Exception {
             stubFrontend("https://localhost:8081", "/api/me");

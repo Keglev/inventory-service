@@ -26,7 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * the principal attributes and resolves the redirect target.</p>
  *
  * @see CookieOAuth2AuthorizationRequestRepository
- * @see SecurityConfig
+ * @see com.smartsupplypro.inventory.config.SecurityConfig
  */
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -84,6 +84,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             if (candidate != null && !candidate.isBlank()) {
                 // Redirect URL construction: validate against allowed origins to prevent open redirect
                 if (props.getCors().getAllowedOrigins().contains(candidate)) {
+                    // TODO(S-10): "/auth" is hard-coded here; the default target uses landingPath
                     target = candidate + "/auth";
                 } else {
                     log.warn("Rejected non-allowlisted return URL: {}", LogSanitizer.sanitize(candidate));
