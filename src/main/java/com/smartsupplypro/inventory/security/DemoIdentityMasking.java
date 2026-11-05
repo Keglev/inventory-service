@@ -89,6 +89,7 @@ public class DemoIdentityMasking implements ResponseBodyAdvice<Object> {
         String number = value.endsWith(DOMAIN)
                 ? value.substring(PREFIX.length(), value.length() - DOMAIN.length())
                 : "";
+        // 1 to 999999, no leading zero: parseInt stays in range, and "007" cannot alias "7"
         if (!number.matches("[1-9][0-9]{0,5}")) {
             return NO_MATCH;
         }
