@@ -4,19 +4,20 @@
 # Usage: bash .github/scripts/deploy-pages.sh, from docs-deploy.yml, with
 #        ARTIFACT_ID (upload-pages-artifact's artifact_id), PAGES_SHA (the
 #        gh-pages commit the artifact was cut from), GH_TOKEN (pages: write) and
-#        the job's id-token: write permission. RUN_ID and RUN_ATTEMPT default to
-#        GITHUB_RUN_ID and GITHUB_RUN_ATTEMPT.
+#        the job's id-token: write permission.
 #
 # It replaces actions/deploy-pages, which names every deployment after
 # GITHUB_SHA. Under workflow_run that is main's newest commit, not the built
 # one, so two runs of one merge, or a run that finishes after the next merge,
 # share a name: the second reads the first's status and reports success without
-# going live (backend ADR-0015). Here the build version is derived from the
-# gh-pages commit, the run and the attempt, so every deployment has its own
-# name and the script reads only its own status.
+# going live (backend ADR-0015). Here the build version is the gh-pages commit
+# the artifact was cut from. Pages accepts only a commit of the repository (a
+# derived hash got HTTP 404), and every push, re-runs included, makes a new
+# one, so every deployment has its own name and the script reads only its own
+# status.
 #
 # Produces: one Pages deployment; page_url in $GITHUB_OUTPUT (stdout when
-# unset); a log line mapping the build version to the gh-pages commit.
+# unset).
 #
 # Failure mode: exits 1 when the deployment is refused, fails, is cancelled or
 # is lost, after 10 failed status reads, or after 10 minutes; on the last two,
@@ -30,17 +31,14 @@ set -euo pipefail
 : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required}"
 : "${ACTIONS_ID_TOKEN_REQUEST_URL:?the job needs permission id-token: write}"
 : "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:?the job needs permission id-token: write}"
-RUN_ID="${RUN_ID:-${GITHUB_RUN_ID:?}}"
-RUN_ATTEMPT="${RUN_ATTEMPT:-${GITHUB_RUN_ATTEMPT:?}}"
 OUT="${GITHUB_OUTPUT:-/dev/stdout}"
 TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-600}"
 POLL_SECONDS="${POLL_SECONDS:-5}"
 MAX_ERRORS=10
 API="repos/${GITHUB_REPOSITORY}/pages/deployments"
 
-# 40 hex characters like a commit id, unique per gh-pages commit, run and attempt.
-BUILD_VERSION="$(printf '%s %s %s' "$PAGES_SHA" "$RUN_ID" "$RUN_ATTEMPT" | sha1sum | cut -d' ' -f1)"
-echo "Build version $BUILD_VERSION = gh-pages $PAGES_SHA, run $RUN_ID, attempt $RUN_ATTEMPT"
+BUILD_VERSION="$PAGES_SHA"
+echo "Build version: gh-pages commit $BUILD_VERSION"
 
 # The OIDC token proves to Pages which workflow run asks; no audience, as in
 # actions/deploy-pages (core.getIDToken()).
@@ -49,9 +47,11 @@ oidc="$(curl -sSf -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
 [ -n "$oidc" ] && [ "$oidc" != null ] || { echo "::error::no OIDC token was issued"; exit 1; }
 
 # The request body goes through stdin so the token never appears in a process list.
+# On a refusal gh prints the API's error body to stdout: it is logged, it holds no token.
 created="$(jq -n --argjson id "$ARTIFACT_ID" --arg v "$BUILD_VERSION" --arg t "$oidc" \
     '{artifact_id: $id, pages_build_version: $v, oidc_token: $t}' \
-  | gh api -X POST "$API" --input -)" || {
+  | gh api -X POST "$API" -H 'Content-Type: application/json' --input -)" || {
+  echo "$created"
   echo "::error::Pages refused the deployment of build version $BUILD_VERSION"
   exit 1
 }

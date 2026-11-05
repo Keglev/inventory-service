@@ -123,13 +123,16 @@ newest commit on `main`, not the commit that was built:
   and the deploy step stopped.
 
 The deploy step is now `.github/scripts/deploy-pages.sh`. It calls the same
-Pages API as the action, with a build version derived from the gh-pages commit,
-the run and the attempt, so no two deployments share a name, and it reads only
-its own deployment's status. It cancels its own deployment on a timeout, on
-repeated status errors and on a cancelled job, so a stuck deployment cannot
-block the next one. The upload step names the artifact `github-pages-<attempt>`,
-so a re-run deploys its own copy. The pages, environment, queue and deploy
-conditions above are unchanged.
+Pages API as the action, with the gh-pages commit the artifact was cut from as
+the build version, and it reads only its own deployment's status. Pages accepts
+only a commit of the repository there: the first version of the script derived
+a hash from the commit, run and attempt, and Pages answered HTTP 404. Every
+deploying run pushes a commit of its own (a re-run with nothing new pushes an
+empty one), so no two deployments share a name. The script cancels its own
+deployment on a timeout, on repeated status errors and on a cancelled job, so a
+stuck deployment cannot block the next one. The upload step names the artifact
+`github-pages-<attempt>`, so a re-run deploys its own copy. The permissions,
+environment, queue and deploy conditions above are unchanged.
 
 ## References
 - [ADR-0013: The docs pipeline rebuilds, and publishes, by change](adr-0013-docs-pipeline-rebuilds-by-change.md)
