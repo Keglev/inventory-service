@@ -1,6 +1,6 @@
 /**
  * @file queryClient.test.tsx
- * @module tests/test/queryClient
+ * @module __tests__/test/queryClient
  * @testing Contract tests for the React Query test harness.
  * @description
  * Contract under test:

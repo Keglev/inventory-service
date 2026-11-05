@@ -141,7 +141,7 @@ describe('QuantityAdjustForm', () => {
     expect(props.currentQty).toBe(12);
     expect(props.currentPrice).toBe(14.5);
     expect(props.loading).toBe(false);
-    // Owner's choice: the total belongs to the price change, not here.
+    // The total belongs to the price change, not here.
     expect(props.showTotal).toBeFalsy();
   });
 

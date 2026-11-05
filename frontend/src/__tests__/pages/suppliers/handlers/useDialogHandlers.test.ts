@@ -12,7 +12,7 @@
  *
  * Out of scope:
  * - React Query internals and network activity.
- * - i18n translation correctness (we return fallback strings deterministically).
+ * - i18n translation correctness (tEn resolves the English copy).
  *
  * Test strategy:
  * - Deterministic hoisted spies for toast + query invalidation.
@@ -32,7 +32,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('react-i18next', () => ({
-  // Prefer fallback/defaultValue so assertions remain stable across locales.
+  // tEn resolves keys against the real English locale files.
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 

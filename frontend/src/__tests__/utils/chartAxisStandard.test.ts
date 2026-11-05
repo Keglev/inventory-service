@@ -1,9 +1,9 @@
 /**
  * @file chartAxisStandard.test.ts
- * @module tests/utils/chartAxisStandard
+ * @module __tests__/utils/chartAxisStandard
  * @description Contract test: every visible Recharts XAxis and YAxis takes its tick props
  *   from chartAxisProps, so tick labels follow the theme's text token in both modes.
- *   Recharts' own #666 reads 2.33:1 on the dark card (S2-6). Sibling:
+ *   Recharts' own #666 reads 2.33:1 on the dark card. Sibling:
  *   chartAxis.test.ts (the chartAxisProps helper).
  */
 import { describe, it, expect } from 'vitest';

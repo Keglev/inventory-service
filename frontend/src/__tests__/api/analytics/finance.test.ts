@@ -1,6 +1,6 @@
 /**
  * @file finance.test.ts
- * @module tests/api/analytics/finance
+ * @module __tests__/api/analytics/finance
  * @description Contract tests for getFinancialSummary (api/analytics/finance).
  *
  * Contract under test:
@@ -47,24 +47,18 @@ describe('api/analytics/finance.getFinancialSummary', () => {
 
   describe('error and fallback behavior', () => {
     it('returns a zero-value summary when http throws', async () => {
-      // Arrange
       vi.mocked(http.get).mockRejectedValueOnce(new Error('network'));
 
-      // Act
       const res = await getFinancialSummary({ from: '2025-01-01', to: '2025-01-31' });
 
-      // Assert
       expect(res).toEqual(ZERO_SUMMARY);
     });
 
     it('returns a zero-value summary when payload is not a record', async () => {
-      // Arrange
       vi.mocked(http.get).mockResolvedValueOnce({ data: null });
 
-      // Act
       const res = await getFinancialSummary();
 
-      // Assert
       expect(res).toEqual(ZERO_SUMMARY);
     });
 
@@ -91,17 +85,14 @@ describe('api/analytics/finance.getFinancialSummary', () => {
 
   describe('request contract', () => {
     it('builds params from from/to/supplierId when provided', async () => {
-      // Arrange
       vi.mocked(http.get).mockResolvedValueOnce({ data: {} });
 
-      // Act
       await getFinancialSummary({
         from: '2025-09-01',
         to: '2025-11-30',
         supplierId: 'SUP-001',
       });
 
-      // Assert
       expect(http.get).toHaveBeenCalledTimes(1);
       expect(http.get).toHaveBeenCalledWith('/api/analytics/financial/summary', {
         params: { from: '2025-09-01', to: '2025-11-30', supplierId: 'SUP-001' },
@@ -109,13 +100,10 @@ describe('api/analytics/finance.getFinancialSummary', () => {
     });
 
     it('omits param keys that are not provided', async () => {
-      // Arrange
       vi.mocked(http.get).mockResolvedValueOnce({ data: {} });
 
-      // Act
       await getFinancialSummary({ supplierId: 'SUP-XYZ' });
 
-      // Assert
       expect(http.get).toHaveBeenCalledWith('/api/analytics/financial/summary', {
         params: { supplierId: 'SUP-XYZ' },
       });
@@ -124,7 +112,7 @@ describe('api/analytics/finance.getFinancialSummary', () => {
 
   describe('response parsing contract', () => {
     it('parses a direct FinancialSummaryDTO', async () => {
-      // Arrange: the record components of FinancialSummaryDTO.
+      // The record components of FinancialSummaryDTO.
       vi.mocked(http.get).mockResolvedValueOnce({
         data: {
           purchasesCost: 100,
@@ -137,14 +125,12 @@ describe('api/analytics/finance.getFinancialSummary', () => {
         },
       });
 
-      // Act
       const res = await getFinancialSummary({
         from: '2025-09-01',
         to: '2025-11-30',
         supplierId: 'SUP-001',
       });
 
-      // Assert
       expect(res).toEqual({
         purchases: 100,
         cogs: 40,
@@ -157,7 +143,6 @@ describe('api/analytics/finance.getFinancialSummary', () => {
     });
 
     it('coerces numeric strings in the DTO fields', async () => {
-      // Arrange
       vi.mocked(http.get).mockResolvedValueOnce({
         data: {
           purchasesCost: '200',
@@ -169,10 +154,8 @@ describe('api/analytics/finance.getFinancialSummary', () => {
         },
       });
 
-      // Act
       const res = await getFinancialSummary({ from: '2025-01-01', to: '2025-01-31' });
 
-      // Assert
       expect(res).toEqual({
         purchases: 200,
         cogs: 80,

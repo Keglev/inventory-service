@@ -1,6 +1,6 @@
 /**
  * @file i18n.test.ts
- * @module tests/i18n/i18n
+ * @module __tests__/i18n/i18n
  * @description Contract tests for i18n constants and the document language.
  *
  * Contract under test:

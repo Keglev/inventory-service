@@ -1,6 +1,6 @@
 /**
  * @file HealthStatusDisplay.test.tsx
- * @module __tests__/app/footer
+ * @module __tests__/app/footer/HealthStatusDisplay
  *
  * @description
  * Unit tests for <HealthStatusDisplay /> — renders backend + database health indicators.
@@ -21,9 +21,6 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import HealthStatusDisplay from '@/app/footer/HealthStatusDisplay';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// i18n mock
-// -----------------------------------------------------------------------------
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
@@ -47,10 +44,7 @@ describe('HealthStatusDisplay', () => {
     timestamp: 0,
   };
 
-  /**
-   * Creates a health object for a specific scenario.
-   * Keeps tests concise while making scenario differences explicit.
-   */
+  /** Creates a health object for one scenario. */
   const makeHealth = (overrides?: Partial<Health>): Health => ({
     ...baseHealth,
     ...(overrides ?? {}),
@@ -65,16 +59,13 @@ describe('HealthStatusDisplay', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Deterministic translation stub: return defaultValue.
+    // tEn resolves keys against the real English locale files.
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // Rendering: labels
-  // ---------------------------------------------------------------------------
   it('exposes the backend label as a tooltip', () => {
     // Caption is a chip tooltip (title), not visible text, to keep the row compact.
     arrange();
@@ -87,9 +78,6 @@ describe('HealthStatusDisplay', () => {
     expect(screen.getByTitle('Database')).toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // Backend status
-  // ---------------------------------------------------------------------------
   it('renders backend online status', () => {
     arrange({ status: 'online' });
     expect(screen.getByText('Online')).toBeInTheDocument();
@@ -100,9 +88,6 @@ describe('HealthStatusDisplay', () => {
     expect(screen.getByText('Offline')).toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // Response time
-  // ---------------------------------------------------------------------------
   it('renders response time when online and non-zero', () => {
     arrange({ status: 'online', responseTime: 125 });
     expect(screen.getByText('125ms')).toBeInTheDocument();
@@ -125,11 +110,8 @@ describe('HealthStatusDisplay', () => {
     expect(screen.getByText('250ms')).toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // Database status (backend-reported product + online/offline)
-  // ---------------------------------------------------------------------------
   it('labels the online database with the product the backend reports', () => {
-    // The same value the About dialog shows; no fixed "Oracle ADB" text (FW5 fork 3).
+    // The same value the About dialog shows; no fixed "Oracle ADB" text.
     arrange({ database: 'online', databaseProduct: 'H2' });
     expect(screen.getByText('H2')).toBeInTheDocument();
     expect(screen.queryByText('Oracle ADB')).not.toBeInTheDocument();
@@ -148,9 +130,6 @@ describe('HealthStatusDisplay', () => {
     expect(offline.length).toBeGreaterThan(0);
   });
 
-  // ---------------------------------------------------------------------------
-  // i18n wiring
-  // ---------------------------------------------------------------------------
   it('requests translations for labels', () => {
     const mockT = vi.fn((_key: string, defaultValue: string) => defaultValue);
     mockUseTranslation.mockReturnValue({

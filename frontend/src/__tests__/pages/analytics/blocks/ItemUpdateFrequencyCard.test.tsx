@@ -21,10 +21,6 @@ import { getItemUpdateFrequency } from '@/api/analytics/frequency';
 import ItemUpdateFrequencyCard from '@/pages/analytics/blocks/ItemUpdateFrequencyCard';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// Mocks
-// -----------------------------------------------------------------------------
-
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
@@ -72,10 +68,6 @@ vi.mock('@/api/analytics/frequency', () => ({
   getItemUpdateFrequency: vi.fn(),
 }));
 
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
-
 
 function setup(client: QueryClient, supplierId?: string | null) {
   return render(
@@ -84,10 +76,6 @@ function setup(client: QueryClient, supplierId?: string | null) {
     </QueryClientProvider>,
   );
 }
-
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
 
 describe('ItemUpdateFrequencyCard', () => {
   let queryClient: QueryClient;

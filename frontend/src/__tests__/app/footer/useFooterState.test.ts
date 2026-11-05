@@ -1,13 +1,13 @@
 /**
  * @file useFooterState.test.ts
- * @module tests/app/footer/useFooterState
+ * @module __tests__/app/footer/useFooterState
  * @testing Vitest + React Testing Library (renderHook); useHealthCheck and appMeta mocked
  * @description Contract tests for useFooterState.
  *
  * Contract under test:
  * - Health passes through from useHealthCheck.
  * - Config holds the version and build id from appMeta and nothing else:
- *   environment and language left the footer line (FW5 fork 3).
+ *   environment and language are not on the footer line.
  *
  * Out of scope:
  * - Health polling internals (features/health); appMeta build-time

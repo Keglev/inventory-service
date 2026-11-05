@@ -23,9 +23,6 @@ import { MemoryRouter } from 'react-router-dom';
 
 import LogoutSuccess from '@/pages/auth/LogoutSuccess';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mockNavigate = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
@@ -43,9 +40,6 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// -------------------------------------
-// Helpers
-// -------------------------------------
 function renderLogoutSuccess() {
   return render(
     <MemoryRouter>

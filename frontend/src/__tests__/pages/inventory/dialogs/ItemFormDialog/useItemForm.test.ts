@@ -12,9 +12,6 @@ import type { UseItemFormReturn } from '@/pages/inventory/dialogs/ItemFormDialog
 import type { SupplierOption } from '@/api/analytics/types';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 /**
  * Hoisted mocks ensure deterministic module initialization.
  */
@@ -218,7 +215,7 @@ describe('useItemForm', () => {
       expect((result.current.formState.errors as any).code?.message)
         .toBe('errors:inventory.conflicts.duplicateSku');
     });
-    // token fallback must NOT also fire when a field error was applied
+    // The token fallback must not also fire when a field error was applied.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((result.current.formState.errors as any).name).toBeUndefined();
   });

@@ -1,13 +1,12 @@
 /**
  * @file lowStock.test.ts
- * @module tests/api/analytics/lowStock
+ * @module __tests__/api/analytics/lowStock
  * @description Contract tests for getLowStockItems (api/analytics/lowStock).
  *
  * Contract under test:
  * - Guarantees supplierId is required for an HTTP call (empty supplierId
  *   short-circuits)
- * - Guarantees the request contract (endpoint + cleaned date params)
- *   when inputs are provided
+ * - Guarantees the request contract (endpoint + supplierId only)
  * - Guarantees parsing of the bare LowStockItemDTO array into a stable,
  *   severity-sorted item list (the backend sends no envelope)
  *

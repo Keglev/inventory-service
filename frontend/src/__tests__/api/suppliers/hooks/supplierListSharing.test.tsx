@@ -1,6 +1,6 @@
 /**
  * @file supplierListSharing.test.tsx
- * @module tests/api/suppliers/hooks/supplierListSharing
+ * @module __tests__/api/suppliers/hooks/supplierListSharing
  * @description Cache-sharing tests for useSupplierListQuery and
  * useSuppliersQuery with a real QueryClient.
  *

@@ -72,7 +72,7 @@ describe('httpClient', () => {
 
       const fresh = await import('@/api/httpClient');
 
-      // The old '/api' fallback turned every '/api/...' call into '/api/api/...'.
+      // An '/api' base would turn every '/api/...' call into '/api/api/...'.
       expect(fresh.default.defaults.baseURL).toBe('');
 
       vi.unstubAllEnvs();

@@ -1,7 +1,7 @@
 /**
  * @file fixtures.ts
  * @module __tests__/pages/inventory/dialogs/DeleteItemDialog/fixtures
- * @description Shared fixture (fork 4 A, 2026-10-22): the delete dialog's
+ * @description Shared fixture: the delete dialog's
  * state contract with every field neutral and every callback a fresh spy.
  * Consumers: DeleteItemContent.test.tsx, DeleteItemDialog.test.tsx.
  */

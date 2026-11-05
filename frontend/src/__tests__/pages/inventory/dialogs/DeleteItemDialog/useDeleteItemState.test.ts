@@ -20,9 +20,6 @@ import { renderHook, act } from '@testing-library/react';
 
 import { useDeleteItemState } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState';
 
-// -------------------------------------
-// Deterministic mocks
-// -------------------------------------
 const useFormMock = vi.hoisted(() => vi.fn());
 
 vi.mock('@hookform/resolvers/zod', () => ({
@@ -33,9 +30,6 @@ vi.mock('react-hook-form', () => ({
   useForm: (...args: unknown[]) => useFormMock(...args),
 }));
 
-// -------------------------------------
-// Helpers
-// -------------------------------------
 function createFormStub(overrides?: Partial<{
   handleSubmit: unknown;
   formState: { isSubmitting: boolean };

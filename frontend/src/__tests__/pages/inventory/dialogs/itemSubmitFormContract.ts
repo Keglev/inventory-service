@@ -1,13 +1,12 @@
 /**
  * @file itemSubmitFormContract.ts
  * @module __tests__/pages/inventory/dialogs/itemSubmitFormContract
- * @testing Shared contract suite (fork 4 B, 2026-10-22)
+ * @testing Shared contract suite
  * @description The submit guards and failure handling that usePriceChangeForm
  * and useQuantityAdjustForm implement in parallel: the no-item and read-only
  * guards, errorToken mapping, transport-error logging and handleClose reset.
  * Each consumer spec keeps its own vi.mock calls and passes the mocked
- * mutation and logger in; titles are the ones both specs carried before the
- * suite existed. Consumers: PriceChangeDialog/usePriceChangeForm.test.ts,
+ * mutation and logger in. Consumers: PriceChangeDialog/usePriceChangeForm.test.ts,
  * QuantityAdjustDialog/useQuantityAdjustForm.test.ts.
  */
 import { it, expect, type Mock } from 'vitest';

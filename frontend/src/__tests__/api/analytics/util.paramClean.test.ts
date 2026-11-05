@@ -1,6 +1,6 @@
 /**
  * @file util.paramClean.test.ts
- * @module tests/api/analytics/util.paramClean
+ * @module __tests__/api/analytics/util.paramClean
  * @description Contract tests for paramClean (api/analytics/util).
  *
  * Contract under test:

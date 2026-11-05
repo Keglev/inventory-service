@@ -20,9 +20,6 @@ import { MemoryRouter } from 'react-router-dom';
 import NotificationsMenuSection from '@/app/layout/header/notifications/NotificationsMenuSection';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// Mocks
-// -----------------------------------------------------------------------------
 const mockUseDashboardMetrics = vi.hoisted(() => vi.fn());
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
@@ -49,9 +46,7 @@ describe('NotificationsMenuSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Minimal i18n mock:
-    // - returns defaultValue
-    // - supports {{count}} interpolation when options.count is provided
+    // tEn resolves keys against the real English locale files, {{count}} included.
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },

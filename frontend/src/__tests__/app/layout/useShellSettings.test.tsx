@@ -39,7 +39,7 @@ import { ToastContext } from '@/context/toast/ToastContext';
 
 const notify = vi.fn();
 
-// The hook reads its state from the provider (FW5 fork 4; the provider uses the
+// The hook reads its state from the provider (the provider uses the
 // same mocked i18n instance) and toasts through ToastContext.
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <ShellPreferencesProvider>

@@ -6,7 +6,7 @@
  * Contract under test:
  * - `HELP_TOPICS` entries are internally consistent (key === topic.id) and contain valid i18n keys.
  * - `getHelpTopic(id)` returns the registry entry for known IDs and `undefined` otherwise.
- * - Backward-compat alias: `inventory.manage` intentionally maps to the same i18n keys as `inventory.overview`.
+ * - Alias: `inventory.manage` (opened by ItemFormDialog in create mode) maps to the same i18n keys as `inventory.overview`.
  *
  * Out of scope:
  * - i18n resource presence (translation files).
@@ -46,7 +46,6 @@ describe('getHelpTopic(id)', () => {
   });
 
   it('preserves the inventory alias compatibility contract', () => {
-    // `inventory.manage` is an alias to keep older deep-links and references working.
     const overview = getHelpTopic('inventory.overview');
     const manage = getHelpTopic('inventory.manage');
 

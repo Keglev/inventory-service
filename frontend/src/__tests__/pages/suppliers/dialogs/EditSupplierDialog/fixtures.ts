@@ -1,6 +1,6 @@
 /**
  * @file fixtures.ts
- * @module tests/pages/suppliers/dialogs/EditSupplierDialog/fixtures
+ * @module __tests__/pages/suppliers/dialogs/EditSupplierDialog/fixtures
  * @description Supplier rows and edit-form values shared by the EditSupplierDialog specs.
  */
 import type { EditSupplierForm } from '@/api/suppliers/validation';

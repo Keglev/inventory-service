@@ -107,7 +107,7 @@ describe('ListSearchField (picker mode)', () => {
     expect(screen.getByLabelText('Thing')).toBeDisabled();
   });
 
-  // The inventory board shows "All suppliers" in the empty supplier field (S2-9).
+  // The inventory board shows "All suppliers" in the empty supplier field.
   it('keeps the label up when shrinkLabel is set', () => {
     const props = {
       query: '', onQueryChange: vi.fn(), results: [] as Thing[], loading: false, value: null, onSelect: vi.fn(),

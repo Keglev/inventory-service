@@ -1,6 +1,6 @@
 /**
  * @file stockActivitySeries.test.ts
- * @module tests/pages/analytics/blocks/stockActivitySeries
+ * @module __tests__/pages/analytics/blocks/stockActivitySeries
  * @testing activityBucket, buildActivitySeries
  * @description Reason codes map to signed totals per UTC day or week; rows without
  *   a quantity change or a valid timestamp are skipped. Sibling:

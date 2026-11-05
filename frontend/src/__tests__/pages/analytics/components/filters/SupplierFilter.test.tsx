@@ -2,7 +2,7 @@
  * @file SupplierFilter.test.tsx
  * @module __tests__/pages/analytics/components/filters/SupplierFilter
  * @description
- * Contract tests for SupplierFilter (the shared supplier search, S2-9):
+ * Contract tests for SupplierFilter (the shared supplier search):
  * - The external label names the field; an empty field reads "All suppliers"
  * - Two typed letters list the matching suppliers; a pick emits its supplierId
  * - Clearing the field emits supplierId=undefined ("All suppliers")
@@ -19,21 +19,14 @@ import type { AnalyticsFilters } from '@/pages/analytics/components/filters/Filt
 import { SupplierFilter } from '@/pages/analytics/components/filters/SupplierFilter';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// B2: provide a react-i18next mock so useTranslation resolves without an
-// i18n instance in this suite, silencing the NO_I18NEXT_INSTANCE warning. The stub
-// mirrors react-i18next's no-instance fallback exactly — it returns an explicit string
-// fallback / options.defaultValue when supplied, otherwise the key — so rendered text
-// (and therefore every assertion) is unchanged.
+// tEn resolves keys against the real English locale files, so assertions read
+// the text users see.
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     i18n: { language: 'en' },
   }),
 }));
-
-// -----------------------------------------------------------------------------
-// Test data
-// -----------------------------------------------------------------------------
 
 const suppliers: SupplierRef[] = [
   { id: 'sup-1', name: 'Supplier A' },
@@ -47,10 +40,6 @@ const baseValue: AnalyticsFilters = {
   supplierId: undefined,
   quick: '180',
 };
-
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
 
 describe('SupplierFilter', () => {
   const onChange = vi.fn();

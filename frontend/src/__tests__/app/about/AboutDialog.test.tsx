@@ -3,11 +3,11 @@
  * @module __tests__/app/about/AboutDialog
  * @testing Vitest + React Testing Library; useHealthCheck and appMeta mocked
  * @description
- * Contract of the About dialog (FW5 fork 3):
+ * Contract of the About dialog:
  * - Shows version, the first 10 characters of the build id (full id in the title),
  *   environment, backend status and the database product from the shared health query.
  * - Offline backend and an unknown database product are stated, not guessed.
- * - Links the source repository in a new tab (moved from the hamburger menu, FW6 UX-1).
+ * - Links the source repository in a new tab.
  * - Renders nothing while closed; the close button calls onClose.
  */
 

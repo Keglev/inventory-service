@@ -134,8 +134,8 @@ describe('EditSupplierConfirmation', () => {
   });
 
   it('tints each change box with the info colour of the active theme', () => {
-    // An undefined palette name (info.lighter) once left these boxes without
-    // any background; dark mode proves the app theme, not MUI's default, applies.
+    // An undefined palette name leaves the boxes without a background; dark mode
+    // proves the app theme, not MUI's default, applies.
     render(
       <ThemeProvider theme={buildTheme('en', 'dark')}>
         <EditSupplierConfirmation

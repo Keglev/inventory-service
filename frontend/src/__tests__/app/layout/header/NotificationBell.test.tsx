@@ -3,7 +3,7 @@
  * @module __tests__/app/layout/header/NotificationBell
  * @testing Vitest + React Testing Library; useDashboardMetrics and the popover body mocked
  * @description
- * Contract of the header bell (FW5 fork 7):
+ * Contract of the header bell:
  * - Accessible name "Notifications"; the badge shows the below-minimum count and hides at 0.
  * - Clicking opens a popover with NotificationsMenuSection; Escape closes it.
  */

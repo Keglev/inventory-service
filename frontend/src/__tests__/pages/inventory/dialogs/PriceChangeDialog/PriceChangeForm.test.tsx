@@ -144,7 +144,7 @@ describe('PriceChangeForm', () => {
     expect(screen.getByText('inventory:steps.changePrice')).toBeInTheDocument();
   });
 
-  // S2-9: the supplier is searched (two letters), not picked from a full dropdown.
+  // The supplier is searched (two letters), not picked from a full dropdown.
   it('renders the supplier search field', () => {
     renderForm();
 

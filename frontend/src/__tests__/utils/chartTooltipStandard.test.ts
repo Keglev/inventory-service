@@ -1,11 +1,11 @@
 /**
  * @file chartTooltipStandard.test.ts
- * @module tests/utils/chartTooltipStandard
+ * @module __tests__/utils/chartTooltipStandard
  * @description Contract test: every component that renders a Recharts tooltip takes its
  *   surface from chartTooltipProps, so tooltips follow the theme in light and dark mode.
  *   Recharts' default tooltip is a white box whose label is drawn in the theme's text
  *   colour, which is invisible in dark mode. No chart sets its own itemStyle, which would
- *   override the text token chartTooltipProps gives the items (LO-2).
+ *   override the text token chartTooltipProps gives the items.
  */
 import { describe, it, expect } from 'vitest';
 

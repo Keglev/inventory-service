@@ -4,7 +4,7 @@
  * @description
  * Tests for AppSettingsForm orchestration:
  * - Composition: Appearance and Language & Region cards render, in that order; no
- *   system info (it moved to the About dialog, FW5 fork 3)
+ *   system info (the About dialog shows it)
  * - Wiring: props are forwarded to the correct sections (theme to Appearance, language to Language & Region)
  */
 
@@ -14,7 +14,6 @@ import { render, screen } from '@testing-library/react';
 import AppSettingsForm from '@/app/settings/AppSettingsForm';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// --- Captured props to validate orchestration ---
 let appearanceProps: unknown;
 let languageProps: unknown;
 

@@ -25,9 +25,6 @@ import { MemoryRouter } from 'react-router-dom';
 
 import Dashboard from '@/pages/dashboard/Dashboard';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mockNavigate = vi.hoisted(() => vi.fn());
 const mockUseDashboardMetrics = vi.hoisted(() => vi.fn());
 
@@ -81,10 +78,6 @@ vi.mock('@/components/ui/StatCard', () => ({
     ),
   ),
 }));
-
-// -------------------------------------
-// Helpers
-// -------------------------------------
 
 function renderDashboard(queryClient: QueryClient) {
   return render(

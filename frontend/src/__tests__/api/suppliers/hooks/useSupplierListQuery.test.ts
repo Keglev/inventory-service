@@ -1,6 +1,6 @@
 /**
  * @file useSupplierListQuery.test.ts
- * @module tests/api/suppliers/hooks/useSupplierListQuery
+ * @module __tests__/api/suppliers/hooks/useSupplierListQuery
  * @description Contract tests for useSupplierListQuery.
  *
  * Contract under test:

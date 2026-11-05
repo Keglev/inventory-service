@@ -28,9 +28,6 @@ import { MemoryRouter } from 'react-router-dom';
 
 import LogoutPage from '@/pages/auth/LogoutPage';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mockLogout = vi.hoisted(() => vi.fn());
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
@@ -44,10 +41,6 @@ vi.mock('react-i18next', () => ({
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: mockUseAuth,
 }));
-
-// -------------------------------------
-// Suite utilities
-// -------------------------------------
 
 describe('LogoutPage', () => {
   let queryClient: QueryClient;
@@ -146,7 +139,7 @@ describe('LogoutPage', () => {
   });
 
   it('posts to the same-origin /logout when the env value is the development root', async () => {
-    // '/' once produced '//logout', a protocol-relative URL to a host named "logout".
+    // '/' must not produce '//logout', a protocol-relative URL to a host named "logout".
     vi.stubEnv('VITE_API_BASE', '/');
 
     renderLogoutPage();

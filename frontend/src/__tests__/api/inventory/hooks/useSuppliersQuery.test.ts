@@ -1,6 +1,6 @@
 /**
  * @file useSuppliersQuery.test.ts
- * @module tests/api/inventory/hooks/useSuppliersQuery
+ * @module __tests__/api/inventory/hooks/useSuppliersQuery
  * @description Contract tests for useSuppliersQuery.
  *
  * Contract under test:

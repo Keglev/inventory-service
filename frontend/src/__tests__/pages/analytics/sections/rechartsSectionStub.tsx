@@ -1,8 +1,7 @@
 /**
  * @file rechartsSectionStub.tsx
  * @module __tests__/pages/analytics/sections/rechartsSectionStub
- * @description Shared Recharts stub (fork 5b B1, 2026-10-22: an exception to
- * fork 2 A for this one mock) for the section orchestration specs, which
+ * @description Shared Recharts stub for the section orchestration specs, which
  * assert on data flow and only need the charts to render as plain markers.
  * Line records its props in `lineProps` for the one spec that reads them.
  * Specs whose assertions read their own stub's output keep their own stub.

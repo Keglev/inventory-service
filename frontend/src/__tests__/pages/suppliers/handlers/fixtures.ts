@@ -1,9 +1,8 @@
 /**
  * @file fixtures.ts
  * @module __tests__/pages/suppliers/handlers/fixtures
- * @description Shared fixture (fork 4 A, 2026-10-22): the suppliers board
- * state with neutral values and a fresh spy for every setter, as the four
- * handler specs each built it. Consumers: useDialogHandlers.test.ts,
+ * @description Shared fixture: the suppliers board state with neutral values
+ * and a fresh spy for every setter. Consumers: useDialogHandlers.test.ts,
  * useFilterHandlers.test.ts, useSearchHandlers.test.ts,
  * useToolbarHandlers.test.ts.
  */

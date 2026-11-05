@@ -5,8 +5,8 @@
  * Rendering/structure tests for AppSidebar.
  *
  * Scope:
- * - Desktop rail (88 px, rail tiles) and phone drawer (list rows) (FW6 UX-1)
- * - Contents: navigation list plus one settings entry, no product title (FW6)
+ * - Desktop rail (88 px, rail tiles) and phone drawer (list rows)
+ * - Contents: navigation list plus one settings entry, no product title
  * - Settings wiring, closing the phone drawer first
  *
  * Out of scope:

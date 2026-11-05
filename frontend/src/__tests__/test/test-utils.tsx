@@ -41,13 +41,8 @@ function renderWithProviders(
   return render(ui, { wrapper: AllProviders, ...options });
 }
 
-/**
- * Re-export RTL utilities so tests can import everything from one place.
- *
- * Note: `react-refresh/only-export-components` can complain about re-exports in
- * some setups; we intentionally allow it for this test entry point.
- */
-// eslint-disable-next-line react-refresh/only-export-components
+/** Re-export RTL utilities so tests can import everything from one place. */
+// eslint-disable-next-line react-refresh/only-export-components -- test entry point, not a component module
 export * from '@testing-library/react';
 
 /**

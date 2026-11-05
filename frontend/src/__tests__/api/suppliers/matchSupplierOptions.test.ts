@@ -2,7 +2,7 @@
  * @file matchSupplierOptions.test.ts
  * @module __tests__/api/suppliers/matchSupplierOptions
  * @description The supplier matcher behind SupplierPickerField: the name contains the typed
- *   fragment, ignoring case, from two letters (S2-9).
+ *   fragment, ignoring case, from two letters.
  */
 import { describe, expect, it } from 'vitest';
 import { matchSupplierOptions } from '@/api/suppliers/matchSupplierOptions';

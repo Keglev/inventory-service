@@ -8,7 +8,7 @@
  * - Derives initial form state from SettingsContext.userPreferences
  * - Delegates user changes to SettingsContext.setUserPreferences with partial updates
  * - Delegates reset action to SettingsContext.resetToDefaults
- * - Exposes preferences only; system info left the settings (FW5 fork 3)
+ * - Exposes preferences only; the About dialog shows system info
  *
  * Out of scope:
  * - Validation rules and UI rendering of settings sections

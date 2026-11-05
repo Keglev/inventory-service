@@ -1,6 +1,6 @@
 /**
  * @file chartLegend.test.ts
- * @module tests/utils/chartLegend
+ * @module __tests__/utils/chartLegend
  * @testing legendOrder
  * @description Legend items sort by their position in the key list, independent of
  *   the translated label; unknown or non-string dataKeys go last. Sibling:
@@ -29,7 +29,7 @@ describe('legendOrder', () => {
 });
 
 describe('chartLegendProps', () => {
-  // At 16px most series colours fall below 4.5:1 as legend text (C8).
+  // At 16px most series colours fall below 4.5:1 as legend text.
   it('draws legend labels in the text token', () => {
     const theme = { palette: { text: { primary: '#eee' } } } as unknown as Parameters<typeof chartLegendProps>[0];
 

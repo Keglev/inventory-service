@@ -1,6 +1,6 @@
 /**
  * @file monthLabels.test.ts
- * @module tests/utils/monthLabels
+ * @module __tests__/utils/monthLabels
  * @testing monthLabel, monthSpanLabel
  * @description Month buckets get a short axis label in the UI language; the tooltip
  *   label names the covered dates only when the range cuts the month, in the user's

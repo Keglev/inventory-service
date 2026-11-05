@@ -8,7 +8,7 @@
  * - Basic rendering (label, icon, link target)
  * - Disabled state rendering + optional tooltip usage
  * - Label edge cases (undefined, long text)
- * - Rail variant: label as a caption under the icon, same link target (FW6 UX-1)
+ * - Rail variant: label as a caption under the icon, same link target
  *
  * Out of scope:
  * - Active route highlighting / selection logic (covered in NavItem.active-state.test.tsx)

@@ -5,7 +5,7 @@
  *
  * Contract under test:
  * - Performs an initial health request on mount, prefixed with VITE_API_BASE.
- * - One shared query: several consumers mounted together send one request (FW5 fork 3).
+ * - One shared query: several consumers mounted together send one request.
  * - Exposes the backend's databaseProduct, or null when missing or blank.
  * - Requires JSON content-type; non-JSON responses transition to offline.
  * - Validates response shape at runtime; invalid shapes transition to offline.
@@ -161,7 +161,7 @@ describe('useHealthCheck', () => {
 
     const { unmount } = renderHook(() => useHealthCheck(), { wrapper });
     await act(async () => {
-      // Flush the initial `useEffect` run.
+      // Let the query's first fetch start.
       await Promise.resolve();
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);

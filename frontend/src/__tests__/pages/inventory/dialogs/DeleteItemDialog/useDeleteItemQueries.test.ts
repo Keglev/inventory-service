@@ -19,9 +19,6 @@ import type { SupplierOption } from '@/api/analytics/types';
 
 import { useDeleteItemQueries } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const useSuppliersQueryMock = vi.hoisted(() => vi.fn());
 const useItemSearchQueryMock = vi.hoisted(() => vi.fn());
 const useItemDetailsQueryMock = vi.hoisted(() => vi.fn());

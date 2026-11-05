@@ -6,7 +6,7 @@
  *
  * Scope:
  * - Renders navigation items from NAV_ITEMS (navConfig)
- * - Renders no sign-out entry (sign-out lives in the avatar menu, FW5 fork 1)
+ * - Renders no sign-out entry (sign-out lives in the avatar menu)
  * - Basic list structure (MUI List)
  *
  * Out of scope:

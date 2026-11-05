@@ -1,6 +1,6 @@
 /**
  * @file formatters.test.ts
- * @module tests/utils/formatters
+ * @module __tests__/utils/formatters
  * @description Contract tests for formatDate / formatNumber / formatDateCell /
  * getTodayIso / getDaysAgoIso.
  *
@@ -43,7 +43,7 @@ describe('formatDate', () => {
     });
   });
 
-  // The day must not depend on the browser's offset from UTC (G-L3): each case
+  // The day must not depend on the browser's offset from UTC: each case
   // runs in a zone where a UTC reading lands on the neighbouring day.
   describe('calendar day across time zones', () => {
     const originalTz = process.env.TZ;

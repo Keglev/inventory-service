@@ -21,9 +21,6 @@ import { render, screen } from '@testing-library/react';
 import ProfileMenuSection from '@/app/AccountMenu/ProfileMenuSection';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// Minimal types used for prop-wiring assertions
-// -----------------------------------------------------------------------------
 type User = {
   fullName?: string;
   email?: string;
@@ -35,9 +32,6 @@ type ProfileNameDisplayProps = { fullName?: string };
 type ProfileEmailDisplayProps = { email?: string; isDemo?: boolean };
 type ProfileRoleDisplayProps = { role?: string; isDemo?: boolean };
 
-// -----------------------------------------------------------------------------
-// Mocks
-// -----------------------------------------------------------------------------
 const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 

@@ -1,12 +1,12 @@
 /**
  * @file typeGuards.test.ts
- * @module tests/api/shared/typeGuards
+ * @module __tests__/api/shared/typeGuards
  * @description Contract tests for isRecord.
  *
  * Contract under test:
- * - Guarantees the type guard's boundary contract used by inventory
- *   parsing utilities: it must accept non-null objects (including
- *   arrays/instances) and reject null/undefined/primitives.
+ * - Guarantees the type guard's boundary contract used by the parsing
+ *   utilities: it accepts non-null, non-array objects (class instances
+ *   included) and rejects arrays, null, undefined and primitives.
  *
  * Out of scope:
  * - TypeScript compiler behavior (these are runtime assertions; TS
@@ -26,9 +26,6 @@ describe('typeGuards', () => {
         expect(isRecord({ a: 1, b: 2 })).toBe(true);
       });
 
-      // Tightened contract: isRecord now excludes arrays
-      // to match the analytics-side semantics. Inventory call sites already guarded
-      // arrays separately, so no production behavior changes.
       it('returns false for arrays', () => {
         expect(isRecord([])).toBe(false);
         expect(isRecord([1, 2, 3])).toBe(false);

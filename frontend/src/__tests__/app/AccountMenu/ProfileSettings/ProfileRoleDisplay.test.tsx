@@ -1,6 +1,6 @@
 /**
  * @file ProfileRoleDisplay.test.tsx
- * @module __tests__/app/AccountMenu/ProfileSettings
+ * @module __tests__/app/AccountMenu/ProfileSettings/ProfileRoleDisplay
  *
  * @description
  * Unit tests for <ProfileRoleDisplay /> — renders the user's role and (optionally) a DEMO badge.
@@ -24,9 +24,6 @@ import { render, screen } from '@testing-library/react';
 import ProfileRoleDisplay from '@/app/AccountMenu/ProfileSettings/ProfileRoleDisplay';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// i18n mock
-// -----------------------------------------------------------------------------
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
@@ -53,16 +50,13 @@ describe('ProfileRoleDisplay', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Deterministic translation stub: return defaultValue for stable assertions.
+    // tEn resolves keys against the real English locale files.
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // Rendering: label + formatted role
-  // ---------------------------------------------------------------------------
   it('renders the role label', () => {
     arrange({ role: 'admin', isDemo: false });
     expect(screen.getByText('Role')).toBeInTheDocument();
@@ -73,9 +67,6 @@ describe('ProfileRoleDisplay', () => {
     expect(screen.getByText('Administrator')).toBeInTheDocument(); // tEn resolves common:roles.admin
   });
 
-  // ---------------------------------------------------------------------------
-  // Fallback behavior
-  // ---------------------------------------------------------------------------
   it('falls back to "User" when no role is provided', () => {
     arrange({ role: undefined, isDemo: false });
     expect(screen.getByText('User')).toBeInTheDocument();
@@ -86,9 +77,6 @@ describe('ProfileRoleDisplay', () => {
     expect(screen.getByText('User')).toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // Demo badge behavior
-  // ---------------------------------------------------------------------------
   it('renders the DEMO badge when demo mode is enabled', () => {
     arrange({ role: 'admin', isDemo: true });
     expect(screen.getByText('DEMO')).toBeInTheDocument();
@@ -106,9 +94,6 @@ describe('ProfileRoleDisplay', () => {
     expect(container.querySelector('.MuiChip-root')).toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // i18n wiring
-  // ---------------------------------------------------------------------------
   it('renders translated role label when provided by i18n', () => {
     const mockT = vi.fn((key: string, defaultValue: string) => {
       if (key === 'common:role') return 'Rolle';

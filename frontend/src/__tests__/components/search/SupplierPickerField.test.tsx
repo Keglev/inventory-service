@@ -1,7 +1,7 @@
 /**
  * @file SupplierPickerField.test.tsx
  * @module __tests__/components/search/SupplierPickerField
- * @description Contract tests for the shared supplier picker (S2-9). Sibling:
+ * @description Contract tests for the shared supplier picker. Sibling:
  *   api/suppliers/matchSupplierOptions.test.ts (the matcher).
  *
  * Contract under test:

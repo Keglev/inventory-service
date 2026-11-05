@@ -1,9 +1,8 @@
 /**
  * @file fixtures.tsx
  * @module __tests__/app/public-shell/header/fixtures
- * @description Shared fixtures (fork 4 A, 2026-10-22) for the split header
- * suites: the LanguageToggle render helper and the PublicShellHeader props
- * that the rendering and interactions specs each built.
+ * @description Shared fixtures for the header suites: the LanguageToggle
+ * render helper and the PublicShellHeader props.
  * Consumers: LanguageToggle.rendering / .interactions,
  * PublicShellHeader.rendering / .interactions.
  */

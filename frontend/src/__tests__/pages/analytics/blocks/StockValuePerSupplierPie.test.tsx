@@ -178,7 +178,7 @@ describe('StockValuePerSupplierPie', () => {
     expect(lastTooltip?.content?.({ active: true, payload: [{ name: 'Alpha', value: 'n/a' }] })).toBeNull();
   });
 
-  // The tooltip followed the cursor and covered up to 62% of the pie (C7).
+  // The readout is pinned: a tooltip that follows the cursor covers up to 62% of the pie.
   describe('pinned readout', () => {
     const widthSpy = (px: number) => vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(px);
     afterEach(() => vi.restoreAllMocks());

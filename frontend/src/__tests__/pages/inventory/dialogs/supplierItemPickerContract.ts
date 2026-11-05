@@ -1,11 +1,10 @@
 /**
  * @file supplierItemPickerContract.ts
  * @module __tests__/pages/inventory/dialogs/supplierItemPickerContract
- * @testing Shared contract suite and fixtures (fork 4 B + A, 2026-10-22)
+ * @testing Shared contract suite and fixtures
  * @description The supplier search (SupplierPickerField) and the shared item picker
  * (ItemSearchField) render the same way in the edit-item form and in the
- * delete-item step fields. These tests ran word for word in both specs; each
- * consumer passes a render function over its own state shape and keeps its
+ * delete-item step fields. Each consumer passes a render function over its own state shape and keeps its
  * own titles. Consumers: EditItemDialog/EditItemForm.test.tsx,
  * DeleteItemDialog/DeleteFormFields.test.tsx.
  */
@@ -32,7 +31,7 @@ export interface ItemPickerTitles {
   typingForwards: string;
 }
 
-/** Typing in the supplier search lists matches; a pick hands the supplier object to the state (S2-9). */
+/** Typing in the supplier search lists matches; a pick hands the supplier object to the state. */
 export function itPicksSupplier(renderPicker: RenderPicker): void {
   it('lists the matching suppliers and hands the picked supplier object to the state', async () => {
     const user = userEvent.setup();

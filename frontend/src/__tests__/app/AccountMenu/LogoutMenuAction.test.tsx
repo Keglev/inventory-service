@@ -23,9 +23,6 @@ import { MenuList } from '@mui/material';
 import LogoutMenuAction from '@/app/AccountMenu/LogoutMenuAction';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// i18n mock
-// -----------------------------------------------------------------------------
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
@@ -67,16 +64,13 @@ describe('LogoutMenuAction', () => {
     mockOnLogout.mockReset();
     mockOnClose.mockReset();
 
-    // Deterministic translation stub: return defaultValue for stable assertions.
+    // tEn resolves keys against the real English locale files.
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // Rendering
-  // ---------------------------------------------------------------------------
   it('renders a menu item', () => {
     arrange();
     expect(getMenuItem()).toBeInTheDocument();
@@ -87,9 +81,6 @@ describe('LogoutMenuAction', () => {
     expect(screen.getByText('Logout')).toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // Interaction
-  // ---------------------------------------------------------------------------
   it('calls onClose when clicked', async () => {
     const user = userEvent.setup();
     arrange();
@@ -121,9 +112,6 @@ describe('LogoutMenuAction', () => {
     expect(callOrder).toEqual(['close', 'logout']);
   });
 
-  // ---------------------------------------------------------------------------
-  // i18n wiring
-  // ---------------------------------------------------------------------------
   it('renders translated logout label when provided by i18n', () => {
     const mockT = vi.fn((key: string, defaultValue: string) => {
       if (key === 'nav.logout') return 'Abmelden';
@@ -141,9 +129,6 @@ describe('LogoutMenuAction', () => {
     expect(mockT).toHaveBeenCalledWith('nav.logout');
   });
 
-  // ---------------------------------------------------------------------------
-  // Regression: icon presence
-  // ---------------------------------------------------------------------------
   it('renders a logout icon', () => {
     // Implementation-level assertion (svg), kept intentionally lightweight.
     const { container } = arrange();

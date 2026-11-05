@@ -16,7 +16,7 @@
  * - MUI internals; assertions are against visible text/roles and callback wiring.
  *
  * Test strategy:
- * - i18n is mocked to return fallback/defaultValue for deterministic strings.
+ * - i18n is mocked with tEn, so strings are the real English copy.
  * - Use a centralized render helper to keep tests concise and consistent.
  */
 
@@ -27,7 +27,7 @@ import type { ComponentProps } from 'react';
 import type { SupplierRow } from '@/api/suppliers/types';
 
 vi.mock('react-i18next', () => ({
-  // Prefer fallback/defaultValue so assertions don't depend on translation files.
+  // tEn resolves keys against the real English locale files.
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
@@ -42,9 +42,6 @@ const supplier: SupplierRow = {
   email: 'alice@acme.example',
 };
 
-// -------------------------------------
-// Test helpers
-// -------------------------------------
 const renderConfirmation = (
   overrides?: Partial<ComponentProps<typeof DeleteSupplierConfirmation>>
 ) => {

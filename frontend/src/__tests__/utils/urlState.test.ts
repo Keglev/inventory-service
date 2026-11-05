@@ -1,6 +1,6 @@
 /**
  * @file urlState.test.ts
- * @module tests/utils/urlState
+ * @module __tests__/utils/urlState
  * @description Contract tests for readParams.
  *
  * Contract under test:

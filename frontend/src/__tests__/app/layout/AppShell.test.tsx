@@ -8,7 +8,7 @@
  * - Compose header, sidebar, and main layout regions.
  * - Wire navigation help topic into header.
  * - Manage mobile drawer open/close state.
- * - Handle user actions (logout, locale change, theme toggle) and persist relevant preferences.
+ * - Handle logout; locale and theme come from ShellPreferencesProvider.
  *
  * Out of scope:
  * - Visual correctness of child components (AppHeader/AppSidebar/AppMain).
@@ -173,7 +173,7 @@ vi.mock('@/hooks/useAuth', () => ({
 
 /** Test helpers */
 function renderAppShell() {
-  // Locale and theme state live in the provider (FW5 fork 4); it reads the same fake i18n.
+  // Locale and theme state live in the provider; it reads the same fake i18n.
   return render(
     <ShellPreferencesProvider>
       <AppShell />
@@ -254,8 +254,7 @@ describe('AppShell', () => {
   });
 
   it('passes no language, theme or settings handlers to the header', () => {
-    // Preferences are edited in the settings dialog only (FW5 forks 1 and 2), and the
-    // dialog opens from the sidebar since the hamburger menu was removed (FW6 UX-1).
+    // Preferences are edited in the settings dialog, which opens from the sidebar.
     renderAppShell();
 
     expect(Object.keys(lastHeaderProps ?? {})).toEqual(

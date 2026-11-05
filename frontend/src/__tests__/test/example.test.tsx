@@ -1,6 +1,6 @@
 /**
  * @file example.test.tsx
- * @module tests/test/example
+ * @module __tests__/test/example
  * @description Contract tests for test harness (render utilities).
  *
  * Contract under test:

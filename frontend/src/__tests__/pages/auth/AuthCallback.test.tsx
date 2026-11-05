@@ -13,7 +13,7 @@
  * Test strategy:
  * - Router navigation is mocked via useNavigate (no real route transitions).
  * - AuthContext is mocked via useAuth (only setUser is asserted).
- * - i18n is mocked to return defaultValue to keep text assertions stable across languages.
+ * - i18n is mocked with tEn, so text assertions read the real English copy.
  * - httpClient.get is mocked deterministically (no network).
  */
 
@@ -25,16 +25,13 @@ import AuthCallback from '@/pages/auth/AuthCallback';
 import httpClient from '@/api/httpClient';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mockNavigate = vi.hoisted(() => vi.fn());
 const mockSetUser = vi.hoisted(() => vi.fn());
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    // Prefer defaultValue so tests stay stable if translation keys change.
+    // tEn resolves keys against the real English locale files.
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
@@ -57,9 +54,6 @@ vi.mock('@/api/httpClient', () => ({
   },
 }));
 
-// -------------------------------------
-// Test helpers
-// -------------------------------------
 function renderAuthCallback() {
   return render(
     <MemoryRouter>

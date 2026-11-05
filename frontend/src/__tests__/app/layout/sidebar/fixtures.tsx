@@ -1,9 +1,8 @@
 /**
  * @file fixtures.tsx
  * @module __tests__/app/layout/sidebar/fixtures
- * @description Shared fixture (fork 4 A, 2026-10-22): the NavItem render
- * helper both split NavItem suites built. Consumers: NavItem.rendering,
- * NavItem.active-state.
+ * @description Shared fixture: the NavItem render helper. Consumers:
+ * NavItem.rendering, NavItem.active-state.
  */
 import type * as React from 'react';
 import { render } from '@testing-library/react';

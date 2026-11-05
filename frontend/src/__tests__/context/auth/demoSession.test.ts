@@ -1,6 +1,6 @@
 /**
  * @file demoSession.test.ts
- * @module tests/context/auth/demoSession
+ * @module __tests__/context/auth/demoSession
  * @description Contract tests for readDemoSession.
  *
  * Contract under test:

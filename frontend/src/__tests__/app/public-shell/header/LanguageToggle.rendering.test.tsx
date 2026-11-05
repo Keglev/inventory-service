@@ -5,7 +5,7 @@
  * Rendering and accessibility tests for LanguageToggle.
  *
  * Scope:
- * - Names the target language in that language, as text, with lang set (FW5 fork 2)
+ * - Names the target language in that language, as text, with lang set
  * - Renders no flag image (W3C i18n: flags stand for countries, not languages)
  * - Ensures baseline accessibility (button role)
  *

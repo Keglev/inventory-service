@@ -13,7 +13,7 @@
  * - Any orchestration/business rules (owned by the inventory board/orchestrator).
  *
  * Test strategy:
- * - Mock i18n to always use fallback strings so button labels are stable.
+ * - Mock i18n with tEn, so button names are the real English labels.
  * - Assert accessible button roles/names and handler delegation only.
  */
 
@@ -30,19 +30,11 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-// -----------------------------------------------------------------------------
-// Hoisted mocks
-// -----------------------------------------------------------------------------
-
 const mockOnAddNew = vi.fn();
 const mockOnEdit = vi.fn();
 const mockOnDelete = vi.fn();
 const mockOnAdjustQty = vi.fn();
 const mockOnChangePrice = vi.fn();
-
-// -----------------------------------------------------------------------------
-// Test helpers
-// -----------------------------------------------------------------------------
 
 type Props = ComponentProps<typeof InventoryToolbar>;
 
@@ -68,10 +60,6 @@ const buttons = {
   adjust: /adjust quantity/i,
   price: /change price/i,
 } as const;
-
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
 
 describe('InventoryToolbar', () => {
   beforeEach(() => {

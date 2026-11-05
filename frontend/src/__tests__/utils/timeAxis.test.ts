@@ -1,6 +1,6 @@
 /**
  * @file timeAxis.test.ts
- * @module tests/utils/timeAxis
+ * @module __tests__/utils/timeAxis
  * @testing dayTimeAxis
  * @description The domain covers the selected range and every point; ticks are
  *   day-aligned, evenly spread and never repeated.

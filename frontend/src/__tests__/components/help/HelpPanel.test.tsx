@@ -19,10 +19,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import HelpPanel from '@/components/help/HelpPanel';
 
-// -----------------------------------------------------------------------------
-// Hoisted mocks (created once, reused safely across tests)
-// -----------------------------------------------------------------------------
-
 const mockCloseHelp = vi.hoisted(() => vi.fn());
 const mockOpenHelp = vi.hoisted(() => vi.fn());
 
@@ -65,10 +61,6 @@ vi.mock('@/help/topics', () => ({
   },
 }));
 
-// -----------------------------------------------------------------------------
-// Test helpers
-// -----------------------------------------------------------------------------
-
 type HelpHookState = {
   currentTopicId: string | null;
   isOpen: boolean;
@@ -91,10 +83,6 @@ function setup(overrides: Partial<HelpHookState> = {}) {
   mockUseHelp.mockReturnValue(arrangeHelpState(overrides));
   return render(<HelpPanel />);
 }
-
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
 
 describe('HelpPanel', () => {
   beforeEach(() => {
@@ -124,7 +112,6 @@ describe('HelpPanel', () => {
 
     // If the component doesn't provide an accessible name for the close button,
     // we fall back to selecting the first button in the dialog header area.
-    // (Prefer adding an aria-label in the component long-term.)
     const header = within(dialog).getByText('help:test.title').closest('div');
     expect(header).not.toBeNull();
 

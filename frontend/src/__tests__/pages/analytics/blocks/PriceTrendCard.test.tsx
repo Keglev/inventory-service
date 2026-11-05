@@ -1,7 +1,7 @@
 /**
  * @file PriceTrendCard.test.tsx
  * @module __tests__/pages/analytics/blocks/PriceTrendCard
- * @description Supplier-aware item typeahead + price trend chart (A3).
+ * @description Supplier-aware item typeahead + price trend chart.
  *
  * Contract under test:
  * - Chart fetch is gated on an explicit item selection; before it the card
@@ -34,10 +34,6 @@ import type { ItemRef } from '@/api/shared/types';
 import { getPriceTrend } from '@/api/analytics/priceTrend';
 import { useItemSearchOptions } from '@/pages/analytics/hooks/useItemSearchOptions';
 import PriceTrendCard from '@/pages/analytics/blocks/PriceTrendCard';
-
-// -----------------------------------------------------------------------------
-// Captures
-// -----------------------------------------------------------------------------
 
 let lastChartData: PricePoint[] | null = null;
 let lastXTickFormatter: ((v: string | number) => string) | null = null;

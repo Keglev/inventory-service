@@ -5,14 +5,13 @@
  *
  * Contract under test:
  * - Loads initial preferences from storage using the active i18n language.
- * - Fetches system info on mount; on failure, uses a stable fallback and logs a warning.
  * - `setUserPreferences()` merges partial updates and persists them.
  * - Language changes sync date/number formats while preserving density.
  * - `resetToDefaults()` clears persisted preferences and restores language defaults.
  *
  * Out of scope:
  * - Storage serialization/parsing correctness (covered by `SettingsStorage.test.ts`).
- * - System info: the provider no longer fetches it (shared health query, FW5 fork 3).
+ * - System info: the shared health query provides it, not the provider.
  *
  * Test strategy:
  * - Use a probe consumer component to assert observable state via test ids.
@@ -106,7 +105,7 @@ describe('SettingsProvider', () => {
 
 
   it('exposes preferences and their controls only', () => {
-    // System info moved to the shared health query; the context carries no fetch state.
+    // System info comes from the shared health query; the context carries no fetch state.
     const { result } = renderHook(() => React.useContext(SettingsContext), {
       wrapper: SettingsProvider,
     });

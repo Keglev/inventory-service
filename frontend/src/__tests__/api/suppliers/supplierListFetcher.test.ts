@@ -1,6 +1,6 @@
 /**
  * @file supplierListFetcher.test.ts
- * @module tests/api/suppliers/supplierListFetcher
+ * @module __tests__/api/suppliers/supplierListFetcher
  * @description Contract tests for the supplier list fetcher.
  *
  * Contract under test:

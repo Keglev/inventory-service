@@ -5,7 +5,7 @@
  * @description
  * Tests for AppToolbarActions focused on:
  * - the avatar menu as the last action and its callback wiring (About, logout)
- * - the absence of the removed hamburger user menu (FW6 UX-1)
+ * - no hamburger user menu (the avatar menu is the user menu)
  * - the horizontal layout contract
  * Sibling spec: AppToolbarActions.bell-help.test.tsx (bell and help button).
  */

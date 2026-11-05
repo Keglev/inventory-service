@@ -15,7 +15,7 @@
  * - MUI implementation details (we assert accessible labels/roles, not internal structure).
  *
  * Test strategy:
- * - i18n `t()` is mocked to return the fallback/defaultValue for deterministic text.
+ * - i18n `t()` is mocked with tEn, so text is the real English copy.
  * - `register` is a small typed fake that mimics the minimum RHF contract used by MUI TextField.
  */
 
@@ -26,16 +26,12 @@ import type { FieldError, FieldErrors, UseFormRegister } from 'react-hook-form';
 import type { CreateSupplierForm as CreateSupplierFormData } from '@/api/suppliers/validation';
 
 vi.mock('react-i18next', () => ({
-  // Prefer fallback/defaultValue to keep assertions stable across locales.
+  // tEn resolves keys against the real English locale files.
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
 import { SupplierFormFields } from '@/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm';
 import { tEn } from '@/__tests__/test/i18nEn';
-
-// -------------------------------------
-// Test helpers
-// -------------------------------------
 
 // Typed, minimal RHF register stub.
 // Note: RHF's `UseFormRegister` has a rich return type; this fake only implements what MUI consumes.

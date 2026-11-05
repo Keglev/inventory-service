@@ -5,7 +5,7 @@
  *
  * Contract under test:
  * - Initializes the workflow hook with an `onDeleted` callback.
- * - Renders the search step by default; the help affordance now lives in that step.
+ * - Renders the search step by default; the help affordance lives in that step.
  * - Switches to confirmation step when `showConfirmation` and `selectedSupplier` are set.
  * - Dialog close (via search cancel) resets the workflow unless deletion is in progress.
  * - Confirmation cancel resets selection/confirmation/error state.
@@ -18,7 +18,7 @@
  * Test strategy:
  * - Deterministic, hoisted module mocks (no implicit globals).
  * - Child steps are mocked as spy boundaries; we assert prop wiring and callback delegation.
- * - i18n returns fallback/defaultValue to keep assertions stable across locales.
+ * - i18n is mocked with tEn, so assertions read the real English copy.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -44,9 +44,6 @@ type DeleteSupplierConfirmationProps = {
   onCancel: () => void;
 };
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mocks = vi.hoisted(() => ({
   useDeleteSupplierForm: vi.fn(),
   searchSpy: vi.fn(),

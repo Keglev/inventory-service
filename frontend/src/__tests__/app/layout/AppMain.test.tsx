@@ -1,12 +1,12 @@
 /**
  * @file AppMain.test.tsx
- * @module tests/app/layout/AppMain
+ * @module __tests__/app/layout/AppMain
  * @description Contract tests for AppMain.
  *
  * Contract under test:
  * - Guarantees the main content area contract: semantic main region,
- *   flex layout, internal vertical scrolling, and absence of the removed
- *   demo banner (lives in the header badge).
+ *   flex layout, internal vertical scrolling, and no demo banner (the
+ *   header badge shows demo mode).
  *
  * Out of scope:
  * - Routed page content (Outlet targets); header badge behavior

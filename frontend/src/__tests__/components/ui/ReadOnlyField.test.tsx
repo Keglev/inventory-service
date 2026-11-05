@@ -9,7 +9,7 @@
  * - Renders the hint below the value only when one is given.
  *
  * Out of scope:
- * - Panel styling (pixel-compared against the old markup in the FO5 PR).
+ * - Panel styling.
  */
 
 import { describe, expect, it } from 'vitest';

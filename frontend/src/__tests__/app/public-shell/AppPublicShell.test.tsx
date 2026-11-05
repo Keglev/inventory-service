@@ -24,12 +24,8 @@ import AppPublicShell from '@/app/public-shell/AppPublicShell';
 import { ToastContext } from '@/context/toast/ToastContext';
 import { buildTheme } from '@/theme';
 
-/* ----------------------------- i18n stub ----------------------------- */
-// Keep translation deterministic; component only needs i18n object presence.
-// The active language is mutable so a test can prove WHEN a string was
-// resolved: the language-changed toast must be built after the switch, not
-// before it. Every other key stays a bare key so unrelated assertions are
-// unaffected.
+// The active language is mutable so a test can prove WHEN a string was resolved:
+// the language-changed toast is built after the switch. Other keys stay bare keys.
 const mockLanguage = vi.hoisted(() => ({ current: 'en' }));
 
 vi.mock('react-i18next', () => ({
@@ -43,7 +39,6 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-/* ------------------------- Hook orchestration ------------------------- */
 const mockSetThemeMode = vi.hoisted(() => vi.fn());
 const mockSetLocale = vi.hoisted(() => vi.fn());
 const mockShowToast = vi.hoisted(() => vi.fn());
@@ -72,7 +67,6 @@ vi.mock('@/app/public-shell/hooks/usePublicShellToast', () => ({
   usePublicShellToast: () => mockUsePublicShellToast(),
 }));
 
-/* ----------------------- Child component stubs ------------------------ */
 // Capture props passed into header and toast container for wiring assertions.
 let lastHeaderProps: Record<string, unknown> | undefined;
 let lastToastProps: Record<string, unknown> | undefined;

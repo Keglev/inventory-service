@@ -1,6 +1,6 @@
 /**
  * @file useItemDetailsQuery.test.ts
- * @module tests/api/inventory/hooks/useItemDetailsQuery
+ * @module __tests__/api/inventory/hooks/useItemDetailsQuery
  * @description Contract tests for useItemDetailsQuery.
  *
  * Contract under test:

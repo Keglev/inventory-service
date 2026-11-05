@@ -22,7 +22,7 @@ const require = createRequire(import.meta.url);
 
 // We intentionally patch the Node module loader in the test environment only.
 // This prevents importing hundreds of icon modules and avoids brittle module-resolution edge cases.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Node's internal loader API is untyped
 const Module: any = require('module');
 
 const iconStub = React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>((props, ref) =>

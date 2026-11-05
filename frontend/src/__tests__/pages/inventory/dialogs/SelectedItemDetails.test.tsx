@@ -24,7 +24,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-// German number format: the price-change panel once printed "4.85" in the German UI.
+// German number format: the price-change panel must print "4,85", not "4.85", in the German UI.
 vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: { numberFormat: 'DE', dateFormat: 'DD.MM.YYYY', tableDensity: 'standard' },

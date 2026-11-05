@@ -1,6 +1,6 @@
 /**
  * @file stepSeries.test.ts
- * @module tests/utils/stepSeries
+ * @module __tests__/utils/stepSeries
  * @testing toStepSeries
  * @description Points get epoch time and sort; points without a valid date drop;
  *   the last value is carried to the range end only when it ends earlier.

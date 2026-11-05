@@ -1,6 +1,6 @@
 /**
  * @file priceMutations.test.ts
- * @module tests/api/inventory/priceMutations
+ * @module __tests__/api/inventory/priceMutations
  * @description Contract tests for changePrice.
  *
  * Contract under test:

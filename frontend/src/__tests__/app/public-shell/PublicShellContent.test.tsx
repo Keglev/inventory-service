@@ -21,9 +21,6 @@ import { MemoryRouter } from 'react-router-dom';
 import PublicShellContent from '@/app/public-shell/PublicShellContent';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// i18n mock
-// -----------------------------------------------------------------------------
 // The component calls useTranslation('common'). Without this the real hook runs
 // with no initialised instance and react-i18next logs NO_I18NEXT_INSTANCE.
 const mockUseTranslation = vi.hoisted(() => vi.fn());
