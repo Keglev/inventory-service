@@ -12,9 +12,6 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Aggregates multi-source analytics data for the dashboard summary endpoint.
- *
- * &lt;p&gt;Extracted from {@link com.smartsupplypro.inventory.controller.AnalyticsController}
- * to keep endpoint methods under 15 lines.&lt;/p&gt;
  */
 @Component
 @RequiredArgsConstructor
@@ -39,21 +36,21 @@ public class AnalyticsDashboardHelper {
     public DashboardSummaryDTO buildDashboardSummary(
             String supplierId, LocalDateTime startDate, LocalDateTime endDate) {
         // stockPerSupplier always loads all suppliers regardless of filter -- needed for the overview chart
-<span class="fc" id="L42">        return DashboardSummaryDTO.builder()</span>
-<span class="fc" id="L43">                .stockPerSupplier(stockAnalyticsService.getTotalStockPerSupplier())</span>
-<span class="fc bfc" id="L44" title="All 2 branches covered.">                .lowStockItems(isSupplierProvided(supplierId)</span>
-<span class="fc" id="L45">                        ? stockAnalyticsService.getItemsBelowMinimumStock(supplierId).stream().limit(3).toList()</span>
-<span class="fc" id="L46">                        : stockAnalyticsService.getItemsBelowMinimumStock())</span>
-<span class="fc" id="L47">                .monthlyStockMovement(stockAnalyticsService.getMonthlyStockMovement(</span>
-<span class="fc" id="L48">                        startDate.toLocalDate(), endDate.toLocalDate(), supplierId))</span>
-<span class="fc bfc" id="L49" title="All 2 branches covered.">                .topUpdatedItems(isSupplierProvided(supplierId)</span>
-<span class="fc" id="L50">                        ? stockAnalyticsService.getItemUpdateFrequency(supplierId).stream().limit(5).toList()</span>
-<span class="fc" id="L51">                        : List.of())</span>
-<span class="fc" id="L52">                .build();</span>
+<span class="fc" id="L39">        return DashboardSummaryDTO.builder()</span>
+<span class="fc" id="L40">                .stockPerSupplier(stockAnalyticsService.getTotalStockPerSupplier())</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">                .lowStockItems(isSupplierProvided(supplierId)</span>
+<span class="fc" id="L42">                        ? stockAnalyticsService.getItemsBelowMinimumStock(supplierId).stream().limit(3).toList()</span>
+<span class="fc" id="L43">                        : stockAnalyticsService.getItemsBelowMinimumStock())</span>
+<span class="fc" id="L44">                .monthlyStockMovement(stockAnalyticsService.getMonthlyStockMovement(</span>
+<span class="fc" id="L45">                        startDate.toLocalDate(), endDate.toLocalDate(), supplierId))</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">                .topUpdatedItems(isSupplierProvided(supplierId)</span>
+<span class="fc" id="L47">                        ? stockAnalyticsService.getItemUpdateFrequency(supplierId).stream().limit(5).toList()</span>
+<span class="fc" id="L48">                        : List.of())</span>
+<span class="fc" id="L49">                .build();</span>
     }
 
     private boolean isSupplierProvided(String supplierId) {
-<span class="fc bfc" id="L56" title="All 4 branches covered.">        return supplierId != null &amp;&amp; !supplierId.isBlank();</span>
+<span class="fc bfc" id="L53" title="All 4 branches covered.">        return supplierId != null &amp;&amp; !supplierId.isBlank();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

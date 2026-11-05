@@ -45,7 +45,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 <span class="fc" id="L45">        public void setLandingPath(String landingPath) { this.landingPath = landingPath; }</span>
     }
 
-    /** CORS allowed origins, one per environment. Replaces hardcoded origin lists in config classes. */
+    /** CORS allowed origins, one per environment. */
 <span class="fc" id="L49">    public static class Cors {</span>
 <span class="fc" id="L50">        private List&lt;String&gt; allowedOrigins = List.of(&quot;http://localhost:5173&quot;);</span>
 
@@ -53,7 +53,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 <span class="fc" id="L53">        public void setAllowedOrigins(List&lt;String&gt; allowedOrigins) { this.allowedOrigins = allowedOrigins; }</span>
     }
 
-    /** OAuth2 authorization request cookie settings for the stateless login flow. */
+    /** Cookie that carries the OAuth2 authorization request across the provider redirect. */
 <span class="fc" id="L57">    public static class Cookie {</span>
 <span class="fc" id="L58">        private String authRequestName = &quot;OAUTH2_AUTH_REQUEST&quot;;</span>
 <span class="fc" id="L59">        private int authRequestMaxAge = 180;</span>

@@ -72,14 +72,15 @@ public class InventoryItemPatchController {
      * @param id   item identifier
      * @param name new item name
      * @return updated item with new name
-     * @throws InvalidRequestException             400 if the name is blank
-     * @throws java.util.NoSuchElementException     404 if the item does not exist
-     * @throws DuplicateResourceException           409 if the name already exists for the same supplier
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException 400 if the name is blank
+     * @throws java.util.NoSuchElementException 404 if the item does not exist
+     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException 409 if the name
+     *         already exists for the same supplier
      */
     @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @PatchMapping(&quot;/{id}/name&quot;)
     public InventoryItemDTO renameItem(@PathVariable String id, @RequestParam String name) {
-<span class="fc" id="L82">        return inventoryItemService.renameItem(id, name);</span>
+<span class="fc" id="L83">        return inventoryItemService.renameItem(id, name);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

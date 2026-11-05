@@ -46,22 +46,20 @@ import jakarta.servlet.http.HttpServletResponse;
 <span class="fc" id="L46">        };</span>
     }
 
-    // /logout accepts cross-site form posts, so this check is all that stands between
-    // the parameter and an open redirect. A string prefix is not an origin:
-    // https://app.example is a prefix of https://app.example.attacker.test and of
-    // https://app.example@attacker.test. User info is refused as well: the frontend never
-    // sends it, and a return URL has no use for credentials.
+    // /logout takes cross-site form posts, so this check alone stops an open redirect. A prefix
+    // is no origin (https://app.example.attacker.test, https://app.example@attacker.test);
+    // user info is refused too, as the frontend never sends it.
     private static boolean isSameOrigin(String candidate, String base) {
-<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (candidate == null) return false;</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (candidate == null) return false;</span>
         try {
-<span class="fc" id="L57">            URI target = new URI(candidate);</span>
-<span class="fc" id="L58">            URI origin = new URI(base);</span>
-<span class="fc bfc" id="L59" title="All 2 branches covered.">            return target.getRawUserInfo() == null</span>
-<span class="fc bfc" id="L60" title="All 2 branches covered.">                &amp;&amp; origin.getScheme().equalsIgnoreCase(target.getScheme())</span>
-<span class="fc bfc" id="L61" title="All 2 branches covered.">                &amp;&amp; origin.getHost().equalsIgnoreCase(target.getHost())</span>
-<span class="fc bfc" id="L62" title="All 2 branches covered.">                &amp;&amp; origin.getPort() == target.getPort();</span>
-<span class="fc" id="L63">        } catch (URISyntaxException e) {</span>
-<span class="fc" id="L64">            return false;</span>
+<span class="fc" id="L55">            URI target = new URI(candidate);</span>
+<span class="fc" id="L56">            URI origin = new URI(base);</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            return target.getRawUserInfo() == null</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">                &amp;&amp; origin.getScheme().equalsIgnoreCase(target.getScheme())</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">                &amp;&amp; origin.getHost().equalsIgnoreCase(target.getHost())</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">                &amp;&amp; origin.getPort() == target.getPort();</span>
+<span class="fc" id="L61">        } catch (URISyntaxException e) {</span>
+<span class="fc" id="L62">            return false;</span>
         }
     }
 }

@@ -35,7 +35,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(value = &quot;/api/analytics&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Validated
-// One rule for every endpoint: any signed-in user, or anyone in demo mode
 @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
 public class StockAnalyticsController {
 
@@ -55,7 +54,7 @@ public class StockAnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String supplierId) {
-<span class="fc" id="L58">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockValueOverTime(start, end, supplierId));</span>
+<span class="fc" id="L57">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockValueOverTime(start, end, supplierId));</span>
     }
 
     /**
@@ -65,7 +64,7 @@ public class StockAnalyticsController {
      */
     @GetMapping(&quot;/stock-per-supplier&quot;)
     public ResponseEntity&lt;List&lt;StockPerSupplierDTO&gt;&gt; getStockPerSupplier() {
-<span class="fc" id="L68">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockPerSupplier());</span>
+<span class="fc" id="L67">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockPerSupplier());</span>
     }
 
     /**
@@ -76,7 +75,7 @@ public class StockAnalyticsController {
      */
     @GetMapping(&quot;/low-stock/count&quot;)
     public long getLowStockCount() {
-<span class="fc" id="L79">        return stockAnalyticsService.lowStockCount();</span>
+<span class="fc" id="L78">        return stockAnalyticsService.lowStockCount();</span>
     }
 
     /**
@@ -88,7 +87,7 @@ public class StockAnalyticsController {
     @GetMapping(&quot;/item-update-frequency&quot;)
     public ResponseEntity&lt;List&lt;ItemUpdateFrequencyDTO&gt;&gt; getItemUpdateFrequency(
             @RequestParam String supplierId) {
-<span class="fc" id="L91">        return ResponseEntity.ok(stockAnalyticsService.getItemUpdateFrequency(supplierId));</span>
+<span class="fc" id="L90">        return ResponseEntity.ok(stockAnalyticsService.getItemUpdateFrequency(supplierId));</span>
     }
 
     /**
@@ -100,7 +99,7 @@ public class StockAnalyticsController {
     @GetMapping(&quot;/low-stock-items&quot;)
     public ResponseEntity&lt;List&lt;LowStockItemDTO&gt;&gt; getLowStockItems(
             @RequestParam String supplierId) {
-<span class="fc" id="L103">        return ResponseEntity.ok(stockAnalyticsService.getItemsBelowMinimumStock(supplierId));</span>
+<span class="fc" id="L102">        return ResponseEntity.ok(stockAnalyticsService.getItemsBelowMinimumStock(supplierId));</span>
     }
 
     /**
@@ -116,7 +115,7 @@ public class StockAnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String supplierId) {
-<span class="fc" id="L119">        return ResponseEntity.ok(stockAnalyticsService.getMonthlyStockMovement(start, end, supplierId));</span>
+<span class="fc" id="L118">        return ResponseEntity.ok(stockAnalyticsService.getMonthlyStockMovement(start, end, supplierId));</span>
     }
 
     /**
@@ -134,7 +133,7 @@ public class StockAnalyticsController {
             @RequestParam(required = false) String supplierId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-<span class="fc" id="L137">        return ResponseEntity.ok(stockAnalyticsService.getPriceTrend(itemId, supplierId, start, end));</span>
+<span class="fc" id="L136">        return ResponseEntity.ok(stockAnalyticsService.getPriceTrend(itemId, supplierId, start, end));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

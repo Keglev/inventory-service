@@ -15,11 +15,11 @@ import org.springframework.context.ConfigurableApplicationContext;
  * infrastructure prior to JVM startup, following 12-factor
  * separation of configuration from code.&lt;/p&gt;
  *
- * &lt;p&gt;Active profiles: {@code dev} (detailed logging),
- * {@code test} (H2 in-memory), {@code prod} (Oracle Cloud).&lt;/p&gt;
+ * &lt;p&gt;Profiles: {@code prod} (Oracle Autonomous Database), {@code test} (H2 in
+ * memory, Oracle mode), {@code e2e} (added to {@code test} for the Playwright run).&lt;/p&gt;
  *
  * @see &lt;a href=&quot;https://github.com/Keglev/inventory-service&quot;&gt;GitHub Repository&lt;/a&gt;
- * @see &lt;a href=&quot;https://keglev.github.io/inventory-service/api.html&quot;&gt;API Documentation&lt;/a&gt;
+ * @see &lt;a href=&quot;https://keglev.github.io/inventory-service/backend/api/index.html&quot;&gt;API Documentation&lt;/a&gt;
  */
 @SpringBootApplication
 <span class="fc" id="L25">public class InventoryServiceApplication {</span>
@@ -34,28 +34,30 @@ import org.springframework.context.ConfigurableApplicationContext;
 <span class="fc" id="L34">        run(args);</span>
 <span class="fc" id="L35">    }</span>
 
+    // --ssp.close=true closes the context once started: InventoryServiceApplicationMainTest
+    // runs main() through this path without leaving the application running.
     static ConfigurableApplicationContext run(String[] args) {
-<span class="fc" id="L38">        ConfigurableApplicationContext applicationContext = SpringApplication.run(InventoryServiceApplication.class, args);</span>
+<span class="fc" id="L40">        ConfigurableApplicationContext applicationContext = SpringApplication.run(InventoryServiceApplication.class, args);</span>
 
-<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (shouldCloseAfterStartup(args)) {</span>
-<span class="fc" id="L41">            applicationContext.close();</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (shouldCloseAfterStartup(args)) {</span>
+<span class="fc" id="L43">            applicationContext.close();</span>
         }
 
-<span class="fc" id="L44">        return applicationContext;</span>
+<span class="fc" id="L46">        return applicationContext;</span>
     }
 
     private static boolean shouldCloseAfterStartup(String[] args) {
-<span class="fc bfc" id="L48" title="All 4 branches covered.">        if (args == null || args.length == 0) {</span>
-<span class="fc" id="L49">            return false;</span>
+<span class="fc bfc" id="L50" title="All 4 branches covered.">        if (args == null || args.length == 0) {</span>
+<span class="fc" id="L51">            return false;</span>
         }
 
-<span class="fc bfc" id="L52" title="All 2 branches covered.">        for (String arg : args) {</span>
-<span class="fc bfc" id="L53" title="All 2 branches covered.">            if (&quot;--ssp.close=true&quot;.equals(arg)) {</span>
-<span class="fc" id="L54">                return true;</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        for (String arg : args) {</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">            if (&quot;--ssp.close=true&quot;.equals(arg)) {</span>
+<span class="fc" id="L56">                return true;</span>
             }
         }
 
-<span class="fc" id="L58">        return false;</span>
+<span class="fc" id="L60">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

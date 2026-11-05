@@ -19,8 +19,8 @@ import jakarta.servlet.http.HttpServletResponse;
 <span class="fc" id="L19">public class SecurityFilterHelper {</span>
 
     /**
-     * Builds the filter that tags JSON API requests with the {@code IS_API_REQUEST}
-     * attribute so unauthenticated calls receive 401 instead of an OAuth2 redirect.
+     * Builds the filter that sets {@code IS_API_REQUEST} on a request under {@code /api/}
+     * whose {@code Accept} header names {@code application/json}.
      *
      * @return a request filter that marks API requests
      */
