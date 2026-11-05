@@ -3,25 +3,24 @@
 # build-openapi-docs.sh — Generates ReDoc HTML from the OpenAPI spec
 # Usage: .github/scripts/docs/build-openapi-docs.sh <project-dir>
 #
-# The generated page renders the spec in the browser with redoc.standalone.js.
-# The CLI writes a script tag pointing at Redocly's CDN with an integrity hash;
-# this script serves that file from the Pages site instead. --disableGoogleFont
-# drops the stylesheet link to fonts.googleapis.com: without it every visitor's
-# browser contacts Google, a transfer a German court has ruled unlawful without
-# consent (LG Muenchen I, 3 O 17493/20). The CDN script and the "API docs by
-# Redocly" logo (cdn.redoc.ly) are the same kind of transfer, so:
-#   - the bundle comes from the npm package of the version the CLI named, and
-#     must hash to the CLI's own integrity value, so it is byte-for-byte the
-#     file the CDN would have served; the tag keeps that integrity attribute;
-#   - a CSP meta tag limits images to this site, so the browser never requests
-#     the logo; ReDoc's onError handler then simply leaves it out.
-# ReDoc uses the browser's sans-serif fonts. Theme assets, landing pages and
-# JaCoCo coverage are handled by build-docs.sh.
+# The CLI embeds the ReDoc bundle in the page (--inlineBundle), so the page
+# loads no script from Redocly's CDN. Visitor data stays on this site, as German
+# data-protection law expects without consent (TDDDG section 25, GDPR):
+#   - REDOCLY_TELEMETRY=off stops the CLI's own telemetry and builds the page
+#     with telemetry off; --openapi.disableTelemetry sets the same switch in
+#     the page, so neither depends on the other;
+#   - a CSP meta tag allows connections, images and fonts from this site only.
+#     The browser then refuses any request to otel.cloud.redocly.com even if a
+#     later ReDoc ignores the switch, and never loads the "API docs by Redocly"
+#     logo from cdn.redoc.ly; ReDoc's onError handler removes the image.
+# GitHub Pages sets no headers, so the policy has to be a meta tag. The page
+# also hides the then-empty "API docs by" label, and the shared back link moves
+# into its slot at the bottom left: ReDoc's own controls use both top corners.
 #
-# Failure mode: exits 1 when the spec is missing, when the CLI's script tag is
-# not in the expected form, or when the npm bundle does not match its
-# integrity hash; set -e stops the run when redocly or npm fails.
-# Prerequisites: redocly CLI, npm, openssl
+# Failure mode: exits 1 when the spec is missing, or when the page lacks the
+# telemetry switch, loads a script or resource from another site, or carries
+# the policy after its first script; set -e stops the run when redocly fails.
+# Prerequisites: redocly CLI
 # =============================================================================
 set -euo pipefail
 
@@ -38,33 +37,31 @@ if [ ! -f "$OPENAPI_YAML" ]; then
 fi
 
 mkdir -p "$API_OUT"
-redocly build-docs "$OPENAPI_YAML" --disableGoogleFont -o "$API_OUT/index.html"
+PAGE="$API_OUT/index.html"
+REDOCLY_TELEMETRY=off redocly build-docs "$OPENAPI_YAML" --inlineBundle \
+  --openapi.disableTelemetry=true -o "$PAGE"
 
-# Serve the ReDoc bundle from this site instead of cdn.redocly.com.
-CDN_RE='https://cdn\.redocly\.com/redoc/v([0-9.]+)/bundles/redoc\.standalone\.js'
-TAG="$(grep -oE "<script src=\"$CDN_RE\" integrity=\"[^\"]+\"" "$API_OUT/index.html" || true)"
-if [ -z "$TAG" ]; then
-  echo "::error::the generated page has no ReDoc CDN script tag in the expected form"
+if ! grep -q '"disableTelemetry":true' "$PAGE"; then
+  echo "::error::the generated page does not have telemetry switched off"
   exit 1
 fi
-REDOC_VERSION="$(sed -E "s|.*$CDN_RE.*|\1|" <<< "$TAG")"
-INTEGRITY="$(sed -E 's|.*integrity="([^"]+)".*|\1|' <<< "$TAG")"
-PACK_DIR="$(mktemp -d)"
-trap 'rm -rf "$PACK_DIR"' EXIT
-npm pack --silent --pack-destination "$PACK_DIR" "redoc@$REDOC_VERSION" > /dev/null
-tar -xzf "$PACK_DIR/redoc-$REDOC_VERSION.tgz" -C "$PACK_DIR" package/bundles/redoc.standalone.js
-BUNDLE="$PACK_DIR/package/bundles/redoc.standalone.js"
-ACTUAL="sha384-$(openssl dgst -sha384 -binary "$BUNDLE" | base64 -w0)"
-if [ "$ACTUAL" != "$INTEGRITY" ]; then
-  echo "::error::redoc@$REDOC_VERSION from npm hashes to $ACTUAL, the CLI expects $INTEGRITY"
+if grep -qE '<script[^>]+src="https?://|<link[^>]+href="https?://|from "https?://' "$PAGE"; then
+  echo "::error::the generated page loads a script or resource from another site"
   exit 1
 fi
-cp "$BUNDLE" "$API_OUT/redoc.standalone.js"
-sed -i -E "s|$CDN_RE|redoc.standalone.js|" "$API_OUT/index.html"
-sed -i 's|<head>|<head><meta http-equiv="Content-Security-Policy" content="img-src '"'"'self'"'"' data:">|' "$API_OUT/index.html"
-echo "✓ ReDoc $REDOC_VERSION served from the site (integrity verified); images limited to the site"
+# First <head> only: the inlined bundle contains the string "<head>" as well.
+CSP="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'"
+PAGE_CSS='span:has(>a[href="https://redocly.com/redoc/"]){visibility:hidden!important}#back-to-docs{top:auto!important;right:auto!important;bottom:11px!important;left:20px!important}'
+sed -i "0,/<head>/s||<head><meta http-equiv=\"Content-Security-Policy\" content=\"$CSP\"><style>$PAGE_CSS</style>|" "$PAGE"
+META_AT="$(grep -bo 'http-equiv="Content-Security-Policy"' "$PAGE" | head -1 | cut -d: -f1)"
+SCRIPT_AT="$(grep -bo '<script' "$PAGE" | head -1 | cut -d: -f1)"
+if [ -z "$META_AT" ] || [ -z "$SCRIPT_AT" ] || [ "$META_AT" -gt "$SCRIPT_AT" ]; then
+  echo "::error::the CSP meta tag is missing or comes after the first script"
+  exit 1
+fi
+echo "✓ ReDoc page built with its bundle inline, telemetry off and connections limited to the site"
 
 # The self-contained ReDoc page loads none of the site's CSS; it gets the same
-# fixed "Back to docs" link as the coverage reports, from one script.
+# "Back to docs" link as the coverage reports, from one script.
 bash "$(dirname "$0")/inject-back-link.sh" "$API_OUT/index.html"
 echo "✓ ReDoc HTML generated at backend/api/index.html (back-to-docs link injected)"
