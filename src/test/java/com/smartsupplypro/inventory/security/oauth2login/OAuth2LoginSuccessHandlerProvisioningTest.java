@@ -22,8 +22,8 @@ import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
 
 /**
- * Unit tests for {@link OAuth2LoginSuccessHandler} redirect behavior,
- * principal-attribute validation, and duplicate-redirect guard.
+ * Unit tests for {@link OAuth2LoginSuccessHandler} redirect behavior and
+ * principal-attribute validation.
  */
 @ExtendWith(MockitoExtension.class)
 class OAuth2LoginSuccessHandlerProvisioningTest {
@@ -61,17 +61,6 @@ class OAuth2LoginSuccessHandlerProvisioningTest {
             assertThat(res.getRedirectedUrl()).isEqualTo("https://localhost:8081/api/me");
         }
 
-        @Test
-        void should_skip_redirect_when_success_guard_is_set() throws Exception {
-            MockHttpServletRequest req = new MockHttpServletRequest();
-            req.setAttribute("OAUTH2_SUCCESS_REDIRECT_DONE", Boolean.TRUE);
-            MockHttpServletResponse res = new MockHttpServletResponse();
-
-            handler.onAuthenticationSuccess(req, res,
-                OAuth2LoginSuccessHandlerTestSupport.token("skip@example.com", "Skip"));
-
-            assertThat(res.getRedirectedUrl()).isNull();
-        }
     }
 
     /**
