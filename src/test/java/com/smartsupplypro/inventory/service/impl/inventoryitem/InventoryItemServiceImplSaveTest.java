@@ -149,7 +149,7 @@ class InventoryItemServiceImplSaveTest {
         assertEquals("Supplier does not exist", ex.getMessage());
     }
 
-    /** A valid create or update request for supplier S1. */
+    /** A valid create request for supplier S1. */
     private static InventoryItemDTO newBaseDto() {
         InventoryItemDTO baseDto = new InventoryItemDTO();
         baseDto.setName("Widget");

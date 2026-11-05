@@ -99,8 +99,8 @@ class StockHistoryServiceLogTest {
 
     @Test
     void should_assign_distinct_ids_when_changes_are_logged_back_to_back() {
-        // update() logs price and quantity within one millisecond; a clock-based
-        // id made the second save merge into the first row.
+        // Back-to-back changes to one item can share a millisecond; a clock-based id
+        // would make the second save merge into the first row.
         givenItemExists(ITEM_1, SUPPLIER_1);
         int writes = 200;
         for (int i = 0; i < writes; i++) {

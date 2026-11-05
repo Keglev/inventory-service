@@ -15,7 +15,7 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
  * <p>Defines CRUD operations, atomic stock and price adjustments,
  * paginated search, and audit trail integration for inventory items.</p>
  *
- * @see InventoryItemServiceImpl
+ * @see com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl
  * @see StockHistoryService
  */
 public interface InventoryItemService {
@@ -94,8 +94,8 @@ public interface InventoryItemService {
     InventoryItemDTO renameItem(String id, String newName);
 
     /**
-     * Counts total inventory items across all suppliers (KPI).
-     * @return total item count
+     * Counts active inventory items across all suppliers (KPI); soft-deleted items are excluded.
+     * @return active item count
      */
     long countItems();
 

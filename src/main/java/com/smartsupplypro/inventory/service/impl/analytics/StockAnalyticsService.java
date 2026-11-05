@@ -307,7 +307,7 @@ public class StockAnalyticsService {
      * <p>When the window has no row on its first day, the series opens with the
      * price in force at {@code start} (the last recorded price before it), dated
      * {@code start}. A price holds until it changes, so without that point an item
-     * whose price did not change inside the window had no series at all.
+     * whose price did not change inside the window would have no series at all.
      *
      * @param itemId     required inventory item identifier
      * @param supplierId optional supplier filter (null/blank = all suppliers)

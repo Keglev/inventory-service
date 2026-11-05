@@ -23,7 +23,7 @@ import static com.smartsupplypro.inventory.service.impl.analytics.AnalyticsConve
  * <p>The series holds change points, not one point per calendar day: the first day with
  * history, every day whose closing value differs from the previous point, and the last
  * day of the range. A value holds until the next point, so the chart draws the same step
- * line from far fewer points (2477 daily points became 160 for six years of demo data).
+ * line from far fewer points.
  * Days before the first movement are left out instead of being sent as 0.</p>
  */
 final class StockValueSeries {

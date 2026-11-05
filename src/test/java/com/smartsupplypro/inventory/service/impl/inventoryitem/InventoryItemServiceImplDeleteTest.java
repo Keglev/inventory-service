@@ -52,7 +52,7 @@ class InventoryItemServiceImplDeleteTest {
         InventoryItemServiceImplTestHelper.authenticateAsOAuth2("admin", "ADMIN");
 
         // The real helper runs over the mocked repositories, so every assertion below
-        // sees the exception types and messages production throws (NF-21).
+        // sees the exception types and messages production throws.
         service = newServiceWithRealValidation(repository, supplierRepository, auditHelper);
 
         existing = newExistingItem();
@@ -100,7 +100,7 @@ class InventoryItemServiceImplDeleteTest {
 
     /**
      * The service with the real validation helper over the given mocked repositories,
-     * so a test sees the exception types and messages production throws (NF-21).
+     * so a test sees the exception types and messages production throws.
      */
     private static InventoryItemServiceImpl newServiceWithRealValidation(InventoryItemRepository repository,
             SupplierRepository supplierRepository, InventoryItemAuditHelper auditHelper) {

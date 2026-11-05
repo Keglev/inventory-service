@@ -25,7 +25,7 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 
 /**
- * Unit test for the opening price that starts a price-trend window (PT-1).
+ * Unit test for the opening price that starts a price-trend window.
  */
 @ExtendWith(MockitoExtension.class)
 class StockAnalyticsServicePriceTrendTest {

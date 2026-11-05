@@ -36,7 +36,7 @@ import com.smartsupplypro.inventory.service.impl.inventory.InventoryItemValidati
 
 /**
  * Unit tests for {@link InventoryItemServiceImpl} read and targeted-mutation operations:
- * {@code getAll}, {@code getById}, {@code countItems}, {@code adjustQuantity},
+ * {@code getById}, {@code countItems}, {@code adjustQuantity},
  * {@code updatePrice}, and {@code renameItem}.
  */
 @ExtendWith(MockitoExtension.class)

@@ -112,6 +112,7 @@ public class SupplierServiceImpl implements SupplierService {
             throw new NoSuchElementException("Supplier not found: " + id);
         }
 
+        // TODO(S-9): a linked item at quantity 0 still references the supplier; measure the FK answer
         supplierRepository.deleteById(id);
     }
 

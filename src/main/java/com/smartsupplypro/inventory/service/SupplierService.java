@@ -8,9 +8,9 @@ import com.smartsupplypro.inventory.dto.SupplierDTO;
  * Service contract for supplier lifecycle management.
  *
  * <p>Defines operations for supplier creation, retrieval,
- * update, and deactivation within the procurement domain.</p>
+ * update, and deletion within the procurement domain.</p>
  *
- * @see SupplierServiceImpl
+ * @see com.smartsupplypro.inventory.service.impl.SupplierServiceImpl
  * @see com.smartsupplypro.inventory.repository.SupplierRepository
  */
 public interface SupplierService {
@@ -47,11 +47,11 @@ public interface SupplierService {
     SupplierDTO update(String id, SupplierDTO dto);
 
     /**
-     * Deletes a supplier after verifying no linked inventory items exist.
+     * Deletes a supplier after verifying that no linked inventory item holds stock.
      * @param id supplier ID to delete
      * @throws java.util.NoSuchElementException if supplier not found
-     * @throws com.smartsupplypro.inventory.exception.BusinessRuleViolationException if inventory
-     *         items reference this supplier (409)
+     * @throws com.smartsupplypro.inventory.exception.BusinessRuleViolationException if a linked
+     *         item has a quantity above zero (409)
      */
     void delete(String id);
 }

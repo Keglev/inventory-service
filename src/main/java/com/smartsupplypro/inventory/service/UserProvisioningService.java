@@ -37,7 +37,7 @@ public class UserProvisioningService {
      * Finds or creates the local user for the given identity and heals the
      * stored role to match the admin allow-list.
      *
-     * @param email   verified email from the identity provider (primary key)
+     * @param email   verified email from the identity provider (unique key)
      * @param name    display name from the provider (nullable; falls back to email)
      * @param isAdmin whether the email is on the admin allow-list
      * @return the persisted (and potentially role-healed) user
