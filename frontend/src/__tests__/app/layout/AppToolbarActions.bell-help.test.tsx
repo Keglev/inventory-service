@@ -4,7 +4,7 @@
  * @testing Vitest + React Testing Library; bell, help button and menu mocked
  * @description
  * Tests for AppToolbarActions focused on:
- * - the notification bell, and the absence of a language toggle (FW5 forks 2 and 7)
+ * - the notification bell, and the absence of a language toggle
  * - help button wiring (topic + tooltip/aria-label)
  *
  * Out of scope:
@@ -32,10 +32,7 @@ vi.mock('@/app/AccountMenu/AccountMenu', () => ({
   default: () => <div data-testid="account-menu" />,
 }));
 
-/**
- * i18n mock:
- * Return defaultValue for stable and language-file independent assertions.
- */
+// tEn (set in beforeEach) resolves keys against the real English locale files.
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
@@ -70,7 +67,7 @@ describe('AppToolbarActions (bell + help)', () => {
     });
 
     it('renders no language toggle', () => {
-      // Language is set in the settings dialog only; the flag button is gone.
+      // Language is set in the settings dialog only.
       const { container } = renderActions();
       expect(screen.queryByLabelText(tEn('actions.toggleLanguage'))).not.toBeInTheDocument();
       expect(container.querySelector('img')).toBeNull();

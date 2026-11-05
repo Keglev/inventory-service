@@ -1,6 +1,6 @@
 /**
  * @file ProfileNameDisplay.test.tsx
- * @module __tests__/app/AccountMenu/ProfileSettings
+ * @module __tests__/app/AccountMenu/ProfileSettings/ProfileNameDisplay
  *
  * @description
  * Unit tests for <ProfileNameDisplay /> — renders a user's full name in the profile section.
@@ -20,9 +20,6 @@ import { render, screen } from '@testing-library/react';
 import ProfileNameDisplay from '@/app/AccountMenu/ProfileSettings/ProfileNameDisplay';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// i18n mock
-// -----------------------------------------------------------------------------
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
@@ -38,16 +35,13 @@ describe('ProfileNameDisplay', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Deterministic translation stub: return defaultValue for stable assertions.
+    // tEn resolves keys against the real English locale files.
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // Rendering: label + value
-  // ---------------------------------------------------------------------------
   it('renders the name label', () => {
     arrange('John Doe');
     expect(screen.getByText('Name')).toBeInTheDocument();
@@ -58,9 +52,6 @@ describe('ProfileNameDisplay', () => {
     expect(screen.getByText('John Doe')).toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // Fallback behavior
-  // ---------------------------------------------------------------------------
   it.each([
     ['missing fullName prop', undefined],
     ['empty fullName string', ''],
@@ -69,9 +60,6 @@ describe('ProfileNameDisplay', () => {
     expect(screen.getByText('—')).toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // i18n wiring
-  // ---------------------------------------------------------------------------
   it('renders translated label when provided by i18n', () => {
     const mockT = vi.fn((key: string, defaultValue: string) => {
       if (key === 'common:name') return 'Vollständiger Name';
@@ -92,9 +80,6 @@ describe('ProfileNameDisplay', () => {
     expect(mockT).toHaveBeenCalledWith('common:name');
   });
 
-  // ---------------------------------------------------------------------------
-  // Regression: edge-case values
-  // ---------------------------------------------------------------------------
   it('renders long names', () => {
     const longName = 'Johann Wolfgang von Goethe Maximilian Schmidt';
     arrange(longName);

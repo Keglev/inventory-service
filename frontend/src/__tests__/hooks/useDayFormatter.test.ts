@@ -23,7 +23,7 @@ describe('useDayFormatter', () => {
   });
 
   // A time axis carries UTC midnights; west of UTC a local reading lands on the
-  // previous day (LO-4), east of UTC on the same day, so both sides are checked.
+  // previous day, east of UTC on the same day, so both sides are checked.
   describe('axis day across time zones', () => {
     const originalTz = process.env.TZ;
     afterEach(() => {

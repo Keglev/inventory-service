@@ -23,9 +23,6 @@ import type { UseItemFormReturn } from '@/pages/inventory/dialogs/ItemFormDialog
 import { ItemFormDialog } from '@/pages/inventory/dialogs/ItemFormDialog/ItemFormDialog';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const itemFormPropsSpy = vi.hoisted(() => vi.fn());
 const useItemFormMock = vi.hoisted(() => vi.fn());
 const helpButtonPropsSpy = vi.hoisted(() => vi.fn());
@@ -57,7 +54,7 @@ vi.mock('@/features/help/components/HelpIconButton', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    // Prefer fallback strings for stable assertions.
+    // tEn resolves keys against the real English locale files.
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));

@@ -22,10 +22,6 @@ import { EditItemDialog } from '@/pages/inventory/dialogs/EditItemDialog/EditIte
 import * as useEditItemFormModule from '@/pages/inventory/dialogs/EditItemDialog/useEditItemForm';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -------------------------------------
-// Deterministic mocks
-// -------------------------------------
-
 vi.mock('@/pages/inventory/dialogs/EditItemDialog/useEditItemForm');
 
 const mockEditItemForm = vi.hoisted(() => vi.fn());
@@ -42,7 +38,7 @@ vi.mock('@/hooks/useHelp', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    // Prefer defaultValue when provided; otherwise return key.
+    // tEn resolves keys against the real English locale files.
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
@@ -90,8 +86,6 @@ describe('EditItemDialog', () => {
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
 
-    // Title is a stable UI contract; this assumes component uses a defaultValue like "Edit Item".
-    // If the dialog uses only i18n keys, adjust assertion to that key.
     expect(screen.getByText(/Edit Item/i)).toBeInTheDocument();
 
     expect(screen.getByTestId('edit-item-form')).toBeInTheDocument();
@@ -114,8 +108,7 @@ describe('EditItemDialog', () => {
       screen.queryByLabelText(/close|cancel/i);
 
     if (!closeButton) {
-      // If your dialog uses an IconButton without accessible name,
-      // the component should be fixed—but we keep the test resilient.
+      // A close control without an accessible name fails the test.
       throw new Error('Close button is missing an accessible name (close/cancel).');
     }
 

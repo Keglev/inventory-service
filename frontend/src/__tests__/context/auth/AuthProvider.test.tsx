@@ -250,7 +250,7 @@ describe('AuthProvider', () => {
   });
 
   it('redirects to the same-origin OAuth2 endpoint when the env value is the development root', async () => {
-    // '/' once produced '//oauth2/...', a protocol-relative URL to a host named "oauth2".
+    // '/' must not produce '//oauth2/...', a protocol-relative URL to a host named "oauth2".
     vi.stubEnv('VITE_API_BASE', '/');
     httpClientMock.get.mockRejectedValue(new Error('no session'));
     const assign = vi.fn();

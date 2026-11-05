@@ -1,6 +1,6 @@
 /**
  * @file vite.preview.config.ts
- * @module e2e
+ * @module e2e/vite.preview.config
  * @testing Preview server config for the Playwright suite (frontend ADR-0009).
  * @description `vite preview` inherits `server.https` and `server.proxy` from
  *   the main config's dev server. Local certs would flip the origin to https,

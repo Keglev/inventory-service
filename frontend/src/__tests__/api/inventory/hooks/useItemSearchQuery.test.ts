@@ -1,6 +1,6 @@
 /**
  * @file useItemSearchQuery.test.ts
- * @module tests/api/inventory/hooks/useItemSearchQuery
+ * @module __tests__/api/inventory/hooks/useItemSearchQuery
  * @description Contract tests for useItemSearchQuery (item pickers of the
  * inventory dialogs, frontend ADR-0014).
  *

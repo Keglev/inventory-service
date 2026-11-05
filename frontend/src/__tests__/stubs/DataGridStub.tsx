@@ -1,6 +1,6 @@
 /**
  * @file DataGridStub.tsx
- * @module tests/stubs/DataGridStub
+ * @module __tests__/stubs/DataGridStub
  * @description Minimal test stub for the MUI/X DataGrid component.
  *
  * Purpose:

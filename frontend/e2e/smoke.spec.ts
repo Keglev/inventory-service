@@ -1,7 +1,7 @@
 /**
  * @file smoke.spec.ts
- * @module e2e
- * @testing First browser suite (ADR-0009): proves the local stack, not the UI.
+ * @module e2e/smoke
+ * @testing First browser suite (frontend ADR-0009): proves the local stack, not the UI.
  * @description Five tests against the e2e seed: the login page renders in
  *   both locales, the header language switcher flips the locale and persists
  *   it across a reload, the demo entry lands on the dashboard with a healthy
@@ -13,10 +13,9 @@ import { test, expect, type Page } from '@playwright/test';
 
 const I18N_KEY = 'i18nextLng';
 
-// Seeds the starting locale WITHOUT overriding what the app later stores.
-// addInitScript re-runs on every navigation, reload included, so an
-// unconditional write would silently re-force the seed after page.reload()
-// and make any persistence assertion test the fixture instead of the app.
+// Seeds the starting locale WITHOUT overriding what the app later stores:
+// addInitScript re-runs on every navigation, so an unconditional write would
+// re-force the seed after page.reload() and the persistence check would test the fixture.
 async function presetLocale(page: Page, lng: 'en' | 'de'): Promise<void> {
   await page.addInitScript(
     ([key, value]) => {
@@ -55,7 +54,7 @@ test('the header switcher changes locale and the choice survives a reload', asyn
   await page.goto('/login');
   await expect(page.getByRole('button', { name: /Continue in Demo Mode/i })).toBeVisible();
 
-  // The toggle names the language it switches TO, in that language (ADR-0015):
+  // The toggle names the language it switches TO, in that language (frontend ADR-0015):
   // "Deutsch" while English is active. Its label flipping to "English" doubles
   // as the assertion that the switch took effect.
   await page.getByRole('button', { name: 'Deutsch' }).click();
@@ -78,10 +77,9 @@ test('demo entry lands on the dashboard', async ({ page }) => {
   await presetLocale(page, 'en');
   await enterDemo(page, /Continue in Demo Mode/i);
   await expect(page.getByRole('heading', { name: /Dashboard/i }).first()).toBeVisible();
-  // The header badge reads "System OK" (same string in both locales) only when
-  // the health probe reached the local backend and it reported the database up.
-  // This is the request-level proof that the probe no longer follows the
-  // serving origin.
+  // "System OK" (same in both locales) shows only when the health probe reached
+  // the local backend and it reported the database up: the probe calls the
+  // backend, not the serving origin.
   await expect(page.getByText('System OK')).toBeVisible();
 });
 
@@ -89,10 +87,10 @@ test('inventory grid shows the seeded rows', async ({ page }) => {
   await presetLocale(page, 'en');
   await enterDemo(page, /Continue in Demo Mode/i);
   await page.goto('/inventory');
-  // Without a supplier the grid lists the stock of every supplier (S2-9).
+  // Without a supplier the grid lists the stock of every supplier.
   await expect(page.getByText('Hammer 300 g')).toBeVisible();
   await expect(page.getByText('Kartons 40x30x30')).toBeVisible();
-  // The supplier is picked by typing two letters or more (S2-9); the test runs
+  // The supplier is picked by typing two letters or more; the test runs
   // with the English locale preset, so the field's name is the English label.
   await page.getByRole('combobox', { name: 'Supplier' }).fill('Nordlicht');
   await page.getByRole('option', { name: 'Nordlicht Werkzeuge GmbH' }).click();

@@ -22,11 +22,8 @@ import type { AnalyticsFilters } from '@/pages/analytics/components/filters/Filt
 import { DateRangeFilter } from '@/pages/analytics/components/filters/DateRangeFilter';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// B2: provide a react-i18next mock so useTranslation resolves without an
-// i18n instance in this suite, silencing the NO_I18NEXT_INSTANCE warning. The stub
-// mirrors react-i18next's no-instance fallback exactly — it returns an explicit string
-// fallback / options.defaultValue when supplied, otherwise the key — so rendered text
-// (and therefore every assertion) is unchanged.
+// tEn resolves keys against the real English locale files, so assertions read
+// the text users see.
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
@@ -34,20 +31,12 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-// -----------------------------------------------------------------------------
-// Test data
-// -----------------------------------------------------------------------------
-
 const baseValue: AnalyticsFilters = {
   from: '2025-01-01',
   to: '2025-12-31',
   supplierId: undefined,
   quick: '180',
 };
-
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
 
 describe('DateRangeFilter', () => {
   const onChange = vi.fn();
@@ -122,10 +111,6 @@ describe('DateRangeFilter', () => {
     expect(onReset).toHaveBeenCalledTimes(1);
   });
 });
-
-// -----------------------------------------------------------------------------
-// Inverted custom range
-// -----------------------------------------------------------------------------
 
 const customValue: AnalyticsFilters = { ...baseValue, quick: 'custom' };
 const resetValue: AnalyticsFilters = { ...baseValue, quick: '180' };

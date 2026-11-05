@@ -17,18 +17,14 @@ import type { UseItemFormReturn } from '@/pages/inventory/dialogs/ItemFormDialog
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    // Prefer fallback/default strings for stable tests across locales.
+    // tEn resolves keys against the real English locale files.
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
 
-// -------------------------------------
-// Targeted MUI stubs
-// -------------------------------------
 // ItemForm's supplier field (SupplierPickerField -> ListSearchField) is a MUI
-// Autocomplete, which is difficult to drive in unit tests.
-// We stub it to capture and invoke handler props, improving branch/function coverage
-// without testing MUI internals.
+// Autocomplete, hard to drive in unit tests; the stub captures and invokes its
+// handler props, raising branch/function coverage without testing MUI internals.
 const muiSpies = vi.hoisted(() => ({
   autocompleteProps: vi.fn(),
 }));
@@ -42,7 +38,7 @@ vi.mock('@mui/material', async () => {
     Autocomplete: (props: unknown) => {
       muiSpies.autocompleteProps(props);
       // Proactively exercise common callbacks so Istanbul/V8 counts them as covered.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- stub reads untyped Autocomplete props
       const p = props as any;
       if (p.getOptionLabel && Array.isArray(p.options) && p.options.length) {
         p.getOptionLabel(p.options[0]);
@@ -51,7 +47,7 @@ vi.mock('@mui/material', async () => {
         p.isOptionEqualToValue(p.options[0], p.options[0]);
         p.isOptionEqualToValue(p.options[0], { ...p.options[0], id: '__different__' });
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- stub reads untyped Autocomplete props
       const renderInput = (props as any).renderInput as (p: any) => unknown;
       return <div data-testid="supplier-autocomplete">{renderInput({}) as never}</div>;
     },
@@ -160,7 +156,7 @@ describe('ItemForm', () => {
 
     renderItemForm(state);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- captured stub props are untyped
     const autocompleteProps = muiSpies.autocompleteProps.mock.calls[0]?.[0] as any;
     expect(autocompleteProps).toBeTruthy();
 
@@ -194,7 +190,7 @@ describe('ItemForm', () => {
     expect(screen.getByText(tEn('errors:validation.nonNegative'))).toBeInTheDocument();
     expect(screen.queryByText('errors:validation.required')).not.toBeInTheDocument();
 
-    // The supplier search field shows its own error state (S2-9 picker passes errorText).
+    // The supplier search field shows its own error state (the picker passes errorText).
     expect(screen.getByLabelText('Supplier')).toHaveAttribute('aria-invalid', 'true');
 
     // Non-string helperText branches should not render a stringified object.

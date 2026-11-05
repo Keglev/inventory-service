@@ -1,6 +1,6 @@
 /**
  * @file listFetcher.test.ts
- * @module tests/api/inventory/listFetcher
+ * @module __tests__/api/inventory/listFetcher
  * @description Contract tests for getInventoryPage.
  *
  * Contract under test:

@@ -22,10 +22,6 @@ import type { FinancialSummary } from '@/api/analytics/finance';
 import { getFinancialSummary } from '@/api/analytics/finance';
 import FinancialSummaryCard from '@/pages/analytics/blocks/FinancialSummaryCard';
 
-// -----------------------------------------------------------------------------
-// Mocks
-// -----------------------------------------------------------------------------
-
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, opts?: { method?: string }) => (opts?.method ? `${key}|${opts.method}` : key),
@@ -78,10 +74,6 @@ vi.mock('recharts', () => ({
   },
 }));
 
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
-
 
 function setup(
   client: QueryClient,
@@ -113,10 +105,6 @@ const zeroSummary: FinancialSummary = {
   returns: 0,
   method: 'WAC',
 };
-
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
 
 describe('FinancialSummaryCard', () => {
   let queryClient: QueryClient;

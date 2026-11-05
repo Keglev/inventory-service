@@ -23,10 +23,6 @@ import { render, screen } from '@testing-library/react';
 import StatCard from '@/components/ui/StatCard';
 import type { StatCardProps } from '@/components/ui/StatCard';
 
-// -----------------------------------------------------------------------------
-// Test helpers
-// -----------------------------------------------------------------------------
-
 function setup(overrides: Partial<StatCardProps> = {}) {
   const props: StatCardProps = {
     title: 'Test KPI',
@@ -36,10 +32,6 @@ function setup(overrides: Partial<StatCardProps> = {}) {
 
   return render(<StatCard {...props} />);
 }
-
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
 
 describe('StatCard', () => {
   it('renders the provided title', () => {

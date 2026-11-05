@@ -23,9 +23,6 @@ import type { UseDeleteItemHandlersReturn } from '@/pages/inventory/dialogs/Dele
 
 import { useDeleteItemDialog } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mockUseDeleteItemState = vi.hoisted(() => vi.fn());
 const mockUseDeleteItemQueries = vi.hoisted(() => vi.fn());
 const mockUseDeleteItemHandlers = vi.hoisted(() => vi.fn());
@@ -41,10 +38,6 @@ vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries', () =>
 vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers', () => ({
   useDeleteItemHandlers: (...args: unknown[]) => mockUseDeleteItemHandlers(...args),
 }));
-
-// -------------------------------------
-// Helpers
-// -------------------------------------
 
 /**
  * Minimal query result helper for composition tests.

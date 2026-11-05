@@ -1,6 +1,6 @@
 /**
  * @file apiBase.test.ts
- * @module tests/api/apiBase
+ * @module __tests__/api/apiBase
  * @description Contract tests for the API origin resolver.
  *
  * Contract under test:

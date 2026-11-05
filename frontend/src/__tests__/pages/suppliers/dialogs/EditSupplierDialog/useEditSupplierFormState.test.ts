@@ -50,11 +50,9 @@ describe('useEditSupplierFormState', () => {
   });
 
   it('maps a supplier with no contact details through the empty-string fallback', async () => {
-    // A supplier provisioned with only a name has null contact fields; the form
-    // inputs are controlled and cannot hold null, so populate falls each back to ''.
-    // contactName and phone submit as '' unchanged; email is different — an empty
-    // string is not a valid address, so the schema's .email().catch(null) coerces
-    // it back to null on submit. That asymmetry is intended, not a bug.
+    // Controlled inputs cannot hold null, so populate maps null contact fields to ''.
+    // contactName and phone submit as ''; email's .email().catch(null) turns '' back
+    // into null (intended).
     const bare = supplierRow({ contactName: null, phone: null, email: null });
     const { result } = renderHook(() => useEditSupplierFormState());
     let submitted: EditSupplierForm | undefined;

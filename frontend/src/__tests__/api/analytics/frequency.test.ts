@@ -1,6 +1,6 @@
 /**
  * @file frequency.test.ts
- * @module tests/api/analytics/frequency
+ * @module __tests__/api/analytics/frequency
  * @description Contract tests for getItemUpdateFrequency (api/analytics/frequency).
  *
  * Contract under test:
@@ -37,13 +37,10 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
 
   describe('input gating', () => {
     it('returns [] when supplierId is empty (no http call)', async () => {
-      // Arrange
       const supplierId = '';
 
-      // Act
       const res = await getItemUpdateFrequency(supplierId);
 
-      // Assert
       expect(res).toEqual([]);
       expect(httpGet).not.toHaveBeenCalled();
     });
@@ -51,18 +48,15 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
 
   describe('response normalization', () => {
     it('returns [] when response is not an array of records', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({ data: { nope: true } });
 
-      // Act
       const res = await getItemUpdateFrequency('SUP-001');
 
-      // Assert
       expect(res).toEqual([]);
     });
 
     it('maps ItemUpdateFrequencyDTO and keys each row by its item name', async () => {
-      // Arrange: the DTO is (itemName, updateCount) and has no id.
+      // The DTO is (itemName, updateCount) and has no id.
       httpGet.mockResolvedValueOnce({
         data: [
           { itemName: 'Item A', updateCount: 3 },
@@ -71,10 +65,8 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
         ],
       });
 
-      // Act
       const res = await getItemUpdateFrequency('SUP-001', 10);
 
-      // Assert
       expect(httpGet).toHaveBeenCalledTimes(1);
       expect(httpGet).toHaveBeenCalledWith('/api/analytics/item-update-frequency', {
         params: { supplierId: 'SUP-001' },
@@ -88,7 +80,6 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
     });
 
     it('filters out records without a name', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
           { updateCount: 1 },
@@ -96,15 +87,12 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
         ],
       });
 
-      // Act
       const res = await getItemUpdateFrequency('SUP-001', 10);
 
-      // Assert
       expect(res).toEqual([{ id: 'Good', name: 'Good', updates: 2 }]);
     });
 
     it('applies limit by slicing after parsing', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
           { itemName: 'A', updateCount: 1 },
@@ -113,10 +101,8 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
         ],
       });
 
-      // Act
       const res = await getItemUpdateFrequency('SUP-001', 2);
 
-      // Assert
       expect(res).toEqual([
         { id: 'A', name: 'A', updates: 1 },
         { id: 'B', name: 'B', updates: 2 },
@@ -126,13 +112,10 @@ describe('api/analytics/frequency.getItemUpdateFrequency', () => {
 
   describe('transport failures', () => {
     it('returns [] when http throws', async () => {
-      // Arrange
       httpGet.mockRejectedValueOnce(new Error('network'));
 
-      // Act
       const res = await getItemUpdateFrequency('SUP-001');
 
-      // Assert
       expect(res).toEqual([]);
     });
   });

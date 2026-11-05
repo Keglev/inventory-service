@@ -1,6 +1,6 @@
 /**
  * @file LowStockAlertSection.test.tsx
- * @module __tests__/app/layout/header/notifications
+ * @module __tests__/app/layout/header/notifications/LowStockAlertSection
  *
  * @description
  * Unit tests for <LowStockAlertSection /> — displays an alert when items are below minimum stock.
@@ -8,7 +8,7 @@
  * Responsibilities:
  * - Render an alert title.
  * - Render a message containing the dynamic low-stock count.
- * - Show the count once: the former chip repeated it ("X items below minimum") and is gone (FW5).
+ * - Show the count once, in the message (no count chip).
  *
  * Test strategy:
  * - Verify baseline rendering (title, icon, no chip).
@@ -17,7 +17,7 @@
  *
  * Notes:
  * - i18n interpolation is mocked in a minimal way to support `{{count}}` placeholders.
- * - Styling is asserted only for the S2-8 contrast colours (title and link per mode); the
+ * - Styling is asserted only for the contrast colours (title and link per mode); the
  *   icon is a stub in Vitest, so its colour is proven by a live measurement instead.
  */
 
@@ -30,9 +30,6 @@ import { ThemeProvider } from '@mui/material/styles';
 import { buildTheme } from '@/theme';
 import LowStockAlertSection from '@/app/layout/header/notifications/LowStockAlertSection';
 
-// -----------------------------------------------------------------------------
-// i18n mock
-// -----------------------------------------------------------------------------
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
@@ -52,16 +49,13 @@ describe('LowStockAlertSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Default deterministic translation stub: return defaultValue with count interpolation.
+    // tEn resolves keys against the real English locale files.
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // Rendering: baseline structure
-  // ---------------------------------------------------------------------------
   it('renders the low stock alert title', () => {
     arrange(5);
     expect(screen.getByText('Alert: items below minimum')).toBeInTheDocument();
@@ -83,9 +77,6 @@ describe('LowStockAlertSection', () => {
     expect(screen.queryByText('5 items below minimum')).not.toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // Count rendering: message
-  // ---------------------------------------------------------------------------
   it.each([
     [0, 'You have 0 item(s) below minimum', '0 items below minimum'],
     [1, 'You have 1 item(s) below minimum', '1 items below minimum'],
@@ -100,9 +91,6 @@ describe('LowStockAlertSection', () => {
     },
   );
 
-  // ---------------------------------------------------------------------------
-  // i18n wiring
-  // ---------------------------------------------------------------------------
   it('renders translated title when provided by i18n', () => {
     const mockT = vi.fn((key: string, options?: TOptions) => {
       if (key === 'notifications.lowStockAlert') return 'Warnung: Artikel unter Mindestbestand';
@@ -123,7 +111,7 @@ describe('LowStockAlertSection', () => {
     expect(mockT).toHaveBeenCalledWith('notifications.lowStockAlert');
   });
 
-  // The count alone named no items; the link opens the list (C6).
+  // The count alone named no items; the link opens the list.
   it('links to every item below minimum and reports the click', async () => {
     const onShowAll = vi.fn();
     render(<LowStockAlertSection lowStockCount={5} onShowAll={onShowAll} />, { wrapper: MemoryRouter });
@@ -134,7 +122,7 @@ describe('LowStockAlertSection', () => {
     expect(onShowAll).toHaveBeenCalledTimes(1);
   });
 
-  // S2-8: on the warning tint, warning.main title text and the default link blue fell below 4.5:1.
+  // On the warning tint, warning.main title text and the default link blue fall below 4.5:1.
   // The theme emits CSS variables, so a palette token resolves to its var(); a value read
   // from the palette in a function arrives as the colour itself.
   it.each(['light', 'dark'] as const)('draws the title and the link in contrast-safe colours when the theme is %s', (mode) => {

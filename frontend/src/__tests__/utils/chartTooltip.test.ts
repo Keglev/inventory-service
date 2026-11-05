@@ -1,6 +1,6 @@
 /**
  * @file chartTooltip.test.ts
- * @module tests/utils/chartTooltip
+ * @module __tests__/utils/chartTooltip
  * @description Unit test for chartTooltipProps: maps MUI theme tokens onto Recharts tooltip styles.
  */
 import { describe, it, expect } from 'vitest';
@@ -24,7 +24,7 @@ describe('utils/chartTooltip.chartTooltipProps', () => {
     expect(props.labelStyle.color).toBe('#eee');
   });
 
-  // Series colours fall below 4.5:1 as text on the tooltip surface (LO-2).
+  // Series colours fall below 4.5:1 as text on the tooltip surface.
   it('draws item names and values in the text token', () => {
     const theme = {
       palette: {

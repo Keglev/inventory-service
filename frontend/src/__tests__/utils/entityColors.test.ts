@@ -1,6 +1,6 @@
 /**
  * @file entityColors.test.ts
- * @module tests/utils/entityColors
+ * @module __tests__/utils/entityColors
  * @testing Unit tests for colorsByKey.
  * @description
  * Contract under test:

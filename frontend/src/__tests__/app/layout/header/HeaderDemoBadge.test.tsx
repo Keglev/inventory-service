@@ -53,8 +53,7 @@ describe('HeaderDemoBadge', () => {
       const { container } = renderBadge(true);
 
       expect(container.querySelector('.MuiChip-colorWarning')).toBeInTheDocument();
-      // Filled visual pass: the outlined variant was
-      // near-invisible on the dark header.
+      // Filled, because an outlined chip is near-invisible on the dark header.
       expect(container.querySelector('.MuiChip-filled')).toBeInTheDocument();
     });
   });

@@ -1,6 +1,6 @@
 /**
  * @file priceTrend.test.ts
- * @module tests/api/analytics/priceTrend
+ * @module __tests__/api/analytics/priceTrend
  * @description Contract tests for getPriceTrend (api/analytics/priceTrend).
  *
  * Contract under test:
@@ -37,13 +37,10 @@ describe('api/analytics/priceTrend.getPriceTrend', () => {
 
   describe('input gating', () => {
     it('returns [] when itemId is empty (no http call)', async () => {
-      // Arrange
       const itemId = '';
 
-      // Act
       const res = await getPriceTrend(itemId);
 
-      // Assert
       expect(res).toEqual([]);
       expect(httpGet).not.toHaveBeenCalled();
     });
@@ -51,7 +48,6 @@ describe('api/analytics/priceTrend.getPriceTrend', () => {
 
   describe('request contract', () => {
     it('calls endpoint with itemId + cleaned params', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({ data: [] });
 
       const params: AnalyticsParams = {
@@ -60,10 +56,8 @@ describe('api/analytics/priceTrend.getPriceTrend', () => {
         supplierId: 'SUP-001',
       };
 
-      // Act
       await getPriceTrend('ITEM-123', params);
 
-      // Assert
       expect(httpGet).toHaveBeenCalledWith('/api/analytics/price-trend', {
         params: {
           itemId: 'ITEM-123',
@@ -77,18 +71,14 @@ describe('api/analytics/priceTrend.getPriceTrend', () => {
 
   describe('response parsing contract', () => {
     it('returns [] when backend data is not an array', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({ data: { nope: true } });
 
-      // Act
       const res = await getPriceTrend('ITEM-123');
 
-      // Assert
       expect(res).toEqual([]);
     });
 
     it('maps rows (timestamp->date, price->number) and sorts by date asc', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
           { timestamp: '2025-10-03', price: '12.5' },
@@ -99,10 +89,8 @@ describe('api/analytics/priceTrend.getPriceTrend', () => {
         ],
       });
 
-      // Act
       const res = await getPriceTrend('ITEM-123');
 
-      // Assert
       expect(res).toEqual([
         { date: '', price: 3 },
         { date: '2025-10-01', price: 10 },
@@ -114,13 +102,10 @@ describe('api/analytics/priceTrend.getPriceTrend', () => {
 
   describe('transport failures', () => {
     it('returns [] when http throws', async () => {
-      // Arrange
       httpGet.mockRejectedValueOnce(new Error('network'));
 
-      // Act
       const res = await getPriceTrend('ITEM-123');
 
-      // Assert
       expect(res).toEqual([]);
     });
   });

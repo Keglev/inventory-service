@@ -6,7 +6,6 @@
  * Contract under test:
  * - Renders children and provides settings via context.
  * - Hydrates user preferences from localStorage (or falls back to defaults on corruption).
- * - Fetches system info on mount; failure path provides stable fallback and logs a warning.
  *
  * Out of scope:
  * - Storage helper implementation details (covered by `SettingsStorage.test.ts`).
@@ -15,7 +14,7 @@
  * Test strategy:
  * - Use a probe component that consumes the context via `useSettings` (real consumer path).
  * - Stub `localStorage` explicitly for determinism.
- * - No network: the provider no longer fetches system info (FW5 fork 3).
+ * - No network: the provider fetches nothing (system info comes from the shared health query).
  */
 
 import React from 'react';

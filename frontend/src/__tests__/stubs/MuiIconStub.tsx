@@ -1,6 +1,6 @@
 /**
  * @file MuiIconStub.tsx
- * @module tests/stubs/MuiIconStub
+ * @module __tests__/stubs/MuiIconStub
  * @description Test stub for MUI SVG icon components.
  *
  * Purpose:

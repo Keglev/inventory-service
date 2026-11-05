@@ -6,7 +6,7 @@
  * Contract under test:
  * - Renders the three filter controls: supplier select, search input, below-min checkbox.
  * - Search input is controlled and emits updates via `setQ(next)`.
- * - Supplier field: typed search from two letters (S2-9); empty means all suppliers
+ * - Supplier field: typed search from two letters; empty means all suppliers
  *   (placeholder "All suppliers"); a pick emits its id, clearing emits null.
  * - Checkbox reflects `belowMinOnly` and emits boolean updates.
  * - The supplier field stays enabled while supplier data loads.
@@ -17,7 +17,7 @@
  *
  * Test strategy:
  * - Use the shared test-utils `render` for required providers.
- * - Use deterministic i18n fallbacks for stable accessible names.
+ * - Mock i18n with tEn, so accessible names are the real English labels.
  * - Use a controlled harness where needed to accurately simulate controlled inputs.
  */
 
@@ -31,10 +31,6 @@ import { InventoryFilterPanel } from '@/pages/inventory/components/InventoryFilt
 import type { SupplierOption } from '@/api/analytics/types';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// Hoisted mocks
-// -----------------------------------------------------------------------------
-
 const mockSetQ = vi.fn();
 const mockSetSupplierId = vi.fn();
 const mockSetBelowMinOnly = vi.fn();
@@ -44,10 +40,6 @@ vi.mock('react-i18next', () => ({
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
-
-// -----------------------------------------------------------------------------
-// Test helpers
-// -----------------------------------------------------------------------------
 
 const suppliersFixture: SupplierOption[] = [
   { id: '1', label: 'Supplier A' },
@@ -103,10 +95,6 @@ const ControlledHarness: React.FC<
   );
 };
 
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
-
 describe('InventoryFilterPanel', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -148,7 +136,7 @@ describe('InventoryFilterPanel', () => {
     expect(mockSetQ).toHaveBeenLastCalledWith('widget');
   });
 
-  // S2-9: the supplier is picked by typing, as in the item pickers; an empty field means all.
+  // The supplier is picked by typing, as in the item pickers; an empty field means all.
   it('shows "All suppliers" in the empty supplier field', () => {
     setup();
 

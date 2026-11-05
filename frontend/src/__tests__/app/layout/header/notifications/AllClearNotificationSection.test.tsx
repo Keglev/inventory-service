@@ -1,6 +1,6 @@
 /**
  * @file AllClearNotificationSection.test.tsx
- * @module __tests__/app/layout/header/notifications
+ * @module __tests__/app/layout/header/notifications/AllClearNotificationSection
  *
  * @description
  * Unit tests for <AllClearNotificationSection /> — the "no issues" state shown when
@@ -22,9 +22,6 @@ import { render, screen } from '@testing-library/react';
 import AllClearNotificationSection from '@/app/layout/header/notifications/AllClearNotificationSection';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// i18n mock
-// -----------------------------------------------------------------------------
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
@@ -37,7 +34,7 @@ describe('AllClearNotificationSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Deterministic translation stub: return defaultValue for stable assertions.
+    // tEn resolves keys against the real English locale files.
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },

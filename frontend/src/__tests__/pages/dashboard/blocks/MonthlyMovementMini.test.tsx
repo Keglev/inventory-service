@@ -26,12 +26,9 @@ import { createTestQueryClient } from '@/__tests__/test/queryClient';
 import MonthlyMovementMini from '@/pages/dashboard/blocks/MonthlyMovementMini';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -------------------------------------
-// Deterministic mocks
-// -------------------------------------
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    // Prefer defaultValue for stable user-visible copy where used.
+    // tEn resolves keys against the real English locale files.
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
     i18n: { language: 'en' },
   }),
@@ -149,10 +146,6 @@ let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 let lastXTickFormatter: ((v: string) => string) | null = null;
 let lastTooltipLabelFormatter: ((v: string) => string) | null = null;
 
-// -------------------------------------
-// Helpers
-// -------------------------------------
-
 function renderMonthlyMovementMini(queryClient: QueryClient) {
   return render(
     <QueryClientProvider client={queryClient}>
@@ -218,10 +211,8 @@ describe('MonthlyMovementMini', () => {
   });
 
   it('tolerates an empty payload and formats axis/tooltip values', async () => {
-    // getMonthlyStockMovement is typed Promise<MonthlyMovement[]> and returns []
-    // on a non-array body and on any thrown error, so undefined is unreachable.
-    // Stubbing it here forced a state production cannot produce and made TanStack
-    // Query warn that a query function must not resolve undefined.
+    // getMonthlyStockMovement returns [] on a non-array body and on any error, so
+    // [] is the empty payload; undefined is unreachable (and TanStack Query warns on it).
     mockGetMonthlyStockMovement.mockResolvedValue([]);
 
     renderMonthlyMovementMini(queryClient);

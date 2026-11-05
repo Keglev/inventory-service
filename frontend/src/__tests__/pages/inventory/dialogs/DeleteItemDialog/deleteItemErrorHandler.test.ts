@@ -14,10 +14,6 @@ import type { TFunction } from 'i18next';
 
 import { handleDeleteError } from '@/pages/inventory/dialogs/DeleteItemDialog/deleteItemErrorHandler';
 
-// -------------------------------------
-// Helpers
-// -------------------------------------
-
 type TSpy = ReturnType<typeof vi.fn<(key: string) => string>>;
 
 /**

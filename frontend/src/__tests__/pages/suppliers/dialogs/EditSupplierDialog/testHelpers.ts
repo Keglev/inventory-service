@@ -1,6 +1,6 @@
 /**
  * @file testHelpers.ts
- * @module tests/pages/suppliers/dialogs/EditSupplierDialog/testHelpers
+ * @module __tests__/pages/suppliers/dialogs/EditSupplierDialog/testHelpers
  * @description Small, local test helpers for the EditSupplierDialog test directory.
  *
  * Rationale:

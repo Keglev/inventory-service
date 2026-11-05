@@ -1,6 +1,6 @@
 /**
  * @file storageKeys.test.ts
- * @module tests/config/storageKeys
+ * @module __tests__/config/storageKeys
  * @description Contract tests for the browser-storage keys.
  *
  * Contract under test:

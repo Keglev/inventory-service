@@ -61,7 +61,6 @@ describe('useSearchHandlers', () => {
 
     handlers.handleSearchChange('acme');
 
-    // Assert
     expect(state.setSearchQuery).toHaveBeenCalledWith('acme');
     expect(state.setSelectedSearchResult).toHaveBeenCalledWith(null);
     expect(state.setSelectedId).toHaveBeenCalledWith(null);
@@ -76,7 +75,6 @@ describe('useSearchHandlers', () => {
     // Orchestration-only: verify setters receive the correct supplier-derived values.
     handlers.handleSearchResultSelect(supplier);
 
-    // Assert
     expect(state.setSelectedSearchResult).toHaveBeenCalledWith(supplier);
     expect(state.setSelectedId).toHaveBeenCalledWith('123');
     expect(state.setSearchQuery).toHaveBeenCalledWith('Acme Corp');
@@ -93,7 +91,6 @@ describe('useSearchHandlers', () => {
 
     handlers.handleClearSearchSelection();
 
-    // Assert
     expect(state.setSelectedSearchResult).toHaveBeenCalledWith(null);
     expect(state.setSelectedId).toHaveBeenCalledWith(null);
     expect(state.setSearchQuery).toHaveBeenCalledWith('');

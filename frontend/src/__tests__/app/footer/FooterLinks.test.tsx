@@ -1,6 +1,6 @@
 /**
  * @file FooterLinks.test.tsx
- * @module tests/app/footer/FooterLinks
+ * @module __tests__/app/footer/FooterLinks
  * @description Contract tests for FooterLinks.
  *
  * Contract under test:
@@ -21,9 +21,6 @@ import { buildTheme } from '@/theme';
 import FooterLinks from '@/app/footer/FooterLinks';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// i18n mock
-// -----------------------------------------------------------------------------
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
@@ -44,7 +41,7 @@ describe('FooterLinks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Deterministic translation stub: return defaultValue to keep assertions stable.
+    // tEn resolves keys against the real English locale files.
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },

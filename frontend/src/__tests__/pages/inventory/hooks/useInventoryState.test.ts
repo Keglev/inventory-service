@@ -21,10 +21,6 @@ import { createElement } from 'react';
 import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { useInventoryState } from '@/pages/inventory/hooks/useInventoryState';
 
-// -----------------------------------------------------------------------------
-// Test helpers
-// -----------------------------------------------------------------------------
-
 function setup() {
   // The hook reads ?belowMinimum from the URL, so it runs inside a router.
   return renderHook(() => useInventoryState(), { wrapper: MemoryRouter });
@@ -180,7 +176,7 @@ describe('useInventoryState', () => {
     expect(result.current.openNew).toBe(true);
   });
 
-  // The bell links to /inventory?belowMinimum=1 (C6).
+  // The bell links to /inventory?belowMinimum=1.
   it('starts with the below-minimum filter across all suppliers from the bell link', () => {
     const { result } = renderHook(() => useInventoryState(), {
       wrapper: ({ children }) => createElement(MemoryRouter, { initialEntries: ['/inventory?belowMinimum=1'] }, children),

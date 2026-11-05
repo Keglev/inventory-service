@@ -17,11 +17,8 @@ import type { SupplierRef } from '@/api/analytics/types';
 import { Filters } from '@/pages/analytics/components/filters/Filters';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// B2: provide a react-i18next mock so useTranslation resolves without an
-// i18n instance in this suite, silencing the NO_I18NEXT_INSTANCE warning. The stub
-// mirrors react-i18next's no-instance fallback exactly — it returns an explicit string
-// fallback / options.defaultValue when supplied, otherwise the key — so rendered text
-// (and therefore every assertion) is unchanged.
+// tEn resolves keys against the real English locale files, so assertions read
+// the text users see.
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),

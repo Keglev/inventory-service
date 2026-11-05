@@ -1,6 +1,6 @@
 /**
  * @file itemSearch.search.test.ts
- * @module tests/api/shared/itemSearch.search
+ * @module __tests__/api/shared/itemSearch.search
  * @description Contract tests for searchItemsGlobal / searchItemsForSupplier /
  * listItemsForSupplier.
  *

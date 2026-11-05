@@ -25,9 +25,6 @@ import type { UseDeleteItemQueriesReturn } from '@/pages/inventory/dialogs/Delet
 import { useDeleteItemHandlers } from '@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const tSpy = vi.hoisted(() => vi.fn((key: string, options?: Record<string, unknown>) => tEn(key, options)));
 const toastSpy = vi.hoisted(() => vi.fn());
 const deleteItemSpy = vi.hoisted(() => vi.fn());
@@ -49,9 +46,6 @@ vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/deleteItemErrorHandler', () 
   handleDeleteError: (...args: unknown[]) => handleDeleteErrorSpy(...args),
 }));
 
-// -------------------------------------
-// Fixtures / helpers
-// -------------------------------------
 function createQueries(): UseDeleteItemQueriesReturn {
   // Only consumed as a data bag by handlers; exact React Query union shape is out of scope.
   return ({

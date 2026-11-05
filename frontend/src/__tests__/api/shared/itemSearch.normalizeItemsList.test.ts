@@ -1,6 +1,6 @@
 /**
  * @file itemSearch.normalizeItemsList.test.ts
- * @module tests/api/shared/itemSearch.normalizeItemsList
+ * @module __tests__/api/shared/itemSearch.normalizeItemsList
  * @description Contract tests for normalizeItemsList (api/shared).
  *
  * Contract under test:

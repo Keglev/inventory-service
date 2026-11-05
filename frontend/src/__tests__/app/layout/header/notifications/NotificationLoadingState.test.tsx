@@ -1,6 +1,6 @@
 /**
  * @file NotificationLoadingState.test.tsx
- * @module __tests__/app/layout/header/notifications
+ * @module __tests__/app/layout/header/notifications/NotificationLoadingState
  *
  * @description
  * Unit tests for <NotificationLoadingState /> — skeleton UI displayed while notification
@@ -21,9 +21,6 @@ import { render } from '@testing-library/react';
 import NotificationLoadingState from '@/app/layout/header/notifications/NotificationLoadingState';
 
 describe('NotificationLoadingState', () => {
-  /**
-   * Arrange helper: render once per test to keep queries consistent and explicit.
-   */
   const arrange = () => render(<NotificationLoadingState />);
 
   it('renders skeleton placeholders', () => {

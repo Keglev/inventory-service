@@ -1,6 +1,6 @@
 /**
  * @file chartLegendStandard.test.ts
- * @module tests/utils/chartLegendStandard
+ * @module __tests__/utils/chartLegendStandard
  * @description Contract test: every Recharts Legend declares its item order, and so does
  *   the tooltip of every line or bar chart with a legend. Recharts 3
  *   sorts legend items alphabetically by label by default, so an undeclared order

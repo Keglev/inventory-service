@@ -1,6 +1,6 @@
 /**
  * @file updates.test.ts
- * @module tests/api/analytics/updates
+ * @module __tests__/api/analytics/updates
  * @description Contract tests for getStockUpdates (api/analytics/updates).
  *
  * Contract under test:
@@ -36,10 +36,8 @@ describe('api/analytics/updates.getStockUpdates', () => {
 
   describe('request contract', () => {
     it('sends no row limit and applies day boundaries to dates', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({ data: [] });
 
-      // Act
       await getStockUpdates({
         from: '2025-10-01',
         to: '2025-10-31',
@@ -47,7 +45,6 @@ describe('api/analytics/updates.getStockUpdates', () => {
         itemName: 'Widget',
       });
 
-      // Assert
       expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-updates', {
         params: {
           startDate: '2025-10-01T00:00:00',
@@ -59,10 +56,8 @@ describe('api/analytics/updates.getStockUpdates', () => {
     });
 
     it('omits empty optional fields', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({ data: [] });
 
-      // Act
       await getStockUpdates({
         from: '2025-10-01',
         to: '2025-10-02',
@@ -70,7 +65,6 @@ describe('api/analytics/updates.getStockUpdates', () => {
         itemName: '',
       });
 
-      // Assert
       expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-updates', {
         params: {
           startDate: '2025-10-01T00:00:00',
@@ -84,18 +78,14 @@ describe('api/analytics/updates.getStockUpdates', () => {
 
   describe('response parsing contract', () => {
     it('returns [] when backend data is not an array of records', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({ data: { nope: true } });
 
-      // Act
       const res = await getStockUpdates({ from: '2025-10-01', to: '2025-10-31' });
 
-      // Assert
       expect(res).toEqual([]);
     });
 
     it('maps StockUpdateResultDTO fields and drops rows without timestamp or item name', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
           { timestamp: '2025-10-01T12:00:00', itemName: 'Item A', change: '5', reason: 'restock', createdBy: 'carlos' },
@@ -105,10 +95,8 @@ describe('api/analytics/updates.getStockUpdates', () => {
         ],
       });
 
-      // Act
       const res = await getStockUpdates();
 
-      // Assert
       expect(res).toEqual([
         {
           timestamp: '2025-10-01T12:00:00',
@@ -128,17 +116,14 @@ describe('api/analytics/updates.getStockUpdates', () => {
     });
 
     it('normalizes empty optional fields to undefined', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
           { timestamp: '2025-10-01T12:00:00', itemName: 'Item A', change: 1, reason: '', createdBy: '' },
         ],
       });
 
-      // Act
       const res = await getStockUpdates();
 
-      // Assert
       expect(res).toEqual([
         {
           timestamp: '2025-10-01T12:00:00',
@@ -153,13 +138,10 @@ describe('api/analytics/updates.getStockUpdates', () => {
 
   describe('transport failures', () => {
     it('returns [] when http throws', async () => {
-      // Arrange
       httpGet.mockRejectedValueOnce(new Error('network'));
 
-      // Act
       const res = await getStockUpdates({ from: '2025-10-01', to: '2025-10-31' });
 
-      // Assert
       expect(res).toEqual([]);
     });
   });

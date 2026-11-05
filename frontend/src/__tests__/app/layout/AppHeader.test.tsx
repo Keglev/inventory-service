@@ -96,7 +96,7 @@ describe('AppHeader', () => {
       onAboutOpen: baseProps.onAboutOpen,
       onLogout: baseProps.onLogout,
     });
-    // Settings opens from the sidebar since FW6; the toolbar gets no handler for it.
+    // Settings opens from the sidebar; the toolbar gets no handler for it.
     expect(lastToolbarProps).not.toHaveProperty('onSettingsOpen');
   });
 

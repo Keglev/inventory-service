@@ -41,10 +41,6 @@ vi.mock('@/hooks/useSettings', () => ({
   }),
 }));
 
-// -----------------------------------------------------------------------------
-// Mocks (blocks + page-level dependencies)
-// -----------------------------------------------------------------------------
-
 vi.mock('@/pages/analytics/blocks/StockValueCard', () => ({
   default: () => <div data-testid="stock-value-card">StockValueCard</div>,
 }));
@@ -110,10 +106,6 @@ const filtersDisabled = () => vi.mocked(Filters).mock.lastCall?.[0].disabled;
 /** Waits until the supplier list has loaded: loading alone also disables the filters. */
 const settled = (client: QueryClient) => waitFor(() => expect(client.isFetching()).toBe(0));
 
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
-
 
 function setup(client: QueryClient, initialRoute = '/analytics') {
   return render(
@@ -126,10 +118,6 @@ function setup(client: QueryClient, initialRoute = '/analytics') {
     </QueryClientProvider>,
   );
 }
-
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
 
 describe('Analytics', () => {
   let queryClient: QueryClient;
@@ -156,7 +144,7 @@ describe('Analytics', () => {
   });
 
   it('reads the supplier filter from the shared supplier list cache', async () => {
-    // Supplier writes invalidate ['suppliers']; a private key here went stale (NF-33).
+    // Supplier writes invalidate ['suppliers']; a private key here would go stale.
     setup(queryClient, '/analytics');
     await waitFor(() => expect(queryClient.getQueryState(['suppliers', 'list'])?.status).toBe('success'));
   });

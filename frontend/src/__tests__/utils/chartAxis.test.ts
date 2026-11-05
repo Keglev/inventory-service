@@ -1,6 +1,6 @@
 /**
  * @file chartAxis.test.ts
- * @module tests/utils/chartAxis
+ * @module __tests__/utils/chartAxis
  * @description Axis tick labels take the secondary text token; other tick attributes pass
  *   through, and the theme's fill wins over a caller's. Sibling: chartAxisStandard.test.ts
  *   (every chart axis uses the helper).

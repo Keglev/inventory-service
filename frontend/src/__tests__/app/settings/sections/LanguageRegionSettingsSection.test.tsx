@@ -5,7 +5,7 @@
  * Tests for LanguageRegionSettingsSection.
  *
  * Scope:
- * - Renders the UI language choice (endonyms, FW5) and the date and number format options
+ * - Renders the UI language choice (endonyms) and the date and number format options
  * - Number-format labels come from i18n (no hard-coded English)
  * - Shows preview examples (via formatter utilities)
  * - Delegates changes to the provided callbacks

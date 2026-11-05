@@ -8,7 +8,7 @@
  *   null MUI emits when the active button is re-clicked.
  * - Loading renders a skeleton; empty data renders the empty message.
  * - One Line series renders per employee with the display name (function
- *   dataKey accessor -- emails contain dots, locked lesson).
+ *   dataKey accessor: emails contain dots).
  *
  * Out of scope:
  * - The pivot, queries, and pagination (useEmployeesSectionData and

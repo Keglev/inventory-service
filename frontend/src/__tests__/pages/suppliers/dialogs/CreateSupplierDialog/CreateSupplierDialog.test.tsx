@@ -19,7 +19,7 @@
  * Test strategy:
  * - Deterministic module mocks via `vi.hoisted` (no implicit globals).
  * - `SupplierFormFields` is mocked as a spy-only boundary: we assert props, not MUI internals.
- * - i18n `t()` returns `fallback`/defaultValue to keep text assertions stable across locales.
+ * - i18n `t()` is tEn, so text assertions read the real English copy.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -35,9 +35,6 @@ type SupplierFormFieldsProps = {
   formError: string | null;
 };
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mocks = vi.hoisted(() => ({
   useCreateSupplierForm: vi.fn(),
   supplierFormFieldsSpy: vi.fn(),
@@ -62,7 +59,7 @@ vi.mock('@/hooks/useHelp', () => ({
 }));
 
 vi.mock('react-i18next', () => ({
-  // Prefer fallback/defaultValue so assertions don't depend on translation files.
+  // tEn resolves keys against the real English locale files.
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
@@ -84,9 +81,6 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-// -------------------------------------
-// Test helpers
-// -------------------------------------
 const renderDialog = (overrides?: {
   open?: boolean;
   onClose?: () => void;
@@ -112,7 +106,6 @@ describe('CreateSupplierDialog', () => {
 
     expect(mocks.useCreateSupplierForm).toHaveBeenCalledWith(onCreated);
 
-    // Title uses defaultValue "Create Supplier" (stable contract for UX).
     expect(screen.getByRole('heading', { name: /Add Supplier/ })).toBeInTheDocument();
 
     // Field boundary: we only verify the dialog passes the hook's public contract through.

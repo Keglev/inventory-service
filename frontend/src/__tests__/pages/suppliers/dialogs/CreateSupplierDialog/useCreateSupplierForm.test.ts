@@ -32,9 +32,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import type { CreateSupplierForm } from '@/api/suppliers/validation';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mocks = vi.hoisted(() => ({
   createSupplier: vi.fn(),
   register: vi.fn(),
@@ -58,7 +55,7 @@ vi.mock('@hookform/resolvers/zod', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    // Prefer defaultValue when provided; otherwise return key.
+    // tEn resolves keys against the real English locale files.
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));

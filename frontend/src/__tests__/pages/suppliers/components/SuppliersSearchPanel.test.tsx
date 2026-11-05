@@ -114,8 +114,7 @@ describe('SuppliersSearchPanel', () => {
     // The field's results are hidden while a supplier is selected.
     expect(fieldSpy).toHaveBeenLastCalledWith(expect.objectContaining({ suppressResults: true }));
 
-    // Compact indicator: name + clear action only; the detail card was
-    // removed as redundant with the table row.
+    // Compact indicator: name + clear action only; the table row shows the details.
     expect(screen.getByText('Supplier A')).toBeInTheDocument();
     expect(screen.queryByText(/Contact:\s*John Doe/)).not.toBeInTheDocument();
     expect(screen.queryByText('123-456-7890')).not.toBeInTheDocument();

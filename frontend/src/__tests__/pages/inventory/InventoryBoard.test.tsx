@@ -152,7 +152,7 @@ describe('InventoryBoard', () => {
     });
   });
 
-  // S2-9: without a supplier the board lists the stock of all suppliers.
+  // Without a supplier the board lists the stock of all suppliers.
   it('shows the table without a supplier and no select-supplier prompt', async () => {
     const { useInventoryState } = await import('@/pages/inventory/hooks/useInventoryState');
     vi.mocked(useInventoryState).mockReturnValue({
@@ -172,7 +172,7 @@ describe('InventoryBoard', () => {
     expect(screen.queryByText(/Select a supplier to see its items/)).not.toBeInTheDocument();
   });
 
-  // All items below minimum across suppliers (C6): no supplier needed for the grid.
+  // All items below minimum across suppliers: no supplier needed for the grid.
   it('shows the table without a supplier when below minimum is ticked', async () => {
     const { useInventoryState } = await import('@/pages/inventory/hooks/useInventoryState');
     vi.mocked(useInventoryState).mockReturnValue({

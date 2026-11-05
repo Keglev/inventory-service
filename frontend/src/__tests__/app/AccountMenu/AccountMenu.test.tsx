@@ -3,7 +3,7 @@
  * @module __tests__/app/AccountMenu/AccountMenu
  * @testing Vitest + React Testing Library; real profile section and sign-out item, useAuth mocked
  * @description
- * The avatar menu that replaced the hamburger user menu (FW6 UX-1):
+ * The avatar menu (the user menu in the header):
  * - initials from the signed-in user's name, a person icon when there is none
  * - accessible name "Account" and the full name as the button title
  * - menu contents: profile, About, sign-out; no settings entry

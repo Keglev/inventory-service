@@ -8,7 +8,7 @@
  * - When a provider is present, `useSettings()` returns the exact context value.
  *
  * Out of scope:
- * - `SettingsProvider` behavior (system info fetch, localStorage persistence, i18n sync).
+ * - `SettingsProvider` behavior (localStorage persistence, i18n sync).
  * - Consumer logic (components that read settings values).
  *
  * Test strategy:

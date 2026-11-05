@@ -73,7 +73,7 @@ vi.mock('@/features/help/components/HelpIconButton', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    // Prefer fallback text for stable assertions.
+    // tEn resolves keys against the real English locale files.
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));

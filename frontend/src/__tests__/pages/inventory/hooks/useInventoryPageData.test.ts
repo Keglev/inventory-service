@@ -5,7 +5,7 @@
  * columns + row styling composition).
  *
  * Contract under test:
- * - No supplier selected: the stock of all suppliers is fetched, paged (S2-9).
+ * - No supplier selected: the stock of all suppliers is fetched, paged.
  * - Supplier selected: getInventoryPage is called with the debounced query,
  *   forwarded 0-based page, sort string, and below-minimum flag.
  * - Fetch failure: logs via logError and resets to an empty page for the
@@ -78,7 +78,7 @@ describe('useInventoryPageData', () => {
     getInventoryPageMock.mockResolvedValue(serverPage as never);
   });
 
-  // S2-9: the board no longer waits for a supplier before it lists stock.
+  // The board lists stock without waiting for a supplier.
   it('fetches the stock of all suppliers when no supplier is selected', async () => {
     const { result } = renderPageData(null);
 
@@ -175,7 +175,7 @@ describe('useInventoryPageData', () => {
     );
   });
 
-  // The bell's link lists every item below its minimum across suppliers (C6).
+  // The bell's link lists every item below its minimum across suppliers.
   it('fetches all suppliers below minimum when the filter is on without a supplier', async () => {
     const { result } = renderHook(() => useInventoryPageData(null, '', true, 0, 10, 'name,asc'), {
       wrapper: createQueryWrapper(),

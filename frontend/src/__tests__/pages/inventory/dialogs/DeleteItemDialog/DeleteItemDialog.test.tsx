@@ -26,9 +26,6 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => tEn(key, options) }),
 }));
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mockUseDeleteItemDialog = vi.hoisted(() => vi.fn());
 
 // Capture the props passed into DeleteItemContent for assertions.
@@ -45,9 +42,6 @@ vi.mock('@/pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog', () => 
   useDeleteItemDialog: (...args: unknown[]) => mockUseDeleteItemDialog(...args),
 }));
 
-// -------------------------------------
-// Helpers
-// -------------------------------------
 function renderDialog(props?: Partial<React.ComponentProps<typeof DeleteItemDialog>>) {
   const defaultProps: React.ComponentProps<typeof DeleteItemDialog> = {
     open: true,

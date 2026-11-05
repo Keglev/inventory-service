@@ -20,9 +20,6 @@ import userEvent from '@testing-library/user-event';
 import PublicShellToastContainer from '@/app/public-shell/PublicShellToastContainer';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// i18n mock
-// -----------------------------------------------------------------------------
 // The component calls useTranslation('common'). Without this the real hook runs
 // with no initialised instance and react-i18next logs NO_I18NEXT_INSTANCE.
 const mockUseTranslation = vi.hoisted(() => vi.fn());

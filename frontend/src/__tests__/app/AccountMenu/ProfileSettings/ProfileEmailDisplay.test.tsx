@@ -1,6 +1,6 @@
 /**
  * @file ProfileEmailDisplay.test.tsx
- * @module __tests__/app/AccountMenu/ProfileSettings
+ * @module __tests__/app/AccountMenu/ProfileSettings/ProfileEmailDisplay
  *
  * @description
  * Unit tests for <ProfileEmailDisplay /> — renders an email field in the profile section.
@@ -21,9 +21,6 @@ import { render, screen } from '@testing-library/react';
 import ProfileEmailDisplay from '@/app/AccountMenu/ProfileSettings/ProfileEmailDisplay';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// i18n mock
-// -----------------------------------------------------------------------------
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
@@ -50,24 +47,18 @@ describe('ProfileEmailDisplay', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Deterministic translation stub: return defaultValue for stable assertions.
+    // tEn resolves keys against the real English locale files.
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // Rendering: label
-  // ---------------------------------------------------------------------------
   it('renders the email label', () => {
     arrange();
     expect(screen.getByText('Email')).toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // Non-demo behavior
-  // ---------------------------------------------------------------------------
   it('displays the email when provided and not in demo mode', () => {
     arrange({ isDemo: false, email: 'user@example.com' });
     expect(screen.getByText('user@example.com')).toBeInTheDocument();
@@ -81,9 +72,6 @@ describe('ProfileEmailDisplay', () => {
     expect(screen.getByText('—')).toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // Demo behavior
-  // ---------------------------------------------------------------------------
   it('displays the demo message when demo mode is enabled', () => {
     arrange({ isDemo: true });
     expect(screen.getByText('Demo Account, No email provided')).toBeInTheDocument();
@@ -94,9 +82,6 @@ describe('ProfileEmailDisplay', () => {
     expect(screen.queryByText('user@example.com')).not.toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------------------
-  // i18n wiring
-  // ---------------------------------------------------------------------------
   it('renders translated email label when provided by i18n', () => {
     const mockT = vi.fn((key: string, defaultValue: string) => {
       if (key === 'common:email') return 'E-Mail';
@@ -134,9 +119,6 @@ describe('ProfileEmailDisplay', () => {
     );
   });
 
-  // ---------------------------------------------------------------------------
-  // Regression: long values
-  // ---------------------------------------------------------------------------
   it('renders long email addresses', () => {
     const longEmail = 'very.long.email.address@subdomain.example.com';
     arrange({ isDemo: false, email: longEmail });

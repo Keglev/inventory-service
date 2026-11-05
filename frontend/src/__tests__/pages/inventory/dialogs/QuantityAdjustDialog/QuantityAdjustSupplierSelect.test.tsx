@@ -3,7 +3,7 @@
  * @module __tests__/pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustSupplierSelect
  * @description Contract tests for QuantityAdjustSupplierSelect:
  * - Renders the supplier step UI.
- * - Typing two letters lists the matching suppliers (S2-9); a pick is emitted.
+ * - Typing two letters lists the matching suppliers; a pick is emitted.
  * - The field stays enabled while suppliers load; clearing emits null.
  *
  * Out of scope:

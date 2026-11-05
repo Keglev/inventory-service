@@ -19,10 +19,8 @@ import type { MonthlyMovement } from '@/api/analytics/types';
 import { getMonthlyStockMovement } from '@/api/analytics/stock';
 import MovementLineCard from '@/pages/analytics/blocks/MovementLineCard';
 
-// -----------------------------------------------------------------------------
 // Captures: chart data plus the formatter props, so the card's own callbacks
 // can be exercised (the inert recharts stubs would otherwise leave them dead).
-// -----------------------------------------------------------------------------
 
 let lastLineChartData: MonthlyMovement[] | null = null;
 let lastXTickFormatter: ((v: string | number) => string) | null = null;

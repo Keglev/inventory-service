@@ -1,6 +1,6 @@
 /**
  * @file AppFooter.test.tsx
- * @module tests/app/footer/AppFooter
+ * @module __tests__/app/footer/AppFooter
  * @description Contract tests for AppFooter.
  *
  * Contract under test:
@@ -21,9 +21,6 @@ import { buildTheme } from '@/theme';
 import AppFooter from '@/app/footer/AppFooter';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------
-// Mocks (hoisted so they are available to vi.mock factory)
-// -----------------------------
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 const mockUseFooterState = vi.hoisted(() => vi.fn());
 
@@ -35,9 +32,6 @@ vi.mock('@/app/footer/useFooterState', () => ({
   useFooterState: mockUseFooterState,
 }));
 
-// ----------------------------
-// Local types for the mocked hook return
-// ----------------------------
 type FooterHealth = {
   status: 'online' | 'offline';
   responseTime: number;
@@ -89,7 +83,7 @@ describe('AppFooter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Deterministic translation stub: returns defaultValue.
+    // tEn resolves keys against the real English locale files.
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
       i18n: { changeLanguage: vi.fn() },
@@ -98,9 +92,6 @@ describe('AppFooter', () => {
     mockUseFooterState.mockReturnValue(makeState());
   });
 
-  // -----------------------------
-  // Rendering
-  // -----------------------------
   it('renders a semantic footer landmark', () => {
     arrange();
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
@@ -124,9 +115,6 @@ describe('AppFooter', () => {
     expect(screen.getByText('Oracle')).toBeInTheDocument();
   });
 
-  // -----------------------------
-  // Removed behavior
-  // -----------------------------
   it('renders no expand/collapse control', () => {
     arrange();
     expect(screen.queryByLabelText('Footer details')).toBeNull();

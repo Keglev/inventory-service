@@ -4,7 +4,7 @@
  * @description Contract tests for the `SuppliersTable` presentation component.
  *
  * Contract under test:
- * - Renders column headers using i18n fallback strings.
+ * - Renders the column headers (English copy via tEn).
  * - Delegates row click selection via `onRowClick` with the row id.
  * - Shows an empty-state message when there are no rows.
  * - Shows a loading indicator when `isLoading` is true.
@@ -189,8 +189,8 @@ describe('SuppliersTable', () => {
   });
 
   it('pages and sorts in the grid and forwards models/handlers to DataGrid', () => {
-    // GET /api/suppliers returns every supplier and takes no parameters: in
-    // server mode the grid showed all rows on every page and never sorted.
+    // GET /api/suppliers returns every supplier and takes no parameters, so
+    // the grid pages and sorts in the browser.
     const props = createProps({
       paginationModel: { page: 2, pageSize: 10 },
       sortModel: [{ field: 'name', sort: 'asc' }],
@@ -202,7 +202,7 @@ describe('SuppliersTable', () => {
       expect.objectContaining({
         paginationMode: 'client',
         sortingMode: 'client',
-        // Ten suppliers per page (S2-15).
+        // Ten suppliers per page.
         pageSizeOptions: [10],
         paginationModel: props.paginationModel,
         sortModel: props.sortModel,

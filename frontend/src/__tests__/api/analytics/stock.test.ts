@@ -1,6 +1,6 @@
 /**
  * @file stock.test.ts
- * @module tests/api/analytics/stock
+ * @module __tests__/api/analytics/stock
  * @description Contract tests for getStockValueOverTime, getMonthlyStockMovement,
  * getStockPerSupplier (api/analytics/stock).
  *
@@ -41,18 +41,14 @@ describe('api/analytics/stock', () => {
 
   describe('getStockValueOverTime', () => {
     it('returns [] when backend data is not an array', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({ data: { nope: true } });
 
-      // Act
       const res = await getStockValueOverTime({ from: '2025-09-01', to: '2025-11-30' });
 
-      // Assert
       expect(res).toEqual([]);
     });
 
     it('calls endpoint with cleaned params and sorts by date asc', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
           { date: '2025-10-03', totalValue: '12.5' },
@@ -65,10 +61,8 @@ describe('api/analytics/stock', () => {
 
       const params: AnalyticsParams = { from: '2025-10-01', to: '2025-10-31', supplierId: 'SUP-001' };
 
-      // Act
       const res = await getStockValueOverTime(params);
 
-      // Assert
       expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-value', {
         params: { start: '2025-10-01', end: '2025-10-31', supplierId: 'SUP-001' },
       });
@@ -82,31 +76,24 @@ describe('api/analytics/stock', () => {
     });
 
     it('returns [] when http throws', async () => {
-      // Arrange
       httpGet.mockRejectedValueOnce(new Error('network'));
 
-      // Act
       const res = await getStockValueOverTime();
 
-      // Assert
       expect(res).toEqual([]);
     });
   });
 
   describe('getMonthlyStockMovement', () => {
     it('returns [] when backend data is not an array', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({ data: 'nope' });
 
-      // Act
       const res = await getMonthlyStockMovement({ from: '2025-10-01', to: '2025-10-31' });
 
-      // Assert
       expect(res).toEqual([]);
     });
 
     it('maps rows with tolerant number parsing (string/null)', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
           { month: '2025-10', stockIn: '7', stockOut: 2 },
@@ -116,10 +103,8 @@ describe('api/analytics/stock', () => {
         ],
       });
 
-      // Act
       const res = await getMonthlyStockMovement({ from: '2025-10-01', to: '2025-11-30' });
 
-      // Assert
       expect(res).toEqual([
         { month: '2025-10', stockIn: 7, stockOut: 2 },
         { month: '2025-11', stockIn: 0, stockOut: 5 },
@@ -128,31 +113,24 @@ describe('api/analytics/stock', () => {
     });
 
     it('returns [] when http throws', async () => {
-      // Arrange
       httpGet.mockRejectedValueOnce(new Error('network'));
 
-      // Act
       const res = await getMonthlyStockMovement();
 
-      // Assert
       expect(res).toEqual([]);
     });
   });
 
   describe('getStockPerSupplier', () => {
     it('returns [] when backend data is not an array', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({ data: { nope: true } });
 
-      // Act
       const res = await getStockPerSupplier();
 
-      // Assert
       expect(res).toEqual([]);
     });
 
     it('maps quantity and value and filters out an empty supplierName', async () => {
-      // Arrange
       httpGet.mockResolvedValueOnce({
         data: [
           { supplierName: 'Supplier A', totalQuantity: '10', totalValue: 250.5 },
@@ -162,10 +140,8 @@ describe('api/analytics/stock', () => {
         ],
       });
 
-      // Act
       const res = await getStockPerSupplier();
 
-      // Assert
       expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-per-supplier');
 
       expect(res).toEqual([
@@ -175,13 +151,10 @@ describe('api/analytics/stock', () => {
     });
 
     it('returns [] when http throws', async () => {
-      // Arrange
       httpGet.mockRejectedValueOnce(new Error('network'));
 
-      // Act
       const res = await getStockPerSupplier();
 
-      // Assert
       expect(res).toEqual([]);
     });
   });

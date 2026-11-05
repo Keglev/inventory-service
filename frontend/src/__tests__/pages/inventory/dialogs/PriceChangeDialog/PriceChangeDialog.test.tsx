@@ -1,6 +1,6 @@
 /**
  * @file PriceChangeDialog.test.tsx
- * @module __tests__/pages/inventory/dialogs/PriceChangeDialog
+ * @module __tests__/pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog
  * @description
  * Contract tests for the PriceChangeDialog wrapper component:
  * - renders conditionally based on `open`

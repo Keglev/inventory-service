@@ -24,9 +24,7 @@ import type { StockValuePoint } from '@/api/analytics/stock';
 import { getStockValueOverTime } from '@/api/analytics/stock';
 import StockValueCard from '@/pages/analytics/blocks/StockValueCard';
 
-// -----------------------------------------------------------------------------
 // Recharts capture (lets us assert sort behavior without relying on DOM text).
-// -----------------------------------------------------------------------------
 
 type PlottedPoint = StockValuePoint & { t: number; carried?: boolean };
 let lastLineChartData: PlottedPoint[] | null = null;
@@ -38,10 +36,6 @@ let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 let lastTooltipLabelFormatter: ((v: number) => string) | null = null;
 let lastTooltipProps: Record<string, unknown> | null = null;
 let lastLineProps: Record<string, unknown> | null = null;
-
-// -----------------------------------------------------------------------------
-// Mocks
-// -----------------------------------------------------------------------------
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -98,10 +92,6 @@ vi.mock('recharts', () => ({
   },
 }));
 
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
-
 
 function setup(
   client: QueryClient,
@@ -113,10 +103,6 @@ function setup(
     </QueryClientProvider>,
   );
 }
-
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
 
 describe('StockValueCard', () => {
   let queryClient: QueryClient;

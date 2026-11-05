@@ -10,7 +10,6 @@
  * - Theme mode initialises from localStorage (only 'dark' selects dark), defaults to light,
  *   and setThemeMode persists; the MUI theme follows the mode.
  * - The hook throws outside the provider.
- * Carries over the cases of the removed public-shell useLocale/useThemeMode specs.
  */
 import * as React from 'react';
 import { renderHook, act } from '@testing-library/react';
@@ -121,7 +120,6 @@ describe('ShellPreferencesProvider', () => {
     });
 
     it('falls back to light when the stored value is not a known mode', () => {
-      // The removed hooks passed any stored string through to buildTheme.
       localStorage.setItem('themeMode', 'sepia');
       const { result } = renderPrefs();
       expect(result.current.themeMode).toBe('light');

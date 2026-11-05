@@ -22,10 +22,6 @@ import { getStockUpdates } from '@/api/analytics/updates';
 import RecentStockActivityCard from '@/pages/analytics/blocks/RecentStockActivityCard';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -----------------------------------------------------------------------------
-// Mocks
-// -----------------------------------------------------------------------------
-
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
@@ -108,10 +104,6 @@ let lastYTickFormatter: ((v: string | number) => string) | null = null;
 let lastTooltipFormatter: ((v: number | string) => string) | null = null;
 let lastTooltipLabelFormatter: ((v: number) => string) | null = null;
 
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
-
 
 function setup(
   client: QueryClient,
@@ -123,10 +115,6 @@ function setup(
     </QueryClientProvider>,
   );
 }
-
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
 
 describe('RecentStockActivityCard', () => {
   let queryClient: QueryClient;

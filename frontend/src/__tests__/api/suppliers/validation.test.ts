@@ -1,6 +1,6 @@
 /**
  * @file validation.test.ts
- * @module tests/api/suppliers/validation
+ * @module __tests__/api/suppliers/validation
  * @description Contract tests for createSupplierSchema / editSupplierSchema.
  *
  * Contract under test:

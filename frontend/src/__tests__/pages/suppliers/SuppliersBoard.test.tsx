@@ -6,7 +6,7 @@
  * Contract under test:
  * - Orchestrates state + handlers + data into presentation components.
  * - Applies board-only display rules:
- *   - The table shows every supplier when no search result is selected (S2-15).
+ *   - The table shows every supplier when no search result is selected.
  *   - When a supplier is selected from search, the table shows exactly that one row.
  * - Computes toolbar enablement from auth + selection (board responsibility).
  *
@@ -179,7 +179,7 @@ describe('SuppliersBoard', () => {
     expect(spies.SuppliersDialogs).toHaveBeenCalledTimes(1);
   });
 
-  // S2-15: the grid no longer waits behind a "show all" checkbox.
+  // The grid lists every supplier without a "show all" checkbox.
   it('hands every supplier to the table when nothing is selected', () => {
     const suppliers = [supplierRow({ id: 's-1', name: 'Acme' }), supplierRow({ id: 's-2', name: 'Beta' })];
     runtime.state = createState({ selectedSearchResult: null });

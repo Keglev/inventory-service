@@ -13,9 +13,7 @@
  * Test strategy:
  * - useAuth is mocked to assert user-intent actions (login / loginAsDemo).
  * - useNavigate is mocked to assert redirect behavior without real routing.
- * - i18n is mocked deterministically:
- *   - If a defaultValue is provided, it is used (stable UX text assertions for demo label).
- *   - Otherwise, the translation key is returned (stable key-based assertions).
+ * - i18n is mocked with tEn, so assertions read the real English copy.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -26,9 +24,6 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import LoginPage from '@/pages/auth/LoginPage';
 import { tEn } from '@/__tests__/test/i18nEn';
 
-// -------------------------------------
-// Deterministic / hoisted mocks
-// -------------------------------------
 const mockLogin = vi.hoisted(() => vi.fn());
 const mockLoginAsDemo = vi.hoisted(() => vi.fn());
 const mockUseAuth = vi.hoisted(() => vi.fn());
@@ -36,11 +31,6 @@ const mockNavigate = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    /**
-     * Mirrors common i18n usage patterns in the codebase:
-     * - If defaultValue is provided, return it (lets us assert user-visible copy).
-     * - Otherwise return the key (lets us assert keys without binding to locale JSON).
-     */
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));
@@ -57,9 +47,6 @@ vi.mock('@/hooks/useAuth', () => ({
   useAuth: mockUseAuth,
 }));
 
-// -------------------------------------
-// Helpers
-// -------------------------------------
 function renderLoginPage(initialRoute = '/login') {
   return render(
     <MemoryRouter initialEntries={[initialRoute]}>
@@ -87,11 +74,9 @@ describe('LoginPage', () => {
     it('renders title/subtitle and supporting SSO copy', () => {
       renderLoginPage();
 
-      // Card header texts: returned as keys by our i18n mock.
       expect(screen.getByText('Sign in')).toBeInTheDocument();
       expect(screen.getByText('Sign in to access your dashboard and analytics.')).toBeInTheDocument();
 
-      // Divider + hint copy are also translation keys.
       expect(screen.getByText('or')).toBeInTheDocument();
       expect(screen.getByText('Single Sign-On provided by your organization.')).toBeInTheDocument();
     });
@@ -123,10 +108,7 @@ describe('LoginPage', () => {
       const user = userEvent.setup();
       renderLoginPage();
 
-      /**
-       * The Google button uses aria-label={t('signInGoogle')}.
-       * With our i18n mock, the accessible name becomes "signInGoogle".
-       */
+      // The Google button's accessible name is its aria-label, t('signInGoogle').
       await user.click(screen.getByRole('button', { name: 'Sign in with Google' }));
 
       expect(mockLogin).toHaveBeenCalledTimes(1);
@@ -138,10 +120,6 @@ describe('LoginPage', () => {
       const user = userEvent.setup();
       renderLoginPage();
 
-      /**
-       * Demo button uses: t('continueDemo', 'Continue in Demo Mode')
-       * Our i18n mock returns the defaultValue, so we assert the real UX label.
-       */
       await user.click(screen.getByRole('button', { name: 'Continue in Demo Mode' }));
 
       expect(mockLoginAsDemo).toHaveBeenCalledTimes(1);

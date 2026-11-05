@@ -1,6 +1,6 @@
 /**
  * @file util.recordGuards.test.ts
- * @module tests/api/analytics/util.recordGuards
+ * @module __tests__/api/analytics/util.recordGuards
  * @description Contract tests for isRecord and isArrayOfRecords (api/analytics/util).
  *
  * Contract under test:

@@ -18,7 +18,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 
 
-// Mock what the hook imports: ../index from hooks => api/analytics/index.ts
+// Mock the module the hook imports.
 vi.mock('@/api/analytics/metrics', () => ({
   getItemCount: vi.fn(),
   getSupplierCount: vi.fn(),
@@ -36,21 +36,18 @@ describe('useDashboardMetrics', () => {
   });
 
   it('fetches and returns KPI metrics', async () => {
-    // Arrange
     vi.mocked(getItemCount).mockResolvedValue(1000);
     vi.mocked(getSupplierCount).mockResolvedValue(25);
     vi.mocked(getLowStockCount).mockResolvedValue(50);
 
     const wrapper = createQueryWrapper();
 
-    // Act
     const { result } = renderHook(() => useDashboardMetrics(true), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    // Assert
     expect(result.current.data).toEqual({
       inventoryCount: 1000,
       suppliersCount: 25,
@@ -63,37 +60,31 @@ describe('useDashboardMetrics', () => {
   });
 
   it('does not fetch when enabled is false', async () => {
-    // Arrange
     const wrapper = createQueryWrapper();
 
-    // Act
     renderHook(() => useDashboardMetrics(false), { wrapper });
 
     // allow microtasks/react-query scheduling
     await Promise.resolve();
 
-    // Assert
     expect(getItemCount).not.toHaveBeenCalled();
     expect(getSupplierCount).not.toHaveBeenCalled();
     expect(getLowStockCount).not.toHaveBeenCalled();
   });
 
   it('exposes error state when a dependency rejects', async () => {
-    // Arrange
     vi.mocked(getItemCount).mockRejectedValue(new Error('boom'));
     vi.mocked(getSupplierCount).mockResolvedValue(25);
     vi.mocked(getLowStockCount).mockResolvedValue(50);
 
     const wrapper = createQueryWrapper();
 
-    // Act
     const { result } = renderHook(() => useDashboardMetrics(true), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isError).toBe(true);
     });
 
-    // Assert
     expect(result.current.error).toBeDefined();
   });
 });

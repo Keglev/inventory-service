@@ -23,7 +23,7 @@
  *
  * Out of scope:
  * - UI rendering and toast wiring (validated by `EditSupplierDialog` component tests).
- * - i18n key correctness (we assert fallback strings).
+ * - i18n key correctness (assertions read the English copy via tEn).
  *
  * Test strategy:
  * - Deterministic, hoisted mocks for all dependencies.

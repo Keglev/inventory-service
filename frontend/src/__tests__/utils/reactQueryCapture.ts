@@ -1,6 +1,6 @@
 /**
  * @file reactQueryCapture.ts
- * @module tests/utils/reactQueryCapture
+ * @module __tests__/utils/reactQueryCapture
  * @description Helpers that capture the config a mocked React Query `useQuery` receives.
  * @what_is_under_test React Query `useQuery` config capture helpers
  * @responsibility

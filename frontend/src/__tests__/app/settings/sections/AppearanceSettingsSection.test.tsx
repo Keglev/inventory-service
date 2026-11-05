@@ -25,7 +25,7 @@ import { tEn } from '@/__tests__/test/i18nEn';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    // Deterministic translations: prefer fallback when provided, else key.
+    // tEn resolves keys against the real English locale files.
     t: (key: string, options?: Record<string, unknown>) => tEn(key, options),
   }),
 }));

@@ -24,10 +24,6 @@ import { useInventoryColumns } from '@/pages/inventory/hooks/useInventoryColumns
 import type { InventoryRow } from '@/api/inventory/types';
 import type { GridColDef } from '@mui/x-data-grid';
 
-// -----------------------------------------------------------------------------
-// Hoisted mocks
-// -----------------------------------------------------------------------------
-
 const mockUseSettings = vi.hoisted(() => vi.fn());
 const mockT = vi.hoisted(() => (key: string, fallback?: string) => fallback ?? key);
 
@@ -40,10 +36,6 @@ vi.mock('react-i18next', () => ({
     t: mockT,
   }),
 }));
-
-// -----------------------------------------------------------------------------
-// Test helpers
-// -----------------------------------------------------------------------------
 
 // MUI DataGrid v7+ valueGetter signature: (value, row) => result
 type ValueGetter<R> = (value: unknown, row: R | null) => unknown;
@@ -60,10 +52,6 @@ function getColumnByField(
 ): (typeof columns)[number] | undefined {
   return columns.find(c => c.field === field);
 }
-
-// -----------------------------------------------------------------------------
-// Tests
-// -----------------------------------------------------------------------------
 
 describe('useInventoryColumns', () => {
   beforeEach(() => {
@@ -308,7 +296,7 @@ describe('useInventoryColumns', () => {
     expect(second).toBe(first);
   });
 
-  // Across all suppliers (below-minimum list) a row must say whose item it is (C6).
+  // Across all suppliers a row must say whose item it is.
   it('adds a non-sortable supplier column after the name only when asked', () => {
     const { result: without } = setup();
     expect(getColumnByField(without.current, 'supplierName')).toBeUndefined();
