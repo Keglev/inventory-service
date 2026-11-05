@@ -4,8 +4,8 @@
 #        consumes its docs-site artifact.
 # Produces: the paths that artifact's MANIFEST names, replaced on gh-pages, then
 #        a Pages deployment of that branch from this job (Pages source: GitHub
-#        Actions; backend ADR-0015), named after the gh-pages commit, run and
-#        attempt by .github/scripts/deploy-pages.sh.
+#        Actions; backend ADR-0015), named after the gh-pages commit by
+#        .github/scripts/deploy-pages.sh.
 #
 # Failure mode: a failed push to gh-pages or a failed Pages deployment fails
 # the run, and the site keeps the version last published.
@@ -87,6 +87,8 @@ jobs:
 
       - name: Commit and push to gh-pages
         id: publish
+        env:
+          RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -97,6 +99,13 @@ jobs:
             git push origin gh-pages
             echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "Documentation published"
+          elif [ "$RUN_ATTEMPT" -gt 1 ]; then
+            # A re-run deploys again, and a deployment is named after a gh-pages
+            # commit, so the retry gets a commit of its own.
+            git commit --allow-empty -m "docs: redeploy, workflow_run ${{ github.event.workflow_run.id }} attempt $RUN_ATTEMPT"
+            git push origin gh-pages
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes to publish; empty commit for the redeploy"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No changes to publish"
