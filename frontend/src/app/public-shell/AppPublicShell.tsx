@@ -1,6 +1,6 @@
 /**
  * @file AppPublicShell.tsx
- * @module AppPublicShell
+ * @module app/public-shell/AppPublicShell
  * @summary Thin orchestrator for unauthenticated routes; applies the shared theme,
  * owns the toast state, and delegates render to header, content, and toast
  * sub-components.
@@ -9,7 +9,7 @@
  * - Mounted by AppRouter as the route element for unauthenticated paths (/home,
  *   /login, /logout-success); no sidebar or nav by design — public pages need none.
  * - Reads locale, themeMode and the MUI theme from ShellPreferencesProvider
- *   (shared with AppShell, FW5 fork 4) and owns only the toast state
+ *   (shared with AppShell) and owns only the toast state
  *   (usePublicShellToast); children remain stateless.
  * - Re-uses the shared ToastContext so page-level code triggers toasts without
  *   knowing which shell is currently active.

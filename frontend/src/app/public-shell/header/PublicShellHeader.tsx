@@ -1,6 +1,6 @@
 /**
  * @file PublicShellHeader.tsx
- * @module PublicShellHeader
+ * @module app/public-shell/header/PublicShellHeader
  * @summary Fixed AppBar orchestrator for public-shell; delegates theme and
  * language toggling to ThemeToggle and LanguageToggle; owns no state.
  *

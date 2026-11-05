@@ -3,18 +3,17 @@
  * @module app/footer/HealthStatusDisplay
  *
  * @summary
- * System health status display component. Renders backend and database status
- * as a single compact inline row (one flex child) so the footer stays one line
- * tall; the backend response time appears inline when meaningful.
+ * Backend and database status as one compact inline row, so the footer stays one line tall.
  *
  * @enterprise
+ * - The backend response time appears inline when meaningful.
  * - Pure presentational leaf: props-only, no state. Receives a HealthStatus prop
  *   sourced from useFooterState (which reads it from useHealthCheck).
  * - HealthStatus is imported from the features/health barrel (single source
  *   of truth in useHealthCheck). The component reads status, responseTime,
  *   database and databaseProduct; the timestamp field is unused here.
  * - The database chip shows the product name the backend reports (the same value
- *   as the About dialog), not a fixed label (FW5 fork 3).
+ *   as the About dialog), not a fixed label.
  * - All labels resolve via the footer i18n namespace; the "Backend"/"Database"
  *   captions are chip tooltips (title) rather than visible text to keep the row
  *   compact. Status dots, Chip borders and labels use the success/error palette
@@ -53,9 +52,9 @@ export default function HealthStatusDisplay({ health }: HealthStatusDisplayProps
   const backendColor = backendOnline ? 'success' : 'error';
   const dbColor = databaseOnline ? 'success' : 'error';
 
-  // A bare palette name ('success') never resolved in sx, so the chips drew in
-  // neutral grey. Border in the main step; text in the step that keeps 4.5:1 on
-  // the footer surface (dark in light mode, light in dark mode).
+  // sx does not resolve a bare palette name ('success'), so each step is named: border
+  // in main; text in the step that keeps 4.5:1 on the footer surface (dark in light
+  // mode, light in dark mode).
   const chipSx = (tone: 'success' | 'error') => ({
     borderColor: `${tone}.main`,
     color: (theme: Theme) => (theme.palette.mode === 'light' ? theme.palette[tone].dark : theme.palette[tone].light),

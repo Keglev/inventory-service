@@ -6,10 +6,9 @@
  * The sidebar's settings entry, under the navigation: opens the settings dialog.
  *
  * @enterprise
- * - Settings moved here from the removed hamburger menu (FW6 UX-1, Carlos
- *   2026-10-09), where the avatar menu would otherwise have held both identity
- *   and preferences. It stays the only way into the settings dialog (ADR-0015:
- *   one editor per preference).
+ * - Here rather than in the avatar menu, which would otherwise hold both identity
+ *   and preferences. It is the only way into the settings dialog
+ *   (frontend ADR-0015: one editor per preference).
  * - A button, not a link: settings is a dialog over the current page, so no
  *   route changes and the entry never shows as selected.
  */

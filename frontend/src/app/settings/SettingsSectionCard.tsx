@@ -7,8 +7,7 @@
  * outlined content card.
  *
  * @enterprise
- * Extracted from AppSettingsForm, where the identical Box/Typography/Paper block
- * was repeated three times.
+ * One component keeps every section's title and card identical.
  */
 
 import { Box, Typography, Paper } from '@mui/material';

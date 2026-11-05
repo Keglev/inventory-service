@@ -3,12 +3,11 @@
  * @module app/settings/AppSettingsForm
  *
  * @summary
- * Main settings form layout component.
- * Orchestrates all settings sections and manages form state through callbacks.
+ * Main settings form layout: the settings sections, wired to their callbacks.
  *
  * @enterprise
  * - Orchestrator only: receives all state as props, no local state or side effects
- * - The one editor for every preference (FW5 fork 1), laid out like the SAP
+ * - The one editor for every preference, laid out like the SAP
  *   Fiori settings dialog: Appearance, then Language and Region
  * - Sections are independently tested; this component owns only layout and section composition
  */

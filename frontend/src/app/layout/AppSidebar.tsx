@@ -3,13 +3,12 @@
  * @module app/layout/AppSidebar
  *
  * @summary
- * Left sidebar navigation drawer.
- * Thin orchestrator: drawer chrome only; the content comes from SidebarDrawerContent.
+ * Left sidebar navigation drawer; drawer chrome only, the content comes from SidebarDrawerContent.
  *
  * @enterprise
  * - Two Drawer variants (temporary on mobile, permanent on desktop) share one content tree via SidebarDrawerContent, avoiding JSX duplication for each breakpoint.
- * - Desktop shows an 88 px rail, icon above label (FW6 UX-1, option A): with four destinations the former 248 px drawer was mostly empty. The phone drawer keeps full rows at 248 px.
- * - Navigation plus one settings entry (FW6): identity, About and sign-out live in the avatar menu, help in the toolbar.
+ * - Desktop shows an 88 px rail, icon above label: with four destinations a 248 px drawer would be mostly empty. The phone drawer keeps full rows at 248 px.
+ * - Navigation plus one settings entry: identity, About and sign-out live in the avatar menu, help in the toolbar.
  */
 
 import { Box, Drawer } from '@mui/material';

@@ -1,12 +1,12 @@
 /**
  * @file ThemeToggle.tsx
- * @module ThemeToggle
+ * @module app/public-shell/header/ThemeToggle
  * @summary Public-shell theme toggle button (light/dark); a stateless IconButton
  * driven by parent callbacks.
  *
  * @enterprise
  * - Public shell only. The authenticated shell has no theme toggle: the theme is
- *   edited in the settings dialog, opened from the sidebar (ADR-0015, FW6 UX-1).
+ *   edited in the settings dialog, opened from the sidebar (frontend ADR-0015).
  *   The label names the mode a click switches to.
  *
  * @example

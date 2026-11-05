@@ -4,15 +4,16 @@
  *
  * @summary
  * Individual navigation list item with route matching and disabled state support.
- * Highlights current route and supports feature flag-based disabling. Renders as
- * a list row (phone drawer) or as a rail tile, icon above label (desktop rail).
  *
  * @enterprise
+ * Highlights current route and supports feature flag-based disabling. Renders as a list
+ * row (phone drawer) or as a rail tile, icon above label (desktop rail).
+ *
  * - Active state uses `startsWith` (not exact match) so nested routes like `/inventory/123` correctly highlight the parent nav item.
  * - Disabled items remain visible and non-interactive; tooltip explains the feature-flag reason, preventing silent dead links.
  * - onClick guard prevents default on disabled items rather than relying solely on the `disabled` attribute, which can be bypassed programmatically.
  * - The rail variant keeps the label under the icon (Material 3 navigation rail): with four
- *   destinations an icon-only rail would save no space worth losing the words for (FW6 UX-1).
+ *   destinations an icon-only rail would save no space worth losing the words for.
  */
 
 import {

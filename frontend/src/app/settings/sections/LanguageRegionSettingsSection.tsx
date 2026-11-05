@@ -3,12 +3,11 @@
  * @module app/settings/sections/LanguageRegionSettingsSection
  *
  * @summary
- * Language and region settings section component.
- * UI language, date format and number format, with preview examples.
+ * Language and region settings section: UI language, date format and number format, with
+ * preview examples.
  *
  * @enterprise
- * - The only editor for the UI language in the app shell (FW5 forks 1 and 2);
- *   language names stay in their own language (W3C i18n), not translated
+ * - The only editor for the UI language in the app shell
  * - Live preview examples surface formatter output directly, making format choices self-documenting in the UI
  */
 
@@ -50,7 +49,7 @@ export interface LanguageRegionSettingsSectionProps {
 /**
  * Language and region settings section component.
  *
- * Provides date format and number format selectors with live preview examples.
+ * Provides the language, date format and number format selectors with live preview examples.
  * Isolated from other settings for independent testing and reuse.
  *
  * @param props - Component props
@@ -59,6 +58,8 @@ export interface LanguageRegionSettingsSectionProps {
  * @example
  * ```tsx
  * <LanguageRegionSettingsSection
+ *   locale="de"
+ *   onLocaleChange={handleLocaleChange}
  *   dateFormat="DD.MM.YYYY"
  *   onDateFormatChange={handleDateChange}
  *   numberFormat="DE"

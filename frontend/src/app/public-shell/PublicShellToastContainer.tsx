@@ -1,11 +1,12 @@
 /**
  * @file PublicShellToastContainer.tsx
- * @module PublicShellToastContainer
+ * @module app/public-shell/PublicShellToastContainer
  * @summary Presentational Snackbar/Alert renderer for public-shell toasts;
  * owns no state — all toast state lives in usePublicShellToast.
  *
  * @enterprise
- * - Pure render layer so toast behaviour can be tested without mounting Snackbar.
+ * - Pure render layer: the toast behaviour lives in usePublicShellToast, which can be
+ *   tested without mounting this Snackbar.
  *
  * @example
  * ```tsx

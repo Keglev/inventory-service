@@ -4,12 +4,11 @@
  *
  * @summary
  * Fixed application header (AppBar) with title, system health badge, and toolbar actions.
- * Thin orchestrator delegating to HealthBadge and HeaderDemoBadge sub-components.
  *
  * @enterprise
  * - Fixed positioning with z-index above the drawer so the toolbar always overlaps the sidebar on scroll.
- * - Delegates health status to HealthBadge (owns its own polling) and demo indicator to HeaderDemoBadge, keeping this component agnostic of their implementation details.
- * - Receives all state via props; intentionally stateless so AppShell remains the single owner of theme, locale, and session.
+ * - Delegates health status to HealthBadge (it reads the shared health query) and the demo indicator to HeaderDemoBadge, keeping this component agnostic of their implementation details.
+ * - Receives all state via props; intentionally stateless, so its owners (AppShell, ShellPreferencesProvider for theme and locale) stay the only ones.
  * - Mobile drawer toggle forwarded to AppShell rather than controlling the drawer directly, keeping drawer state colocated with its owner.
  */
 
@@ -80,8 +79,7 @@ export default function AppHeader({
           <MenuIcon />
         </IconButton>
 
-        {/* Application Title */}
-        {/* One line on phones: the full name, smaller, never wrapped (fork 1 B) */}
+        {/* One line on phones: the full name, smaller, never wrapped */}
         <Typography
           variant="h6"
           noWrap
@@ -90,10 +88,8 @@ export default function AppHeader({
           {t('app.title')}
         </Typography>
 
-        {/* Demo Badge (shown if user is on demo account) */}
         <HeaderDemoBadge isDemo={isDemo} />
 
-        {/* Spacer */}
         <Box sx={{ flex: 1 }} />
 
         {/* System Health Badge (hidden on xs, shown on sm+) */}

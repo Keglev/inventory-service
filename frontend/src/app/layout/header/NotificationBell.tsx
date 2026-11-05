@@ -3,8 +3,7 @@
  * @module app/layout/header/NotificationBell
  * @summary Header bell with the below-minimum count as a badge; the popover shows the warning once.
  * @enterprise
- * - SAP, Carbon and ServiceNow place notifications behind a bell in the header
- *   (FW5 fork 7); before, the warning sat inside the user menu with its count twice.
+ * - SAP, Carbon and ServiceNow place notifications behind a bell in the header.
  * - Reads useDashboardMetrics, the query the dashboard already caches, so the bell
  *   adds no request.
  */

@@ -3,8 +3,7 @@
  * @module app/settings/hooks/useAppSettingsForm
  *
  * @summary
- * Custom hook for managing application settings form state and submission.
- * Encapsulates user preferences state management.
+ * Custom hook for the settings form: the preference values and their change handlers.
  *
  * @enterprise
  * - Separates form logic from UI, keeping form components stateless
@@ -21,12 +20,10 @@ interface FormState {
 }
 
 /**
- * Hook for managing application settings form state and submission.
+ * Hook for the settings form state; every change goes through useSettings, whose
+ * context owns persistence.
  *
- * Provides form state and callbacks for updating preferences.
- * Handles persistence through useSettings hook integration.
- *
- * @returns Object containing form state, callbacks, and loading state
+ * @returns Object containing form state and callbacks
  *
  * @example
  * ```tsx
@@ -42,29 +39,14 @@ export function useAppSettingsForm() {
     tableDensity: userPreferences.tableDensity,
   };
 
-  /**
-   * Updates date format preference via the settings context; persistence is owned by the context.
-   *
-   * @param newFormat - New date format value
-   */
   const handleDateFormatChange = (newFormat: DateFormat) => {
     setUserPreferences({ dateFormat: newFormat });
   };
 
-  /**
-   * Updates number format preference via the settings context; persistence is owned by the context.
-   *
-   * @param newFormat - New number format value
-   */
   const handleNumberFormatChange = (newFormat: NumberFormat) => {
     setUserPreferences({ numberFormat: newFormat });
   };
 
-  /**
-   * Updates table density preference via the settings context; persistence is owned by the context.
-   *
-   * @param newDensity - New table density value
-   */
   const handleTableDensityChange = (newDensity: TableDensity) => {
     setUserPreferences({ tableDensity: newDensity });
   };

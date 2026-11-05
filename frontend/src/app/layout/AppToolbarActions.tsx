@@ -4,15 +4,13 @@
  *
  * @summary
  * Toolbar action buttons for the AppBar: notification bell, help, avatar menu.
- * Extracted from AppShell to isolate toolbar icon/button logic and styling.
  *
  * @enterprise
- * - Extracted from AppShell so AppBar chrome can evolve independently of layout orchestration.
+ * - Kept apart from AppShell so AppBar chrome can evolve independently of layout orchestration.
  * - The avatar menu (AccountMenu) is the right-most action, where SAP Fiori, Microsoft 365
- *   and Jira put the profile (FW6 UX-1). It replaced the hamburger user menu: settings moved
- *   to the sidebar, the documentation links were already in the footer, and GitHub moved
- *   into the About dialog.
- * - No language or theme toggle here: preferences have one editor, the settings dialog (FW5 forks 1 and 2, SAP Fiori pattern).
+ *   and Jira put the profile (frontend ADR-0015). Settings live in the sidebar, the
+ *   documentation links in the footer, the repository link in the About dialog.
+ * - No language or theme toggle here: preferences have one editor, the settings dialog (SAP Fiori pattern).
  */
 
 import { Box } from '@mui/material';
@@ -47,10 +45,9 @@ export default function AppToolbarActions({
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-      {/* Low-stock notifications (FW5 fork 7) */}
+      {/* Low-stock notifications */}
       <NotificationBell />
 
-      {/* Help Icon Button */}
       <HelpIconButton
         topicId={helpTopic}
         tooltip={t('actions.help')}
