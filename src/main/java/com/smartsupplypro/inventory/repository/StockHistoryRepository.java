@@ -77,6 +77,7 @@ public interface StockHistoryRepository
      * @param start     inclusive lower bound
      * @param end       inclusive upper bound
      * @param createdBy optional creator (email) filter
+     * @param supplierId optional supplier filter
      * @param pageable  page/size (unsorted)
      * @return rows of [itemName, supplierName, quantityChange, reason, createdBy, createdAt]
      */

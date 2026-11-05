@@ -5,10 +5,11 @@ import java.util.List;
 /**
  * Custom repository for aggregated stock KPI metrics.
  *
- * <p>Handles dashboard statistics that require GROUP BY aggregations and multi-dialect
- * native SQL — expressions not expressible as Spring Data derived query methods.</p>
+ * <p>Handles dashboard statistics that require GROUP BY aggregations in native SQL, one
+ * statement for H2 and Oracle — expressions not expressible as Spring Data derived query
+ * methods.</p>
  *
- * @see StockHistoryRepository
+ * @see com.smartsupplypro.inventory.repository.StockHistoryRepository
  */
 public interface StockMetricsRepository {
 

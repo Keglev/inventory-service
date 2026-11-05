@@ -97,8 +97,6 @@ class StockHistoryCustomRepositoryImplTest {
         }
     }
 
-    // ---- helpers ----------------------------------------------------------
-
     private static LocalDateTime at(int y, int m, int d, int H, int M) {
         return LocalDateTime.of(y, m, d, H, M);
     }

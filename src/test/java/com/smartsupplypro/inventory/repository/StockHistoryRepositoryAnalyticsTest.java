@@ -132,7 +132,7 @@ class StockHistoryRepositoryAnalyticsTest {
     }
 
     /**
-     * Monthly movement reports and low-stock/tabular export queries.
+     * Monthly movement and filtered stock-update queries.
      */
     @Nested
     class MovementReporting {

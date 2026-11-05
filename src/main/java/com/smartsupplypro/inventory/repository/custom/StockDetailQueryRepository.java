@@ -14,7 +14,7 @@ import com.smartsupplypro.inventory.dto.StockEventRowDTO;
  * <p>Handles multi-criteria filtering and cost-flow event replay that cannot be expressed
  * as Spring Data derived query methods — both require dynamic SQL or JPQL construction.</p>
  *
- * @see StockHistoryRepository
+ * @see com.smartsupplypro.inventory.repository.StockHistoryRepository
  */
 public interface StockDetailQueryRepository {
 
@@ -28,7 +28,7 @@ public interface StockDetailQueryRepository {
      * @param endDate    optional maximum creation timestamp
      * @param itemName   optional partial item name (case-insensitive)
      * @param supplierId optional supplier ID (exact match)
-     * @param createdBy  optional creator username (case-insensitive exact match)
+     * @param createdBy  optional creator email (case-insensitive exact match)
      * @param minChange  optional minimum quantity change
      * @param maxChange  optional maximum quantity change
      * @return filtered records ordered by creation time descending
@@ -51,7 +51,7 @@ public interface StockDetailQueryRepository {
      * @param endDate    optional maximum creation timestamp
      * @param itemName   optional partial item name (case-insensitive)
      * @param supplierId optional supplier ID (exact match)
-     * @param createdBy  optional creator username (case-insensitive exact match)
+     * @param createdBy  optional creator email (case-insensitive exact match)
      * @param minChange  optional minimum quantity change
      * @param maxChange  optional maximum quantity change
      * @param pageable   page index and size; its sort is ignored, the order is fixed

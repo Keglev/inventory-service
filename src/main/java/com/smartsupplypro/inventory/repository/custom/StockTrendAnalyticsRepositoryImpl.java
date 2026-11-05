@@ -114,8 +114,9 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
      * <p>Passes bounds as {@code java.sql.Timestamp} for JDBC driver compatibility,
      * mirroring the daily item-movements query.
      *
-     * @param start inclusive lower bound
-     * @param end   inclusive upper bound
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @param supplierId optional supplier filter
      * @return rows of [createdBy, dayString, changeCount] ordered by day then creator
      */
     @SuppressWarnings("unchecked")

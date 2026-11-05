@@ -40,7 +40,7 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
      * @param endDate    optional maximum creation timestamp
      * @param itemName   optional partial item name (case-insensitive)
      * @param supplierId optional supplier ID
-     * @param createdBy  optional creator username (case-insensitive exact match)
+     * @param createdBy  optional creator email (case-insensitive exact match)
      * @param minChange  optional minimum quantity change
      * @param maxChange  optional maximum quantity change
      * @return filtered records ordered by creation time descending
@@ -72,7 +72,7 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
      * @param endDate    optional maximum creation timestamp
      * @param itemName   optional partial item name (case-insensitive)
      * @param supplierId optional supplier ID
-     * @param createdBy  optional creator username (case-insensitive exact match)
+     * @param createdBy  optional creator email (case-insensitive exact match)
      * @param minChange  optional minimum quantity change
      * @param maxChange  optional maximum quantity change
      * @param pageable   page index and size; its sort is ignored
@@ -144,7 +144,6 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
      */
     @Override
     public List<StockEventRowDTO> streamEventsForWAC(LocalDateTime end, String supplierId) {
-        // JPQL ensures this query runs unchanged on H2 and Oracle
         final String jpql = """
             SELECT new com.smartsupplypro.inventory.dto.StockEventRowDTO(
                 sh.itemId,

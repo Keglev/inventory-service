@@ -9,8 +9,7 @@ import com.smartsupplypro.inventory.model.AppUser;
 /**
  * Repository for {@link AppUser} persistence operations.
  *
- * <p>Provides email-based lookup for OAuth2 login and a user count
- * used to enforce the maximum-user registration limit.</p>
+ * <p>Provides email-based lookup for OAuth2 login.</p>
  *
  * @see AppUser
  */
@@ -24,6 +23,7 @@ public interface AppUserRepository extends JpaRepository<AppUser, String> {
      */
     Optional<AppUser> findByEmail(String email);
 
+    // TODO(S-7): this override adds nothing to JpaRepository.count()
     @Override
     long count();
 }
