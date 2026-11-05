@@ -7,7 +7,7 @@ import lombok.Builder;
 /**
  * Response payload for the analytics dashboard summary.
  *
- * <p>Returned by {@link com.smartsupplypro.inventory.controller.AnalyticsController#getDashboardSummary()}.</p>
+ * <p>Returned by {@link com.smartsupplypro.inventory.controller.AnalyticsController#getDashboardSummary}.</p>
  *
  * @param stockPerSupplier     stock distribution aggregated by supplier
  * @param lowStockItems        items currently below their minimum quantity threshold

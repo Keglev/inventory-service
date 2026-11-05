@@ -23,7 +23,7 @@ import com.smartsupplypro.inventory.repository.SupplierRepository;
  * Unit tests for {@link SupplierValidator}.
  *
  * <p>Covers the three public guards: {@code validateBase}, {@code assertUniqueName}
- * (case-insensitive collision detection, blank short-circuit, reflective getId fallback),
+ * (case-insensitive collision detection, blank short-circuit, the updated supplier's own id excluded),
  * and {@code assertDeletable}. Repository interactions are mocked.</p>
  */
 class SupplierValidatorTest {

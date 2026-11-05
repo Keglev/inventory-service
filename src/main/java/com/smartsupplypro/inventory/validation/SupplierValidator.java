@@ -13,8 +13,9 @@ import com.smartsupplypro.inventory.repository.SupplierRepository;
  * Stateless validation utilities for supplier operations.
  *
  * <p>Covers required-field checks, case-insensitive name uniqueness, and
- * deletion safety. Throws {@link InvalidRequestException} (400) or
- * {@link DuplicateResourceException} (409) for the global exception handler.
+ * deletion safety. Throws {@link InvalidRequestException} (400),
+ * {@link DuplicateResourceException} (409) or {@link BusinessRuleViolationException}
+ * (409) for the global exception handler.
  * Cannot be expressed as Bean Validation because the uniqueness check
  * requires a repository query.</p>
  *
@@ -76,8 +77,6 @@ public final class SupplierValidator {
             throw new BusinessRuleViolationException("Cannot delete supplier with linked items");
         }
     }
-
-    // ---- helpers ----------------------------------------------------------------
 
     private static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
