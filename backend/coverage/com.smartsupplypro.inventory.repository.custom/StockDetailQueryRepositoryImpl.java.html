@@ -40,7 +40,7 @@ import jakarta.persistence.Query;
      * @param endDate    optional maximum creation timestamp
      * @param itemName   optional partial item name (case-insensitive)
      * @param supplierId optional supplier ID
-     * @param createdBy  optional creator username (case-insensitive exact match)
+     * @param createdBy  optional creator email (case-insensitive exact match)
      * @param minChange  optional minimum quantity change
      * @param maxChange  optional maximum quantity change
      * @return filtered records ordered by creation time descending
@@ -72,7 +72,7 @@ import jakarta.persistence.Query;
      * @param endDate    optional maximum creation timestamp
      * @param itemName   optional partial item name (case-insensitive)
      * @param supplierId optional supplier ID
-     * @param createdBy  optional creator username (case-insensitive exact match)
+     * @param createdBy  optional creator email (case-insensitive exact match)
      * @param minChange  optional minimum quantity change
      * @param maxChange  optional maximum quantity change
      * @param pageable   page index and size; its sort is ignored
@@ -144,8 +144,7 @@ import jakarta.persistence.Query;
      */
     @Override
     public List&lt;StockEventRowDTO&gt; streamEventsForWAC(LocalDateTime end, String supplierId) {
-        // JPQL ensures this query runs unchanged on H2 and Oracle
-<span class="fc" id="L148">        final String jpql = &quot;&quot;&quot;</span>
+<span class="fc" id="L147">        final String jpql = &quot;&quot;&quot;</span>
             SELECT new com.smartsupplypro.inventory.dto.StockEventRowDTO(
                 sh.itemId,
                 COALESCE(sh.supplierId, i.supplierId),
@@ -161,13 +160,13 @@ import jakarta.persistence.Query;
             ORDER BY sh.itemId ASC, sh.timestamp ASC
         &quot;&quot;&quot;;
 
-<span class="fc bfc" id="L164" title="All 4 branches covered.">        final String supplierIdNorm = (supplierId == null || supplierId.isBlank())</span>
-<span class="fc" id="L165">            ? null : supplierId.trim().toLowerCase();</span>
+<span class="fc bfc" id="L163" title="All 4 branches covered.">        final String supplierIdNorm = (supplierId == null || supplierId.isBlank())</span>
+<span class="fc" id="L164">            ? null : supplierId.trim().toLowerCase();</span>
 
-<span class="fc" id="L167">        return em.createQuery(jpql, StockEventRowDTO.class)</span>
-<span class="fc" id="L168">                .setParameter(&quot;end&quot;, end)</span>
-<span class="fc" id="L169">                .setParameter(&quot;supplierIdNorm&quot;, supplierIdNorm)</span>
-<span class="fc" id="L170">                .getResultList();</span>
+<span class="fc" id="L166">        return em.createQuery(jpql, StockEventRowDTO.class)</span>
+<span class="fc" id="L167">                .setParameter(&quot;end&quot;, end)</span>
+<span class="fc" id="L168">                .setParameter(&quot;supplierIdNorm&quot;, supplierIdNorm)</span>
+<span class="fc" id="L169">                .getResultList();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

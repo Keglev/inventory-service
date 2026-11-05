@@ -114,25 +114,26 @@ public class StockTrendAnalyticsRepositoryImpl implements StockTrendAnalyticsRep
      * &lt;p&gt;Passes bounds as {@code java.sql.Timestamp} for JDBC driver compatibility,
      * mirroring the daily item-movements query.
      *
-     * @param start inclusive lower bound
-     * @param end   inclusive upper bound
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @param supplierId optional supplier filter
      * @return rows of [createdBy, dayString, changeCount] ordered by day then creator
      */
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; getDailyEmployeeActivity(LocalDateTime start, LocalDateTime end, String supplierId) {
-<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
-<span class="fc" id="L125">            ? StockTrendSqlBuilder.buildH2DailyEmployeeActivitySql()</span>
-<span class="pc" id="L126">            : StockTrendSqlBuilder.buildOracleDailyEmployeeActivitySql();</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc" id="L126">            ? StockTrendSqlBuilder.buildH2DailyEmployeeActivitySql()</span>
+<span class="pc" id="L127">            : StockTrendSqlBuilder.buildOracleDailyEmployeeActivitySql();</span>
 
-<span class="fc" id="L128">        final java.sql.Timestamp startTs = java.sql.Timestamp.valueOf(start);</span>
-<span class="fc" id="L129">        final java.sql.Timestamp endTs = java.sql.Timestamp.valueOf(end);</span>
+<span class="fc" id="L129">        final java.sql.Timestamp startTs = java.sql.Timestamp.valueOf(start);</span>
+<span class="fc" id="L130">        final java.sql.Timestamp endTs = java.sql.Timestamp.valueOf(end);</span>
 
-<span class="fc" id="L131">        return em.createNativeQuery(sql)</span>
-<span class="fc" id="L132">                .setParameter(&quot;start&quot;, startTs)</span>
-<span class="fc" id="L133">                .setParameter(&quot;end&quot;, endTs)</span>
-<span class="fc" id="L134">                .setParameter(&quot;supplierId&quot;, OptionalQueryParam.normalize(supplierId))</span>
-<span class="fc" id="L135">                .getResultList();</span>
+<span class="fc" id="L132">        return em.createNativeQuery(sql)</span>
+<span class="fc" id="L133">                .setParameter(&quot;start&quot;, startTs)</span>
+<span class="fc" id="L134">                .setParameter(&quot;end&quot;, endTs)</span>
+<span class="fc" id="L135">                .setParameter(&quot;supplierId&quot;, OptionalQueryParam.normalize(supplierId))</span>
+<span class="fc" id="L136">                .getResultList();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>
