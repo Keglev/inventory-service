@@ -105,6 +105,32 @@ had been written out twice. The publisher job publishes what the build
 produced, link included; pages already on the branch carry it and the script
 leaves a page that has it unchanged.
 
+## Amendment 2026-11-05: every deployment has its own build version
+
+Two promises of this decision did not hold, because `actions/deploy-pages`
+names a deployment after `GITHUB_SHA`, and under `workflow_run` that is the
+newest commit on `main`, not the commit that was built:
+
+- **"One deployment per push, each carrying different content."** The pushes
+  were separate, the deployment names were not. On 2026-11-05 the docs build of
+  #506 finished after #507 had merged, so two runs deployed as `5da25ee`. The
+  second read the first one's `succeed` and turned green, but its content never
+  went live: the site kept serving the gh-pages commit of the first run. Its
+  deployment stayed "in progress" at GitHub, and every later deployment was
+  refused ("cancel 5da25ee first") until it was cancelled by hand.
+- **"A failed deployment can be retried by a re-run."** Artifacts belong to the
+  run, not the attempt, so a re-run found two artifacts named `github-pages`
+  and the deploy step stopped.
+
+The deploy step is now `.github/scripts/deploy-pages.sh`. It calls the same
+Pages API as the action, with a build version derived from the gh-pages commit,
+the run and the attempt, so no two deployments share a name, and it reads only
+its own deployment's status. It cancels its own deployment on a timeout, on
+repeated status errors and on a cancelled job, so a stuck deployment cannot
+block the next one. The upload step names the artifact `github-pages-<attempt>`,
+so a re-run deploys its own copy. The pages, environment, queue and deploy
+conditions above are unchanged.
+
 ## References
 - [ADR-0013: The docs pipeline rebuilds, and publishes, by change](adr-0013-docs-pipeline-rebuilds-by-change.md)
 - Configuring a publishing source for GitHub Pages: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
