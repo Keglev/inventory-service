@@ -207,29 +207,7 @@
 <a name='L142'></a><a href='#L142'>142</a>
 <a name='L143'></a><a href='#L143'>143</a>
 <a name='L144'></a><a href='#L144'>144</a>
-<a name='L145'></a><a href='#L145'>145</a>
-<a name='L146'></a><a href='#L146'>146</a>
-<a name='L147'></a><a href='#L147'>147</a>
-<a name='L148'></a><a href='#L148'>148</a>
-<a name='L149'></a><a href='#L149'>149</a>
-<a name='L150'></a><a href='#L150'>150</a>
-<a name='L151'></a><a href='#L151'>151</a>
-<a name='L152'></a><a href='#L152'>152</a>
-<a name='L153'></a><a href='#L153'>153</a>
-<a name='L154'></a><a href='#L154'>154</a>
-<a name='L155'></a><a href='#L155'>155</a>
-<a name='L156'></a><a href='#L156'>156</a>
-<a name='L157'></a><a href='#L157'>157</a>
-<a name='L158'></a><a href='#L158'>158</a>
-<a name='L159'></a><a href='#L159'>159</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L145'></a><a href='#L145'>145</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -318,7 +296,6 @@
 <span class="cline-any cline-yes">19x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -343,8 +320,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -361,10 +336,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -385,10 +357,9 @@
  *
  * @summary
  * Thin orchestrator managing application shell state and layout coordination.
- * Delegates rendering to focused sub-components (header, sidebar, main).
  *
  * @enterprise
- * - Theme mode and locale are owned by ShellPreferencesProvider (App.tsx); AppShell only applies the theme. The header, the avatar menu and the settings dialog read what they need themselves, so no preference props pass through the shell (FW5).
+ * - Theme mode and locale are owned by ShellPreferencesProvider (App.tsx); AppShell only applies the theme. The header, the avatar menu and the settings dialog read what they need themselves, so no preference props pass through the shell.
  * - Session keep-alive ping fires at shell level so it runs regardless of which page route is active.
  * - Viewport-fit layout: an inner flex column bounds the shell to exactly one viewport (100dvh, overflow hidden); AppMain is the single internal scroll region, so the footer is always visible. AppPublicShell keeps its own document-scroll layout and is unaffected.
  * - Single Snackbar instance prevents duplicate toasts from concurrent state changes across sub-components.
@@ -422,17 +393,10 @@ import HelpPanel from '../../components/help/HelpPanel';
 /**
  * Application shell component.
  *
- * Manages layout state and renders fixed AppBar, responsive Drawer,
- * and main content area. Coordinates:
- * - Theme mode (light/dark) with localStorage persistence
- * - Locale selection (de/en) with i18n integration
- * - Mobile drawer toggle
- * - Session timeout monitoring
- * - Health status checking
- * - Toast notifications
- * - Settings dialog
- *
- * Authenticated pages render inside this shell via &lt;Outlet /&gt;.
+ * Renders the fixed AppBar, the responsive Drawer and the main content area, and
+ * coordinates the mobile drawer toggle, session timeout monitoring, toast
+ * notifications and the settings and About dialogs. Authenticated pages render
+ * inside this shell via &lt;Outlet /&gt;.
  *
  * @returns JSX element rendering the application shell layout
  */
@@ -482,7 +446,6 @@ export default function AppShell() {
         {/* Viewport-fit shell: bounds header + content + footer to exactly
             one viewport; AppMain is the single internal scroll region. */}
         &lt;Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}&gt;
-          {/* Application Header (fixed) */}
           &lt;AppHeader
             onAboutOpen={() =&gt; setAboutOpen(true)}
             onLogout={handleLogout}
@@ -491,7 +454,6 @@ export default function AppShell() {
             onDrawerToggle={() =&gt; setMobileOpen((v) =&gt; !v)}
           /&gt;
 &nbsp;
-          {/* Main container with sidebar + content */}
           &lt;Box
             sx={{
               display: 'flex',
@@ -500,14 +462,12 @@ export default function AppShell() {
               bgcolor: 'background.default',
             }}
           &gt;
-            {/* Sidebar Navigation */}
             &lt;AppSidebar
               mobileOpen={mobileOpen}
               onMobileClose={() =&gt; setMobileOpen(false)}
               onSettingsOpen={() =&gt; setSettingsOpen(true)}
             /&gt;
 &nbsp;
-            {/* Main Content Area */}
             &lt;AppMain /&gt;
           &lt;/Box&gt;
 &nbsp;
@@ -518,7 +478,6 @@ export default function AppShell() {
         {/* Help drawer — inside the ThemeProvider so it follows light/dark mode */}
         &lt;HelpPanel /&gt;
 &nbsp;
-        {/* Toast Notifications */}
         &lt;Snackbar
           open={!!toast?.open}
           onClose={() =&gt; setToast((t) =&gt; (t ? { ...t, open: false } : <span class="branch-1 cbranch-no" title="branch not covered" >t))</span>}
@@ -530,7 +489,6 @@ export default function AppShell() {
           &lt;/Alert&gt;
         &lt;/Snackbar&gt;
 &nbsp;
-        {/* Settings Dialog */}
         &lt;AppSettingsDialog open={settingsOpen} onClose={() =&gt; setSettingsOpen(false)} /&gt;
         &lt;AboutDialog open={aboutOpen} onClose={() =&gt; setAboutOpen(false)} /&gt;
       &lt;/ToastContext.Provider&gt;

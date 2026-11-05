@@ -200,7 +200,7 @@
  * and theme mode, and wraps the setters with the app shell's toasts.
  *
  * @enterprise
- * - State lives in ShellPreferencesProvider (FW5 fork 4); this hook adds only
+ * - State lives in ShellPreferencesProvider; this hook adds only
  *   what the authenticated shell does on top: a toast per change, and the rule
  *   that re-selecting the current theme mode stays silent.
  * - Toasts go through useToast (AppShell's ToastContext), so the hook works

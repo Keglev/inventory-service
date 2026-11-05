@@ -108,9 +108,7 @@
 <a name='L43'></a><a href='#L43'>43</a>
 <a name='L44'></a><a href='#L44'>44</a>
 <a name='L45'></a><a href='#L45'>45</a>
-<a name='L46'></a><a href='#L46'>46</a>
-<a name='L47'></a><a href='#L47'>47</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L46'></a><a href='#L46'>46</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -157,13 +155,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file LanguageToggle.tsx
- * @module LanguageToggle
+ * @module app/public-shell/header/LanguageToggle
  * @summary Public-shell language toggle: a text button naming the language it
  * switches to; stateless, delegates the switch to its parent via onToggle.
  *
  * @enterprise
- * - The only quick language switch left (FW5 fork 2): public websites keep it in
- *   the header, while the app shell sets language in the settings dialog.
+ * - The only quick language switch: public websites keep it in the header, while
+ *   the app shell sets language in the settings dialog.
  * - Text, not a flag: flags stand for countries, not languages (W3C i18n).
  *
  * @example
@@ -185,8 +183,7 @@ export interface LanguageToggleProps {
   tooltip: string;
 }
 &nbsp;
-// WHY: the button names the language it switches TO, in that language, and uses
-// no flag (W3C i18n: flags stand for countries, not languages).
+// WHY: the button names the language it switches TO, in that language.
 const LanguageToggle: React.FC&lt;LanguageToggleProps&gt; = ({ locale, onToggle, tooltip }) =&gt; {
   const target = locale === 'de' ? { code: 'en', label: 'English' } : { code: 'de', label: 'Deutsch' };
   return (

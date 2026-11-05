@@ -170,13 +170,7 @@
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -215,18 +209,14 @@
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -292,11 +282,10 @@
  * @module app/layout/header/HealthBadge
  *
  * @summary
- * System health status indicator badge component.
- * Displays backend and database status with color-coded visual feedback.
+ * Header badge showing backend and database status in colour.
  *
  * @enterprise
- * - Owns its own health polling via useHealthCheck, keeping the header decoupled from polling configuration.
+ * - Reads the shared health query (useHealthCheck, also read by the footer and the About dialog), keeping the header decoupled from polling configuration.
  * - Three-state model (allOk / backend-only / neither) maps cleanly to MUI Chip's success/warning/error color props.
  * - Hidden on xs to avoid crowding the mobile toolbar where horizontal space is constrained.
  * - The dot (and the border in dark mode) carries the status colour; the label stays in the
@@ -327,23 +316,19 @@ export default function HealthBadge() {
   const { t } = useTranslation(['common']);
   const { health } = useHealthCheck();
 &nbsp;
-  // Determine backend and database status
   const backendOnline = health.status === 'online';
   const dbOnline = health.database === 'online';
   const allOk = backendOnline &amp;&amp; dbOnline;
 &nbsp;
-  // Map health status to color tone for badge styling
   const healthTone: 'success' | 'warning' | 'error' =
     allOk ? 'success' : backendOnline ? 'warning' : 'error';
 &nbsp;
-  // Determine health label based on status
   const healthLabel = allOk
     ? t('app.health.okLabel')
     : backendOnline
     ? t('app.health.degradedLabel')
     : t('app.health.downLabel');
 &nbsp;
-  // Determine health tooltip based on status
   const healthTooltip = allOk
     ? t('app.health.okTooltip')
     : backendOnline &amp;&amp; !dbOnline

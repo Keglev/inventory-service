@@ -316,10 +316,10 @@
  * @enterprise
  * - SAP Fiori makes the profile a mandatory shell-bar element that opens the
  *   user menu (name, identifier, role, About, Sign Out); Microsoft 365 and Jira
- *   put it in the same place. It replaced the hamburger user menu (FW6 UX-1,
- *   Carlos 2026-10-12). Settings is not in it: the sidebar holds that entry, so
- *   identity and preferences each have one home.
- * - Initials, not a photo: the session carries no picture. A demo session's
+ *   put it in the same place (frontend ADR-0015). Settings is not in it: the
+ *   sidebar holds that entry, so identity and preferences each have one home.
+ * - Initials, not a photo: AuthContext keeps only email, name and role from
+ *   /api/me, so the session holds no picture. A demo session's
  *   identity is the fixed "Demo User" (AuthContext), so the demo avatar reads
  *   "DU" and never shows a real person's data.
  * - Sign-out closes the menu before it navigates (LogoutMenuAction).

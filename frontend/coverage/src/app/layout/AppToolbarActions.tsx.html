@@ -124,12 +124,7 @@
 <a name='L59'></a><a href='#L59'>59</a>
 <a name='L60'></a><a href='#L60'>60</a>
 <a name='L61'></a><a href='#L61'>61</a>
-<a name='L62'></a><a href='#L62'>62</a>
-<a name='L63'></a><a href='#L63'>63</a>
-<a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L62'></a><a href='#L62'>62</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -175,7 +170,6 @@
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -197,15 +191,13 @@
  *
  * @summary
  * Toolbar action buttons for the AppBar: notification bell, help, avatar menu.
- * Extracted from AppShell to isolate toolbar icon/button logic and styling.
  *
  * @enterprise
- * - Extracted from AppShell so AppBar chrome can evolve independently of layout orchestration.
+ * - Kept apart from AppShell so AppBar chrome can evolve independently of layout orchestration.
  * - The avatar menu (AccountMenu) is the right-most action, where SAP Fiori, Microsoft 365
- *   and Jira put the profile (FW6 UX-1). It replaced the hamburger user menu: settings moved
- *   to the sidebar, the documentation links were already in the footer, and GitHub moved
- *   into the About dialog.
- * - No language or theme toggle here: preferences have one editor, the settings dialog (FW5 forks 1 and 2, SAP Fiori pattern).
+ *   and Jira put the profile (frontend ADR-0015). Settings live in the sidebar, the
+ *   documentation links in the footer, the repository link in the About dialog.
+ * - No language or theme toggle here: preferences have one editor, the settings dialog (SAP Fiori pattern).
  */
 &nbsp;
 import { Box } from '@mui/material';
@@ -240,10 +232,9 @@ export default function AppToolbarActions({
 &nbsp;
   return (
     &lt;Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}&gt;
-      {/* Low-stock notifications (FW5 fork 7) */}
+      {/* Low-stock notifications */}
       &lt;NotificationBell /&gt;
 &nbsp;
-      {/* Help Icon Button */}
       &lt;HelpIconButton
         topicId={helpTopic}
         tooltip={t('actions.help')}

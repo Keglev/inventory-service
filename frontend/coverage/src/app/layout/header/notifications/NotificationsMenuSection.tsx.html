@@ -97,9 +97,7 @@
 <a name='L32'></a><a href='#L32'>32</a>
 <a name='L33'></a><a href='#L33'>33</a>
 <a name='L34'></a><a href='#L34'>34</a>
-<a name='L35'></a><a href='#L35'>35</a>
-<a name='L36'></a><a href='#L36'>36</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L35'></a><a href='#L35'>35</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -144,8 +142,7 @@
  * @enterprise
  * - Reads the count from useDashboardMetrics, the query the dashboard KPI card
  *   uses, so the bell and the card cannot disagree and share one request.
- * - Moved here from app/HamburgerMenu when that menu was removed (FW6 UX-1);
- *   the bell has been its only consumer since FW5 fork 7.
+ * - The bell is its only consumer.
  */
 import { useDashboardMetrics } from '../../../../api/analytics/hooks/useDashboardMetrics';
 import AllClearNotificationSection from './AllClearNotificationSection';

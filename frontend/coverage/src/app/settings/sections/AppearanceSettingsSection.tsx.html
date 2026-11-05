@@ -163,7 +163,9 @@
 <a name='L98'></a><a href='#L98'>98</a>
 <a name='L99'></a><a href='#L99'>99</a>
 <a name='L100'></a><a href='#L100'>100</a>
-<a name='L101'></a><a href='#L101'>101</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -268,11 +270,10 @@
  * @module app/settings/sections/AppearanceSettingsSection
  *
  * @summary
- * Appearance settings section component.
- * Theme (light/dark) and table density, each as a radio group.
+ * Appearance settings section: theme (light/dark) and table density, each as a radio group.
  *
  * @enterprise
- * - The only editor for theme and density (FW5 fork 1); theme state belongs to
+ * - The only editor for theme and density; theme state belongs to
  *   ShellPreferencesProvider and arrives through props like density does
  */
 &nbsp;
@@ -304,7 +305,7 @@ export interface AppearanceSettingsSectionProps {
 /**
  * Appearance settings section component.
  *
- * Provides table density selector with comfortable and compact options.
+ * Provides the theme mode and table density selectors.
  * Isolated from other settings for independent testing and reuse.
  *
  * @param props - Component props
@@ -313,6 +314,8 @@ export interface AppearanceSettingsSectionProps {
  * @example
  * ```tsx
  * &lt;AppearanceSettingsSection
+ *   themeMode="light"
+ *   onThemeModeChange={handleThemeChange}
  *   tableDensity="comfortable"
  *   onTableDensityChange={handleDensityChange}
  * /&gt;

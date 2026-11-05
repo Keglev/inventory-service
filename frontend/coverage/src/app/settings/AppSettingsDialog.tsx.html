@@ -196,9 +196,7 @@
 <a name='L131'></a><a href='#L131'>131</a>
 <a name='L132'></a><a href='#L132'>132</a>
 <a name='L133'></a><a href='#L133'>133</a>
-<a name='L134'></a><a href='#L134'>134</a>
-<a name='L135'></a><a href='#L135'>135</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L134'></a><a href='#L134'>134</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -337,10 +335,9 @@
  *
  * @summary
  * Thin dialog container for application settings.
- * Manages dialog open/close state and delegates form rendering to AppSettingsForm.
  *
  * @enterprise
- * - Thin dialog shell: owns only open/close state and layout; all form logic lives in AppSettingsForm + useAppSettingsForm
+ * - Thin dialog shell: the parent owns `open`; this file owns layout only, and all form logic lives in AppSettingsForm + useAppSettingsForm
  * - Entry point for the settings flow; keeps the dialog surface isolated so it can be opened from any trigger
  */
 &nbsp;
@@ -369,8 +366,8 @@ export interface AppSettingsDialogProps {
 /**
  * Application settings dialog component.
  *
- * Thin container managing dialog open/close state. Delegates form orchestration
- * and state management to AppSettingsForm and useAppSettingsForm hook.
+ * Thin container: the parent passes `open` and `onClose`. Delegates form
+ * orchestration and state management to AppSettingsForm and useAppSettingsForm hook.
  *
  * Integrates all settings sections through AppSettingsForm component.
  *

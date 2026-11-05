@@ -202,7 +202,7 @@
  *
  * @enterprise
  * - Mounted by NotificationsMenuSection when lowStockCount &gt; 0.
- * - Contrast (S2-8): the warning tint behind the section lowers every colour on
+ * - Contrast: the warning tint behind the section lowers every colour on
  *   it. warning.main as title text read 2.64:1 in light mode and the default link
  *   blue 3.90:1 (light) / 3.95:1 (dark), below the 4.5:1 text minimum. The title
  *   takes the text token; the icon and the tint carry the warning.
@@ -250,7 +250,7 @@ export default function LowStockAlertSection({ lowStockCount, onShowAll }: LowSt
             { count: lowStockCount }
           )}
         &lt;/Typography&gt;
-        {/* The count alone named no items; this opens the list (C6). */}
+        {/* The count alone names no items; this opens the list. */}
         &lt;Link component={RouterLink} to={BELOW_MINIMUM_LINK} onClick={onShowAll} variant="body2" underline="hover" sx={{ color: linkColor }}&gt;
           {t('notifications.showAll')}
         &lt;/Link&gt;

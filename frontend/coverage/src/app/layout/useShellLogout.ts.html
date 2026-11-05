@@ -108,11 +108,7 @@
 <a name='L43'></a><a href='#L43'>43</a>
 <a name='L44'></a><a href='#L44'>44</a>
 <a name='L45'></a><a href='#L45'>45</a>
-<a name='L46'></a><a href='#L46'>46</a>
-<a name='L47'></a><a href='#L47'>47</a>
-<a name='L48'></a><a href='#L48'>48</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L46'></a><a href='#L46'>46</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -162,16 +158,14 @@
  * @module app/layout/useShellLogout
  *
  * @summary
- * Builds the shell's logout handler: demo users get a client-side redirect to
- * the logout-success route; real users are routed to /logout, where LogoutPage
- * clears client state, tells the other tabs and posts the backend logout form.
- * Extracted from AppShell.
+ * Builds the shell's logout handler: demo users get a client-side redirect to the
+ * logout-success route; real users are routed to /logout, where LogoutPage clears client
+ * state, tells the other tabs and posts the backend logout form.
  *
  * @enterprise
  * - Real users go through LogoutPage like the heartbeat's 401 path, so every
- *   logout clears the query cache and broadcasts to the other tabs. The menu
- *   once posted its own form and skipped both (FO7): other tabs kept showing
- *   cached data until their next request answered 401.
+ *   logout clears the query cache and broadcasts to the other tabs; otherwise
+ *   other tabs would show cached data until their next request answered 401.
  * - /logout sits outside AppShell and RequireAuth, so clearing the user there
  *   cannot bounce the page to /login before the form posts.
  * - Demo users have no server session: no backend round trip is needed.

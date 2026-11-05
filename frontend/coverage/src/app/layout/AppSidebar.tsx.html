@@ -161,9 +161,7 @@
 <a name='L96'></a><a href='#L96'>96</a>
 <a name='L97'></a><a href='#L97'>97</a>
 <a name='L98'></a><a href='#L98'>98</a>
-<a name='L99'></a><a href='#L99'>99</a>
-<a name='L100'></a><a href='#L100'>100</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L99'></a><a href='#L99'>99</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -266,13 +264,12 @@
  * @module app/layout/AppSidebar
  *
  * @summary
- * Left sidebar navigation drawer.
- * Thin orchestrator: drawer chrome only; the content comes from SidebarDrawerContent.
+ * Left sidebar navigation drawer; drawer chrome only, the content comes from SidebarDrawerContent.
  *
  * @enterprise
  * - Two Drawer variants (temporary on mobile, permanent on desktop) share one content tree via SidebarDrawerContent, avoiding JSX duplication for each breakpoint.
- * - Desktop shows an 88 px rail, icon above label (FW6 UX-1, option A): with four destinations the former 248 px drawer was mostly empty. The phone drawer keeps full rows at 248 px.
- * - Navigation plus one settings entry (FW6): identity, About and sign-out live in the avatar menu, help in the toolbar.
+ * - Desktop shows an 88 px rail, icon above label: with four destinations a 248 px drawer would be mostly empty. The phone drawer keeps full rows at 248 px.
+ * - Navigation plus one settings entry: identity, About and sign-out live in the avatar menu, help in the toolbar.
  */
 &nbsp;
 import { Box, Drawer } from '@mui/material';

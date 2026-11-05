@@ -128,28 +128,7 @@
 <a name='L63'></a><a href='#L63'>63</a>
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a>
-<a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L66'></a><a href='#L66'>66</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -185,11 +164,6 @@
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -199,18 +173,8 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
@@ -234,8 +198,7 @@
  * @module app/settings/hooks/useAppSettingsForm
  *
  * @summary
- * Custom hook for managing application settings form state and submission.
- * Encapsulates user preferences state management.
+ * Custom hook for the settings form: the preference values and their change handlers.
  *
  * @enterprise
  * - Separates form logic from UI, keeping form components stateless
@@ -252,12 +215,10 @@ interface FormState {
 }
 &nbsp;
 /**
- * Hook for managing application settings form state and submission.
+ * Hook for the settings form state; every change goes through useSettings, whose
+ * context owns persistence.
  *
- * Provides form state and callbacks for updating preferences.
- * Handles persistence through useSettings hook integration.
- *
- * @returns Object containing form state, callbacks, and loading state
+ * @returns Object containing form state and callbacks
  *
  * @example
  * ```tsx
@@ -273,29 +234,14 @@ export function useAppSettingsForm() {
     tableDensity: userPreferences.tableDensity,
   };
 &nbsp;
-  /**
-   * Updates date format preference via the settings context; persistence is owned by the context.
-   *
-   * @param newFormat - New date format value
-   */
   const handleDateFormatChange = (newFormat: DateFormat) =&gt; {
     setUserPreferences({ dateFormat: newFormat });
   };
 &nbsp;
-  /**
-   * Updates number format preference via the settings context; persistence is owned by the context.
-   *
-   * @param newFormat - New number format value
-   */
   const handleNumberFormatChange = (newFormat: NumberFormat) =&gt; {
     setUserPreferences({ numberFormat: newFormat });
   };
 &nbsp;
-  /**
-   * Updates table density preference via the settings context; persistence is owned by the context.
-   *
-   * @param newDensity - New table density value
-   */
   const handleTableDensityChange = (newDensity: TableDensity) =&gt; {
     setUserPreferences({ tableDensity: newDensity });
   };
