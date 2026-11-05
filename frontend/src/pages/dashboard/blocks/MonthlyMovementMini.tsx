@@ -4,13 +4,11 @@
  *
  * @summary
  * Compact 90-day monthly stock-movement bar chart shown on the Dashboard.
- * Inbound (stockIn) and outbound (stockOut) bars share the analytics API
- * used by the full Analytics page.
  *
  * @enterprise
- * - Reuses getMonthlyStockMovement rather than a dashboard-specific endpoint
- *   to keep a single source of truth for stock-movement aggregation and to
- *   benefit from any caching the analytics layer applies.
+ * - Reuses getMonthlyStockMovement, the analytics API of the full Analytics page,
+ *   rather than a dashboard-specific endpoint, to keep a single source of truth for
+ *   stock-movement aggregation (its query key is its own, so no cache is shared).
  * - Bar colors are bound to MUI theme tokens (success.main / error.main) so
  *   palette changes (light/dark mode, brand recolor) propagate without
  *   touching this component.
@@ -18,10 +16,8 @@
  *   because the cost is trivial and the values are stable per day.
  *
  * @i18n
- * Uses 'common' namespace. Key: dashboard.kpi.movementTitle.
- *
- * Keys: dashboard.kpi.movementTitle, dashboard.kpi.stockIn/stockOut,
- * units.pieces (all in the 'common' namespace).
+ * Uses 'common' namespace. Keys: dashboard.kpi.movementTitle,
+ * dashboard.kpi.stockIn/stockOut, units.pieces.
  */
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
@@ -41,17 +37,15 @@ import { useSettings } from '../../../hooks/useSettings';
 /**
  * Monthly stock movement chart component for dashboard KPI section.
  * Shows a 90-day rolling window of stock in/out movement aggregated by month.
- * @returns Memoized React component with dual-bar chart or skeleton loading state
+ * @returns Dual-bar chart, or a skeleton while loading
  */
 export default function MonthlyMovementMini() {
   const { t, i18n } = useTranslation('common');
   const { userPreferences } = useSettings();
-  // Calculate 90-day window (from: 90 days ago, to: today)
   const from = getDaysAgoIso(90);
   const to = getTodayIso();
   const muiTheme = useMuiTheme();
 
-  // Fetch monthly aggregated stock movement data
   const q = useQuery({
     queryKey: ['dashboard', 'movementMini', from, to],
     queryFn: () => getMonthlyStockMovement({ from, to }),
@@ -59,12 +53,10 @@ export default function MonthlyMovementMini() {
   return (
     <Card>
       <CardContent sx={{ py: 1.5, px: 2 }}>
-        {/* Card title */}
         <Typography variant="subtitle1" sx={{ mb: 0.75 }}>
           {t('dashboard.kpi.movementTitle')}
         </Typography>
 
-        {/* Show skeleton while data is loading, otherwise render bar chart */}
         {q.isLoading ? (
           <Skeleton variant="rounded" height={220} />
         ) : (
@@ -90,13 +82,11 @@ export default function MonthlyMovementMini() {
                   })}
                 />
                 <Legend {...chartLegendProps(muiTheme)} itemSorter={MOVEMENT_ORDER} />
-                {/* Green bars: inbound stock movements */}
                 <Bar
                   dataKey="stockIn"
                   name={t('dashboard.kpi.stockIn')}
                   fill={muiTheme.palette.success.main}
                 />
-                {/* Red bars: outbound stock movements */}
                 <Bar
                   dataKey="stockOut"
                   name={t('dashboard.kpi.stockOut')}

@@ -3,8 +3,8 @@
  * @module pages/analytics/sections/useEmployeeChartFormatting
  * @summary Series colours, time rows, time axis and the formatters of the employee activity chart.
  * @enterprise
- * Split out of EmployeesActivityChart (2026-10-29): what the chart shows and how its values
- * read are decided here, the card only lays the chart out. Every formatter follows the user's
+ * What the chart shows and how its values read are decided here; EmployeesActivityChart only
+ * lays the chart out. Every formatter follows the user's
  * number and date preferences and the active language, so the axis, the tooltip and the legend
  * agree. Colours are keyed by email, never by position, so a person keeps one colour whatever
  * else is on the chart.
@@ -61,9 +61,8 @@ export function useEmployeeChartFormatting({ granularity, chartData, employees, 
     [userPreferences.numberFormat]
   );
 
-  // Buckets sit on a time axis at their first day; quiet periods are filled with
-  // zeros (employeeTimeSeries). Days and weeks are labelled by date in the
-  // user's format (a week by its Monday, as on the stock activity card), months
+  // Buckets sit on a time axis at their first day, quiet periods filled with zeros
+  // (employeeTimeSeries). Days and weeks (by their Monday) are labelled by date, months
   // by name; the tooltip names the covered days of a partial month.
   const rows = React.useMemo(
     () => employeeTimeRows(chartData, granularity, from, to),

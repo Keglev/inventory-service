@@ -7,9 +7,9 @@
  * or a no-data message, the rows, and the pagination bar.
  *
  * @enterprise
- * The movement drilldown and the employee change log repeated the same card,
- * table, signed change cell and pagination wiring (P-R4, jscpd: 53 lines).
- * Each caller now supplies its columns (built with stockChangeColumns, which
+ * Shared by the movement drilldown and the employee change log, so their card,
+ * table, signed change cell and pagination wiring cannot drift apart. Each caller
+ * supplies its columns (built with stockChangeColumns, which
  * keeps the shared cells identical) and its paging state.
  */
 import {

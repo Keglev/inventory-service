@@ -3,15 +3,14 @@
  * @module pages/analytics/hooks/useItemSearchOptions
  * @summary Shared debounced item-autocomplete state and search query for analytics pickers.
  * @enterprise
- * Deduplicates the type-ahead pattern previously copied in PriceTrendCard and
- * MovementsSection: controlled input text, 250ms debounce, object-based
+ * The type-ahead pattern shared by PriceTrendCard and MovementsSection: controlled
+ * input text, 250ms debounce, object-based
  * selection (never derived from options), reset on supplier change to prevent
  * cross-supplier leaks, and a supplier-scoped-vs-global server search. Callers
  * keep their own option-list enrichment (labels, selected-item pinning) local,
  * because that presentation logic differs per consumer. Behavior knobs that
  * differ between consumers (minimum characters, previous-data placeholder,
- * query-key scope) are explicit parameters so each call site preserves its
- * original semantics exactly.
+ * query-key scope) are explicit parameters.
  */
 import * as React from 'react';
 import { useQuery, keepPreviousData, type UseQueryResult } from '@tanstack/react-query';

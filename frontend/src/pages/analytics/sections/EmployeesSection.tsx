@@ -3,14 +3,14 @@
  * @module pages/analytics/sections/EmployeesSection
  *
  * @summary
- * "Employees" analytics section, rendered for ADMIN and the demo session only
- * (Analytics shows any other user a notice instead; backend ADR-0020). Renders:
- * - a granularity toggle (daily | weekly | monthly) that refetches the
- *   aggregation with the selected bucket size,
- * - a line chart with one series per employee (legend shows display names),
- * - a server-paginated change log fed by /api/analytics/employee-changes.
+ * "Employees" analytics section, rendered for ADMIN and the demo session only (Analytics
+ * shows any other user a notice instead; backend ADR-0020).
  *
  * @enterprise
+ * - Renders a granularity toggle (daily | weekly | monthly) that refetches the
+ *   aggregation with the selected bucket size, a line chart with one series per
+ *   employee (legend shows display names), and a server-paginated change log
+ *   fed by /api/analytics/employee-changes.
  * - Composition only: data, granularity, and the client-side pivot live in
  *   useEmployeesSectionData; the chart card is EmployeesActivityChart; the
  *   change log is a StockChangeTable with this section's columns.

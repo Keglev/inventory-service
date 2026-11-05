@@ -8,7 +8,7 @@
  *
  * @enterprise
  * - Pure and synchronous, so the grouping rule is tested without rendering.
- * - Owner's rules (2026-09-28): value, not pieces; at most five slices; the
+ * - The rules: value, not pieces; at most five slices; the
  *   "all others" slice groups everything after the top four even when it is
  *   bigger than any of them; suppliers without value are left out; equal
  *   values are ordered by name so the top four do not flicker.

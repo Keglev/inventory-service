@@ -3,13 +3,15 @@
  * @module pages/analytics/blocks/ItemUpdateFrequencyCard
  *
  * @summary
- * Most-updated items for a supplier (top N). If no supplier is selected, shows an empty-state hint.
+ * Most-updated items for a supplier (top N).
  *
  * @enterprise
+ * - If no supplier is selected, shows an empty-state hint.
  * - Hook order is stable: useQuery is declared unconditionally and gated via `enabled`.
  * - Bars are individually colored through each entry's `fill`, cycling through
  *   the MUI theme palette (Recharts' Cell is deprecated in v3, removed in v4).
- * - Layout uses vertical bars; right margin avoids clipping on narrow screens.
+ * - Horizontal bars (layout="vertical": the items sit on the Y axis); the right
+ *   margin avoids clipping on narrow screens.
  */
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
@@ -30,7 +32,6 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
 
-  // Fetch (unconditional hook; gated by `enabled`)
   const enabled = !!supplierId;
   const q = useQuery<ItemUpdateFrequencyPoint[]>({
     queryKey: ['analytics', 'itemUpdateFrequency', supplierId ?? null],
@@ -38,7 +39,6 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
     enabled,
   });
 
-  // Empty-state when supplier is not chosen
   if (!enabled) {
     return (
       <Card>
@@ -55,7 +55,6 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
     );
   }
 
-  // Stable data + color cycle
   const barColors = [
     muiTheme.palette.primary.main,
     muiTheme.palette.success.main,

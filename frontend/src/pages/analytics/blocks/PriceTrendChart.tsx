@@ -6,8 +6,8 @@
  * Step chart of one item's price over the selected range, on a time axis.
  *
  * @enterprise
- * Split from PriceTrendCard, which keeps the item picker and the query; this
- * component owns how a price series is drawn. A price holds until it changes, so
+ * PriceTrendCard keeps the item picker and the query; this component owns how a
+ * price series is drawn. A price holds until it changes, so
  * the line is a step (stepAfter) and the carried last price gets no dot. The X
  * axis is a time scale over the selected range, so the gap between two changes
  * shows how long a price held.

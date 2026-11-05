@@ -7,9 +7,8 @@
  * loading skeleton, a no-data message, or the chart in a responsive box.
  *
  * @enterprise
- * The stock value, monthly movement and reason breakdown cards each repeated
- * this card, title, skeleton, empty box and ResponsiveContainer (P-R4, jscpd).
- * Each card now owns only its query and its chart. ChartPlaceholder is the
+ * Shared by the stock value, monthly movement and reason breakdown cards, so each
+ * card owns only its query and its chart. ChartPlaceholder is the
  * centred message box, also used for the price trend's prompts.
  */
 import type { ReactElement, ReactNode } from 'react';

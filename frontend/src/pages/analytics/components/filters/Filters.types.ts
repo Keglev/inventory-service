@@ -37,7 +37,7 @@ export interface AnalyticsFilters {
 export interface FiltersProps {
   /** Current filter state (controlled) */
   value: AnalyticsFilters;
-  /** Supplier options for dropdown */
+  /** Supplier options for the picker */
   suppliers: SupplierRef[];
   /** Called when any filter changes */
   onChange: (next: AnalyticsFilters) => void;

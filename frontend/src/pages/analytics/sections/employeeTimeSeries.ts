@@ -5,10 +5,9 @@
  *   becomes its start day (UTC midnight, ms), and periods without changes are
  *   added so a line drops to 0 there instead of skipping them.
  * @enterprise
- * The API returns only periods that had changes, and the chart drew them on a
- * category axis, so seven quiet weeks took the width of one (fork 7 finding 2,
- * Carlos 2026-10-13: option A, a time axis as on the stock activity card). A
- * missing period is a real zero (nobody changed anything), and the chart reads
+ * The API returns only periods that had changes; on a category axis seven quiet
+ * weeks would take the width of one, so the chart uses a time axis, as the stock
+ * activity card does. A missing period is a real zero (nobody changed anything), and the chart reads
  * a missing employee as 0 already, so an empty row per missing bucket suffices.
  * Days are UTC midnights like the stock activity series; they are turned back
  * into local calendar days only for display (utcDay).
