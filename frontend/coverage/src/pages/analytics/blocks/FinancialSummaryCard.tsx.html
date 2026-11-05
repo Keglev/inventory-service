@@ -223,13 +223,7 @@
 <a name='L158'></a><a href='#L158'>158</a>
 <a name='L159'></a><a href='#L159'>159</a>
 <a name='L160'></a><a href='#L160'>160</a>
-<a name='L161'></a><a href='#L161'>161</a>
-<a name='L162'></a><a href='#L162'>162</a>
-<a name='L163'></a><a href='#L163'>163</a>
-<a name='L164'></a><a href='#L164'>164</a>
-<a name='L165'></a><a href='#L165'>165</a>
-<a name='L166'></a><a href='#L166'>166</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L161'></a><a href='#L161'>161</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -276,12 +270,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -302,7 +296,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -317,9 +310,6 @@
 <span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">26x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -403,23 +393,22 @@
  * COGS, Write-offs, Returns).
  *
  * @enterprise
- * - The finance endpoint is supplier-gated on this backend; calling it
- *   without a supplier returns errors. The hook is therefore declared
- *   unconditionally and gated via `enabled = !!supplierId`, complying
- *   with the Rules of Hooks while avoiding pointless requests.
+ * - The hook is declared unconditionally and gated via `enabled =
+ *   !!supplierId` (Rules of Hooks); the card asks for a supplier first,
+ *   although the endpoint answers for all suppliers too (TODO(S-13) at the gate).
  * - An all-zero result triggers a distinct empty-state, separate from
  *   the no-supplier helper card, so the user can tell "no supplier"
  *   apart from "nothing happened in this period".
- * - DTO field-name drift across deployments is absorbed in the API
- *   layer; this component consumes a single normalized shape.
+ * - The API layer (getFinancialSummary) returns one normalized shape with
+ *   zero defaults; this component consumes it as is.
  * - A caption names the costing method the backend reports. The ending value
  *   is valued at weighted average cost, so it differs from a stock value at
  *   current prices; without the caption the two figures look contradictory.
  * - Bars run horizontally, so the category names sit on the Y axis, which
  *   sizes itself to the longest one (width="auto") and draws all of them
  *   (interval={0}). As vertical bars on a card about 400 px wide, the German
- *   labels overlapped, Recharts dropped "Warenaufwand", and the value axis
- *   cut "1.400,00" to ".400,00".
+ *   labels would overlap, Recharts would drop "Warenaufwand", and the value
+ *   axis would cut "1.400,00" to ".400,00".
  */
 import { Card, CardContent, Typography, Skeleton, Box, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -442,14 +431,14 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
   /** Finance API on this backend expects a supplier; do not fire without one. */
   const enabled = !!supplierId;
 &nbsp;
-  // --- Hook must be unconditional; gate with `enabled` to avoid 500s without supplier ---
+  // TODO(S-13): GET /api/analytics/financial/summary answers 200 without a supplier too,
+  // and an empty supplier filter means all suppliers; this gate is to go.
   const q = useQuery&lt;FinancialSummary&gt;({
     queryKey: ['analytics', 'financialSummary', from, to, supplierId ?? null],
     queryFn: () =&gt; getFinancialSummary({ from, to, supplierId: supplierId ?? <span class="branch-1 cbranch-no" title="branch not covered" >undefined }</span>),
     enabled,
   });
 &nbsp;
-  // If supplier not chosen, render a light helper card
   if (!enabled) {
     return (
       &lt;Card&gt;
@@ -465,8 +454,7 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
     );
   }
 &nbsp;
-  // Build chart series (no hook -&gt; safe w.r.t. Rules of Hooks). Each bar
-  // carries its colour as `fill`, which Recharts reads per entry (Cell is
+  // Each bar carries its colour as `fill`, which Recharts reads per entry (Cell is
   // deprecated in Recharts 3 and goes in 4).
   const s = q.data;
   const data: Array&lt;{ name: string; value: number; fill: string }&gt; = s
@@ -491,7 +479,6 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
         {q.isLoading ? (
           &lt;Skeleton variant="rounded" height={220} /&gt;
         ) : allZero ? (
-          // --- Empty state when there is no financial activity in the period ---
           &lt;Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}&gt;
             {t('analytics:finance.empty')}
           &lt;/Box&gt;
@@ -514,13 +501,11 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
               &lt;/Typography&gt;
             ) : null}
 &nbsp;
-            {/* KPIs */}
             &lt;Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 1 }}&gt;
               &lt;Kpi label={t('analytics:finance.opening')} value={q.data?.openingValue} numberFormat={userPreferences.numberFormat} /&gt;
               &lt;Kpi label={t('analytics:finance.ending')} value={q.data?.endingValue} numberFormat={userPreferences.numberFormat} /&gt;
             &lt;/Stack&gt;
 &nbsp;
-            {/* Bars */}
             &lt;Box sx={{ height: 260 }}&gt;
               &lt;ResponsiveContainer width="100%" height="100%"&gt;
                 &lt;BarChart data={data} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}&gt;

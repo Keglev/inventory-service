@@ -109,7 +109,9 @@
 <a name='L44'></a><a href='#L44'>44</a>
 <a name='L45'></a><a href='#L45'>45</a>
 <a name='L46'></a><a href='#L46'>46</a>
-<a name='L47'></a><a href='#L47'>47</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -160,14 +162,15 @@
  * @module pages/analytics/blocks/priceSeries
  *
  * @summary
- * Price axis for the step chart in PriceTrendCard: domain and round ticks.
- * The series comes from utils/stepSeries, the time axis from utils/timeAxis.
+ * Price axis for the step chart in PriceTrendChart: domain and round ticks.
  *
  * @enterprise
+ * The series comes from utils/stepSeries, the time axis from utils/timeAxis.
+ *
  * The API returns one point per recorded price change; the step series carries
  * the last price to the range end, and the time axis gives each gap between
- * changes its real width (on a category axis 62 days and 97 days took the same
- * width).
+ * changes its real width (on a category axis 62 days and 97 days would take the
+ * same width).
  */
 import type { PricePoint } from '../../../api/analytics/types';
 import type { StepPoint } from '../../../utils/stepSeries';

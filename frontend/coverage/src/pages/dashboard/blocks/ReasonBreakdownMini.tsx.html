@@ -162,7 +162,11 @@
 <a name='L97'></a><a href='#L97'>97</a>
 <a name='L98'></a><a href='#L98'>98</a>
 <a name='L99'></a><a href='#L99'>99</a>
-<a name='L100'></a><a href='#L100'>100</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -266,11 +270,13 @@
  * @module pages/dashboard/blocks/ReasonBreakdownMini
  *
  * @summary
- * Compact grouped bar of stock movement per change-reason (increase vs
- * decrease) for the dashboard. Unfiltered/global; reuses the analytics reason
- * label lookup so the 11 StockChangeReason values stay in sync.
+ * Compact grouped bar of stock movement per change-reason (increase vs decrease) for the
+ * dashboard.
  *
  * @enterprise
+ * Unfiltered/global; reuses the analytics reason label lookup so the 11 StockChangeReason
+ * values stay in sync.
+ *
  * - A reason may carry both an increase and a decrease at once (e.g. manual
  *   corrections); rows with no movement in either direction are dropped.
  * - Reason labels resolve via the analytics namespace; card chrome uses common.
@@ -302,8 +308,8 @@ export default function ReasonBreakdownMini() {
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
 &nbsp;
-  // Same window as the movement chart beside it (Carlos, fork 5 option A). Without
-  // dates the server answered with its default of 30 days, which the title never said.
+  // Same window as the movement chart beside it; without dates the server would answer
+  // with its default of 30 days, which the title never says.
   const from = getDaysAgoIso(90);
   const to = getTodayIso();
   const q = useQuery&lt;ReasonBreakdownRow[]&gt;({

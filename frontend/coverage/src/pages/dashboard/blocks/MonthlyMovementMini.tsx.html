@@ -164,21 +164,7 @@
 <a name='L99'></a><a href='#L99'>99</a>
 <a name='L100'></a><a href='#L100'>100</a>
 <a name='L101'></a><a href='#L101'>101</a>
-<a name='L102'></a><a href='#L102'>102</a>
-<a name='L103'></a><a href='#L103'>103</a>
-<a name='L104'></a><a href='#L104'>104</a>
-<a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L102'></a><a href='#L102'>102</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -222,11 +208,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -246,14 +230,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -291,13 +271,11 @@
  *
  * @summary
  * Compact 90-day monthly stock-movement bar chart shown on the Dashboard.
- * Inbound (stockIn) and outbound (stockOut) bars share the analytics API
- * used by the full Analytics page.
  *
  * @enterprise
- * - Reuses getMonthlyStockMovement rather than a dashboard-specific endpoint
- *   to keep a single source of truth for stock-movement aggregation and to
- *   benefit from any caching the analytics layer applies.
+ * - Reuses getMonthlyStockMovement, the analytics API of the full Analytics page,
+ *   rather than a dashboard-specific endpoint, to keep a single source of truth for
+ *   stock-movement aggregation (its query key is its own, so no cache is shared).
  * - Bar colors are bound to MUI theme tokens (success.main / error.main) so
  *   palette changes (light/dark mode, brand recolor) propagate without
  *   touching this component.
@@ -305,10 +283,8 @@
  *   because the cost is trivial and the values are stable per day.
  *
  * @i18n
- * Uses 'common' namespace. Key: dashboard.kpi.movementTitle.
- *
- * Keys: dashboard.kpi.movementTitle, dashboard.kpi.stockIn/stockOut,
- * units.pieces (all in the 'common' namespace).
+ * Uses 'common' namespace. Keys: dashboard.kpi.movementTitle,
+ * dashboard.kpi.stockIn/stockOut, units.pieces.
  */
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
@@ -328,17 +304,15 @@ import { useSettings } from '../../../hooks/useSettings';
 /**
  * Monthly stock movement chart component for dashboard KPI section.
  * Shows a 90-day rolling window of stock in/out movement aggregated by month.
- * @returns Memoized React component with dual-bar chart or skeleton loading state
+ * @returns Dual-bar chart, or a skeleton while loading
  */
 export default function MonthlyMovementMini() {
   const { t, i18n } = useTranslation('common');
   const { userPreferences } = useSettings();
-  // Calculate 90-day window (from: 90 days ago, to: today)
   const from = getDaysAgoIso(90);
   const to = getTodayIso();
   const muiTheme = useMuiTheme();
 &nbsp;
-  // Fetch monthly aggregated stock movement data
   const q = useQuery({
     queryKey: ['dashboard', 'movementMini', from, to],
     queryFn: () =&gt; getMonthlyStockMovement({ from, to }),
@@ -346,12 +320,10 @@ export default function MonthlyMovementMini() {
   return (
     &lt;Card&gt;
       &lt;CardContent sx={{ py: 1.5, px: 2 }}&gt;
-        {/* Card title */}
         &lt;Typography variant="subtitle1" sx={{ mb: 0.75 }}&gt;
           {t('dashboard.kpi.movementTitle')}
         &lt;/Typography&gt;
 &nbsp;
-        {/* Show skeleton while data is loading, otherwise render bar chart */}
         {q.isLoading ? (
           &lt;Skeleton variant="rounded" height={220} /&gt;
         ) : (
@@ -377,13 +349,11 @@ export default function MonthlyMovementMini() {
                   })}
                 /&gt;
                 &lt;Legend {...chartLegendProps(muiTheme)} itemSorter={MOVEMENT_ORDER} /&gt;
-                {/* Green bars: inbound stock movements */}
                 &lt;Bar
                   dataKey="stockIn"
                   name={t('dashboard.kpi.stockIn')}
                   fill={muiTheme.palette.success.main}
                 /&gt;
-                {/* Red bars: outbound stock movements */}
                 &lt;Bar
                   dataKey="stockOut"
                   name={t('dashboard.kpi.stockOut')}

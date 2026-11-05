@@ -129,9 +129,7 @@
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a>
-<a name='L68'></a><a href='#L68'>68</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -211,10 +209,9 @@
  * - Date range is inclusive (`from &lt;= to`); equal bounds are valid (a
  *   single-day window).
  * - Quick presets end on the LOCAL day, like the page's default window
- *   (utils/formatters getTodayIso, FO3 fork 5 A). They used the UTC day,
- *   which is still yesterday between local midnight and UTC midnight
- *   (00:00-02:00 in Berlin summer time), so a preset moved the window back
- *   one day against the default.
+ *   (utils/formatters getTodayIso): the UTC day is still yesterday between
+ *   local midnight and UTC midnight (00:00-02:00 in Berlin summer time), so a
+ *   UTC preset would move the window back one day against the default.
  */
 &nbsp;
 import { getDaysAgoIso, getTodayIso } from '../../../../utils/formatters';

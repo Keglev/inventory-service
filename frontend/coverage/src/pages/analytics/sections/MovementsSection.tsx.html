@@ -240,19 +240,7 @@
 <a name='L175'></a><a href='#L175'>175</a>
 <a name='L176'></a><a href='#L176'>176</a>
 <a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a>
-<a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L178'></a><a href='#L178'>178</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -295,10 +283,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -438,23 +422,19 @@
  * @module pages/analytics/sections/MovementsSection
  *
  * @summary
- * "Movements" analytics section: per-reason stock movement with increases on
- * the LEFT chart and decreases on the RIGHT chart, plus a row-level drilldown
- * table underneath. Consumes the page-global filters (window + supplier) and
- * adds two section-local controls:
- * - item-name filter (debounced, sent to the backend),
- * - reason multi-select chips (client-side; the endpoint always returns the
- *   full reason set, so toggling never refetches).
+ * "Movements" analytics section: per-reason stock movement (increases left, decreases
+ * right) plus a row-level drilldown table underneath.
  *
  * @enterprise
+ * - Consumes the page-global filters (window + supplier) and adds two
+ *   section-local controls: an item filter (a picked item, sent to the
+ *   backend; typed text alone filters nothing) and reason multi-select chips
+ *   (client-side; the endpoint always returns the full reason set, so
+ *   toggling never refetches).
  * - Quantities are sign-split by the backend, so a reason (e.g. MANUAL_UPDATE)
  *   can legitimately appear on both charts at once.
  * - An empty chip selection means "all reasons" — one tap less for the common
  *   case and no dead state.
- *
- * Size note: after extracting the shared item-search hook, the remainder is
- * the reason filter and chart render body; accepted above the typical range,
- * under the alarm threshold.
  */
 import * as React from 'react';
 import { Box, Chip, Stack, Typography } from '@mui/material';
@@ -481,12 +461,8 @@ export default function MovementsSection({ from, to, supplierId }: MovementsSect
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
 &nbsp;
-  // Item filter is SELECTION-based (matches the app's other item pickers):
-  // the user types &gt;= 2 letters, gets real item-name suggestions, and only an
-  // explicit selection filters the charts and drilldown. This avoids silent
-  // no-match filtering from free text that isn't a name substring.
-  // Shared analytics type-ahead: input, debounce, selection, reset-on-supplier,
-  // and the supplier-scoped-vs-global search query (&gt;= 2 chars).
+  // Selection-based item filter, like the other item pickers: only a picked item filters
+  // the charts and drilldown, so free text that names no item never filters to nothing.
   const {
     itemQuery,
     setItemQuery,

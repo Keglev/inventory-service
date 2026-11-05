@@ -136,11 +136,7 @@
 <a name='L71'></a><a href='#L71'>71</a>
 <a name='L72'></a><a href='#L72'>72</a>
 <a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L74'></a><a href='#L74'>74</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -218,14 +214,12 @@
  * @module pages/analytics/components/filters/SupplierFilter
  *
  * @summary
- * Single-supplier search for the analytics filter panel (the shared
- * SupplierPickerField, two letters; S2-9). An empty field means "all
- * suppliers" — encoded as `supplierId === undefined`.
+ * Single-supplier search for the analytics filter panel (the shared SupplierPickerField,
+ * two letters).
  *
  * @enterprise
- * - Caller passes the supplier list; this component does not fetch. The
- *   parent reuses the same list for filtering price-trend item lookups
- *   and for the supplier search here.
+ * - An empty field means "all suppliers" — encoded as `supplierId === undefined`.
+ * - Caller passes the supplier list; this component does not fetch.
  * - "All suppliers" is represented as `undefined` (not empty string) so
  *   the serialized URL omits the parameter entirely.
  * - Uses an external label (not a floating one) so the field aligns with

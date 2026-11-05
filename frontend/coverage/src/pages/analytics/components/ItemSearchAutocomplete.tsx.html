@@ -168,9 +168,7 @@
 <a name='L103'></a><a href='#L103'>103</a>
 <a name='L104'></a><a href='#L104'>104</a>
 <a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L106'></a><a href='#L106'>106</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -280,8 +278,7 @@
  * @module pages/analytics/components/ItemSearchAutocomplete
  * @summary Shared item type-ahead picker for analytics cards and sections.
  * @enterprise
- * Extracts the Autocomplete markup previously duplicated in PriceTrendCard
- * and MovementsSection. State stays with the callers (useItemSearchOptions
+ * The Autocomplete markup shared by PriceTrendCard and MovementsSection. State stays with the callers (useItemSearchOptions
  * plus per-consumer option enrichment); this component owns only the
  * invariant picker behavior: object-based selection that is never derived
  * from options, controlled input text, no client-side re-filtering
@@ -354,7 +351,7 @@ export function ItemSearchAutocomplete({
       onChange={(_e, val) =&gt; {
         onSelect(val);
         // Mirror the selection into the input so the visible text stays in
-        // sync with the chosen item (identical behavior in both prior hosts).
+        // sync with the chosen item.
         if (val) onInputChange(val.name);
       }}
       inputValue={inputValue}
