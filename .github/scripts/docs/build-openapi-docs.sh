@@ -16,11 +16,15 @@
 # GitHub Pages sets no headers, so the policy has to be a meta tag. The page
 # also hides the then-empty "API docs by" label, and the shared back link moves
 # into its slot at the bottom left: ReDoc's own controls use both top corners.
+# ReDoc 3 routes by hash (#/auth) once its script runs, but its prerendered
+# links point at site-root paths (/auth), which do not exist on Pages; the
+# build rewrites them, so a link opened in a new tab stays on this page.
 #
 # Failure mode: exits 1 when the spec is missing, or when the page lacks the
-# telemetry switch, loads a script or resource from another site, or carries
-# the policy after its first script; set -e stops the run when redocly fails.
-# Prerequisites: redocly CLI
+# telemetry switch, loads a script or resource from another site, carries
+# the policy after its first script, or has no module script; set -e stops
+# the run when redocly fails.
+# Prerequisites: redocly CLI, perl
 # =============================================================================
 set -euo pipefail
 
@@ -53,6 +57,14 @@ fi
 CSP="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'"
 PAGE_CSS='span:has(>a[href="https://redocly.com/redoc/"]){visibility:hidden!important}#back-to-docs{top:auto!important;right:auto!important;bottom:11px!important;left:20px!important}'
 sed -i "0,/<head>/s||<head><meta http-equiv=\"Content-Security-Policy\" content=\"$CSP\"><style>$PAGE_CSS</style>|" "$PAGE"
+
+# Markup only: the bundle after the module tag holds href strings of its own.
+perl -0pi -e 'my $i = index($_, q{<script type="module">}); exit 2 if $i < 0;
+  substr($_, 0, $i) =~ s{href="/([^"]*)"}{href="#/$1"}g;' "$PAGE" || {
+  echo "::error::the page has no module script to tell its markup from the bundle"
+  exit 1
+}
+
 META_AT="$(grep -bo 'http-equiv="Content-Security-Policy"' "$PAGE" | head -1 | cut -d: -f1)"
 SCRIPT_AT="$(grep -bo '<script' "$PAGE" | head -1 | cut -d: -f1)"
 if [ -z "$META_AT" ] || [ -z "$SCRIPT_AT" ] || [ "$META_AT" -gt "$SCRIPT_AT" ]; then
