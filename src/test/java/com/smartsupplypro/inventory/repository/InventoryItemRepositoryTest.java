@@ -231,7 +231,7 @@ class InventoryItemRepositoryTest {
                     .id("item-cnt-2").name("Clip").sku("SKU-REP-10").quantity(10)
                     .minimumQuantity(5).price(BigDecimal.ONE).supplier(supplier1)
                     .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
-            // Four is below the old fixed threshold of 5, but not below its own minimum of 2.
+            // Four is below 5, the other items' minimum, but not below its own minimum of 2.
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-cnt-3").name("Nut").sku("SKU-REP-11").quantity(4)
                     .minimumQuantity(2).price(BigDecimal.ONE).supplier(supplier1)

@@ -12,7 +12,7 @@ import com.smartsupplypro.inventory.dto.PriceTrendDTO;
  * dialect-specific date functions (TO_CHAR, TRUNC, YEAR/MONTH) not available
  * through Spring Data derived query methods.</p>
  *
- * @see StockHistoryRepository
+ * @see com.smartsupplypro.inventory.repository.StockHistoryRepository
  */
 public interface StockTrendAnalyticsRepository {
 
@@ -45,7 +45,8 @@ public interface StockTrendAnalyticsRepository {
     /**
      * Returns the daily average price trend for a specific item.
      *
-     * <p>Result format: {@link PriceTrendDTO} with day (YYYY-MM-DD) and avgPrice.
+     * <p>Result format: {@link PriceTrendDTO} with timestamp (the day, YYYY-MM-DD) and price
+     * (that day's average).
      *
      * @param itemId     required item identifier
      * @param supplierId optional supplier filter
@@ -62,8 +63,9 @@ public interface StockTrendAnalyticsRepository {
      * ordered by day ascending then creator. Weekly/monthly rollups are a
      * service-layer concern.
      *
-     * @param start inclusive lower bound
-     * @param end   inclusive upper bound
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @param supplierId optional supplier filter
      * @return raw aggregation rows
      */
     List<Object[]> getDailyEmployeeActivity(LocalDateTime start, LocalDateTime end, String supplierId);

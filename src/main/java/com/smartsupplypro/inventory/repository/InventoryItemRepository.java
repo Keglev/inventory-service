@@ -17,11 +17,10 @@ import com.smartsupplypro.inventory.model.InventoryItem;
  * Repository for {@link InventoryItem} persistence operations.
  *
  * <p>Uses {@code @EntityGraph} on {@link #findAll()} and {@link #searchActiveItems}
- * to prevent N+1 queries on supplier joins. Native SQL is used for below-minimum stock
- * queries where optional supplier filtering is required.</p>
+ * to prevent N+1 queries on supplier joins.</p>
  *
  * @see InventoryItem
- * @see InventoryItemService
+ * @see com.smartsupplypro.inventory.service.InventoryItemService
  */
 public interface InventoryItemRepository extends JpaRepository<InventoryItem, String> {
 
@@ -36,10 +35,9 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      *
      * <p>Without this override the inherited method leaves {@code supplier} as a
      * lazy proxy. {@code InventoryItemServiceImpl.getById} is not transactional
-     * and its mapper reads {@code supplier.getName()}, so the proxy was resolved
-     * only because {@code spring.jpa.open-in-view} keeps a session open for the
-     * whole request. That also cost a second query per call, which is the N+1
-     * the other reads here already avoid.</p>
+     * and its mapper reads {@code supplier.getName()}; with
+     * {@code spring.jpa.open-in-view} off, no session would be left to resolve the
+     * proxy, and resolving it would cost a second query per call.</p>
      */
     @Override
     @EntityGraph(attributePaths = {"supplier"})
@@ -107,15 +105,15 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * supplier and below-minimum-stock filters. Supplier is pre-fetched to prevent
      * N+1 queries. Ordering comes exclusively from the {@link Pageable} sort.
      *
+     * <p>The explicit {@code ESCAPE '\'} is deliberate. Without it Hibernate's H2
+     * dialect appends {@code ESCAPE ''}, and H2 in Oracle mode treats {@code ''}
+     * as NULL, so every LIKE matches nothing. Oracle accepts the same clause.</p>
+     *
      * @param name             partial item name or SKU; empty string matches all items
      * @param supplierId       optional supplier filter (null returns all suppliers)
      * @param belowMinimumOnly when true, only items with quantity below minimumQuantity
      * @param pageable         pagination and sorting parameters
      * @return paginated results with supplier association eagerly loaded
-     *
-     * <p>The explicit {@code ESCAPE '\'} is deliberate. Without it Hibernate's H2
-     * dialect appends {@code ESCAPE ''}, and H2 in Oracle mode treats {@code ''}
-     * as NULL, so every LIKE matches nothing. Oracle accepts the same clause.
      */
     @EntityGraph(attributePaths = {"supplier"})
     @Query("SELECT i FROM InventoryItem i "

@@ -10,6 +10,8 @@ public final class StockDetailSqlBuilder {
 
     private StockDetailSqlBuilder() {}
 
+    // TODO(S-8): StockMetricsSqlBuilder and the H2 trend queries match supplier ids with UPPER()
+    // and streamEventsForWAC lower-cases them; one rule for every query is still to be chosen.
     /**
      * Returns the SQL for multi-criteria filtered stock history search.
      *

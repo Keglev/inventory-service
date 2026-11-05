@@ -183,7 +183,8 @@ public final class StockTrendSqlBuilder {
      * monthly rollups happen in the service layer to avoid dialect-specific
      * week functions.
      *
-     * @return SQL ordered by day then creator; accepts {@code :start} and {@code :end}
+     * @return SQL ordered by day then creator; accepts {@code :start}, {@code :end} and
+     *         {@code :supplierId}
      */
     public static String buildH2DailyEmployeeActivitySql() {
         return """
@@ -208,7 +209,8 @@ public final class StockTrendSqlBuilder {
      *
      * <p>Uses {@code TO_CHAR(..., 'YYYY-MM-DD')} for day formatting.
      *
-     * @return SQL ordered by day then creator; accepts {@code :start} and {@code :end}
+     * @return SQL ordered by day then creator; accepts {@code :start}, {@code :end} and
+     *         {@code :supplierId}
      */
     public static String buildOracleDailyEmployeeActivitySql() {
         return """

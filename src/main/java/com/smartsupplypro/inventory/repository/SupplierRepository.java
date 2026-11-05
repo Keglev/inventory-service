@@ -13,7 +13,7 @@ import com.smartsupplypro.inventory.model.Supplier;
  * check before create and update.</p>
  *
  * @see Supplier
- * @see SupplierService
+ * @see com.smartsupplypro.inventory.service.SupplierService
  */
 public interface SupplierRepository extends JpaRepository<Supplier, String> {
 
