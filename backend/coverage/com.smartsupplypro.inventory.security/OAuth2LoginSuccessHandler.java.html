@@ -42,8 +42,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     /**
      * Validates the authenticated principal and redirects to the frontend.
      *
-     * &lt;p&gt;Guards against duplicate invocations in the same request cycle.
-     * Requires an email; the display name is optional. Redirect target is resolved
+     * &lt;p&gt;Requires an email; the display name is optional. Redirect target is resolved
      * from the optional {@code SSP_RETURN} cookie, validated against the
      * configured CORS allowed origins.&lt;/p&gt;
      *
@@ -54,50 +53,44 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
-<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (request.getAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;) != null) {</span>
-<span class="fc" id="L58">            log.debug(&quot;Success redirect already performed; skipping.&quot;);</span>
-<span class="fc" id="L59">            return;</span>
-        }
-<span class="fc" id="L61">        request.setAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;, Boolean.TRUE);</span>
-
-<span class="fc" id="L63">        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;</span>
+<span class="fc" id="L56">        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;</span>
         // The name is optional: provisioning already fell back to the email for it
-<span class="fc" id="L65">        String email = token.getPrincipal().getAttribute(&quot;email&quot;);</span>
-<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (email == null) {</span>
-<span class="fc" id="L67">            throw new IllegalStateException(&quot;Email not provided by OAuth2 provider&quot;);</span>
+<span class="fc" id="L58">        String email = token.getPrincipal().getAttribute(&quot;email&quot;);</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (email == null) {</span>
+<span class="fc" id="L60">            throw new IllegalStateException(&quot;Email not provided by OAuth2 provider&quot;);</span>
         }
 
-<span class="fc" id="L70">        String target = resolveRedirectTarget(request, response);</span>
-<span class="fc" id="L71">        log.info(&quot;Authentication success, redirecting to: {}&quot;, target);</span>
-<span class="fc" id="L72">        setAlwaysUseDefaultTargetUrl(true);</span>
-<span class="fc" id="L73">        setDefaultTargetUrl(URI.create(target).toString());</span>
-<span class="fc" id="L74">        super.onAuthenticationSuccess(request, response, authentication);</span>
-<span class="fc" id="L75">    }</span>
+<span class="fc" id="L63">        String target = resolveRedirectTarget(request, response);</span>
+<span class="fc" id="L64">        log.info(&quot;Authentication success, redirecting to: {}&quot;, target);</span>
+<span class="fc" id="L65">        setAlwaysUseDefaultTargetUrl(true);</span>
+<span class="fc" id="L66">        setDefaultTargetUrl(URI.create(target).toString());</span>
+<span class="fc" id="L67">        super.onAuthenticationSuccess(request, response, authentication);</span>
+<span class="fc" id="L68">    }</span>
 
     private String resolveRedirectTarget(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L78">        String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();</span>
-<span class="fc" id="L79">        Cookie[] cookies = request.getCookies();</span>
-<span class="fc bfc" id="L80" title="All 2 branches covered.">        if (cookies == null) return target;</span>
-<span class="fc bfc" id="L81" title="All 2 branches covered.">        for (Cookie c : cookies) {</span>
-<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (!OAuthCookies.RETURN_COOKIE.equals(c.getName())) continue;</span>
-<span class="fc" id="L83">            String candidate = c.getValue();</span>
-<span class="pc bpc" id="L84" title="1 of 4 branches missed.">            if (candidate != null &amp;&amp; !candidate.isBlank()) {</span>
+<span class="fc" id="L71">        String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();</span>
+<span class="fc" id="L72">        Cookie[] cookies = request.getCookies();</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (cookies == null) return target;</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        for (Cookie c : cookies) {</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            if (!OAuthCookies.RETURN_COOKIE.equals(c.getName())) continue;</span>
+<span class="fc" id="L76">            String candidate = c.getValue();</span>
+<span class="pc bpc" id="L77" title="1 of 4 branches missed.">            if (candidate != null &amp;&amp; !candidate.isBlank()) {</span>
                 // Redirect URL construction: validate against allowed origins to prevent open redirect
-<span class="fc bfc" id="L86" title="All 2 branches covered.">                if (props.getCors().getAllowedOrigins().contains(candidate)) {</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">                if (props.getCors().getAllowedOrigins().contains(candidate)) {</span>
                     // TODO(S-10): &quot;/auth&quot; is hard-coded here; the default target uses landingPath
-<span class="fc" id="L88">                    target = candidate + &quot;/auth&quot;;</span>
+<span class="fc" id="L81">                    target = candidate + &quot;/auth&quot;;</span>
                 } else {
-<span class="fc" id="L90">                    log.warn(&quot;Rejected non-allowlisted return URL: {}&quot;, LogSanitizer.sanitize(candidate));</span>
+<span class="fc" id="L83">                    log.warn(&quot;Rejected non-allowlisted return URL: {}&quot;, LogSanitizer.sanitize(candidate));</span>
                 }
             }
-<span class="fc" id="L93">            clearReturnCookie(request, response);</span>
-<span class="fc" id="L94">            break;</span>
+<span class="fc" id="L86">            clearReturnCookie(request, response);</span>
+<span class="fc" id="L87">            break;</span>
         }
-<span class="fc" id="L96">        return target;</span>
+<span class="fc" id="L89">        return target;</span>
     }
 
     private void clearReturnCookie(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L100">        OAuthCookies.write(request, response, OAuthCookies.RETURN_COOKIE, &quot;&quot;, 0);</span>
-<span class="fc" id="L101">    }</span>
+<span class="fc" id="L93">        OAuthCookies.write(request, response, OAuthCookies.RETURN_COOKIE, &quot;&quot;, 0);</span>
+<span class="fc" id="L94">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>
