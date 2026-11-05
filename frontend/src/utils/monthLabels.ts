@@ -8,11 +8,10 @@
  *
  * @enterprise
  * The monthly endpoints honour the exact start and end day, so the first and last
- * bucket of a range are usually partial months: 15-30 April gave 216 units in,
- * the whole of April 261 (GRAPHS survey, 2026-10-12). A label like "01.04.2026"
- * claimed a day, and a bare "April 2026" claimed the whole month. The axis shows
- * the month; the tooltip adds the covered dates for a partial month (Carlos,
- * fork 2 option A). Month names follow the UI language; dates follow the user's
+ * bucket of a range are usually partial months (15-30 April can hold 216 units in
+ * while the whole of April holds 261). A label like "01.04.2026" would claim a day,
+ * and a bare "April 2026" the whole month. The axis shows the month; the tooltip
+ * adds the covered dates for a partial month. Month names follow the UI language; dates follow the user's
  * date format.
  */
 import type { DateFormat } from '../context/settings/SettingsContext';

@@ -5,9 +5,8 @@
  *   milliseconds using useState + useEffect + setTimeout.
  * @enterprise
  * - Outlier in /hooks: NOT a context bridge. Pure behavioral hook.
- * - One production consumer: pages/analytics/blocks/PriceTrendCard.tsx
- *   (debounces the chart's interactive filter to reduce re-render chatter;
- *   default 250 ms is overridden per-call site).
+ * - Consumers: the inventory board's search box (useInventoryPageData, 300 ms)
+ *   and the analytics item search (useItemSearchOptions, 250 ms).
  * - Generic over T — value identity drives the effect dependency, so
  *   reference-stable inputs are the caller's responsibility.
  * - Cleanup clears the pending timeout on value or delay change, preventing

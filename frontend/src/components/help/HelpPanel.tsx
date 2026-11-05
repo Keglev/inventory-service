@@ -5,12 +5,12 @@
  * Drawer with topic title, body, and optional documentation link.
  *
  * @enterprise
- * - Mounted ONCE at the app composition root (App.tsx), NOT inside AppShell.
- *   Single instance for the whole app; HelpProvider's state determines what
+ * - Mounted in each shell (AppShell, AppPublicShell), so it takes the active MUI
+ *   theme; HelpProvider (App.tsx) holds the one help state, which decides what
  *   (if anything) it renders.
  * - Render gated: returns null when no topic is selected, when the drawer is
- *   closed, or when the topic id is not registered in help/topics.ts. Safe to
- *   render unconditionally from App.tsx.
+ *   closed, or when the topic id is not registered in help/topics.ts, so the
+ *   shells render it unconditionally.
  * - Topic content is i18n-resolved at render time. Topic keys come from a
  *   runtime registry (help/topics.ts), not the typed i18next augmentation —
  *   see the translate() helper for the deliberate type bypass.

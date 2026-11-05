@@ -6,7 +6,6 @@
  * POST / PUT / DELETE operations for the supplier resource.
  *
  * @enterprise
- * - errorMessage and extractApiError are borrowed from api/shared — not supplier-owned helpers.
  * - Error shape from the backend is {error, message, timestamp, fieldErrors?}. The status code, the
  *   status token and fieldErrors are carried through alongside the message, because callers classify
  *   failures from the envelope rather than by matching substrings in the free-text message.
@@ -85,7 +84,7 @@ export const createSupplier = async (
  * Updates a supplier via PUT /api/suppliers/:id.
  *
  * @param id - Supplier ID
- * @param supplier - Full DTO to PUT; id in the path takes precedence over any id field in the body.
+ * @param supplier - Full DTO to PUT; an id in the body must equal the path id (the backend answers 400 otherwise).
  * @returns Updated supplier, or error message
  *
  * @example

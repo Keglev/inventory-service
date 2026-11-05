@@ -3,8 +3,7 @@
  * @module api/inventory/listFetcher
  *
  * @summary
- * Inventory list fetcher API call.
- * Handles HTTP request, Spring Page envelope parsing, and error recovery.
+ * Fetches one page of inventory rows from GET /api/inventory/search.
  *
  * @enterprise
  * - Single API endpoint: GET /api/inventory/search, the paginated backend
@@ -65,10 +64,6 @@ const extractTotal = (data: unknown, fallback: number): number =>
  * @param params - Query params: page, pageSize, q (search), supplierId,
  *   sort (grid field names), belowMinimumOnly
  * @returns Paginated response with items and total count
- *
- * Size note: 41 code lines, one line over the api-layer 40-line target;
- * accepted as a single cohesive request-build/normalize/error path (never
- * split to hit a number).
  */
 export const getInventoryPage = async (
   params: InventoryListParams,
@@ -87,14 +82,12 @@ export const getInventoryPage = async (
       },
     });
 
-    // Extract response.data from Axios response
     const data: unknown = typeof resp === 'object' && resp !== null && 'data' in resp
       ? (resp as unknown as Record<string, unknown>).data
       : {};
 
     const rowsRaw = extractRows(data);
 
-    // Normalize all rows and filter out failed normalizations
     const items: InventoryRow[] = rowsRaw
       .map(toInventoryRow)
       .filter((r): r is InventoryRow => r !== null);
@@ -106,7 +99,6 @@ export const getInventoryPage = async (
       pageSize,
     };
   } catch (error) {
-    // Network error: return empty page
     logError('[getInventoryPage] Error fetching inventory:', error);
     return {
       items: [],

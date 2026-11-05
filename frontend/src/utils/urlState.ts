@@ -2,9 +2,10 @@
  * @file urlState.ts
  * @module utils/urlState
  * @summary Read/write helpers for URL query params on the analytics route.
- *   Centralizes parsing and serialization so the analytics page stays declarative.
  *
  * @enterprise
+ * Centralizes parsing and serialization so the analytics page stays declarative.
+ *
  * - Sole production consumer: pages/analytics/Analytics.tsx.
  * - Backward-compatibility surface: accepts canonical `supplierId` AND legacy
  *   lowercase `supplierid` (early-version artifact); strips surrounding quotes from

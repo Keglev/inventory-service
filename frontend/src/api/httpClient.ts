@@ -3,11 +3,12 @@
  * @module api/httpClient
  *
  * @summary
- * Singleton Axios instance used by every feature-level API module. Session-cookie
- * authentication, shared request headers and cross-cutting 401 handling are wired
- * here so individual feature modules stay focused on their own resources.
+ * Singleton Axios instance used by every feature-level API module.
  *
  * @enterprise
+ * Session-cookie authentication, shared request headers and cross-cutting 401 handling are
+ * wired here so individual feature modules stay focused on their own resources.
+ *
  * Base-URL contract: `VITE_API_BASE` is origin-only, with no `/api` suffix; call
  * sites append `/api` on each request path themselves. The origin is resolved
  * once, by api/apiBase, for every reader (this client, the login redirect, the
@@ -16,6 +17,10 @@
  *
  * Production guidance: deploy behind Nginx so frontend and backend share the
  * same origin; this keeps session cookies first-party and avoids CORS.
+ *
+ * A 401 redirects to `/login`, except on a public page (no redirect loop), for the
+ * `/me` session probe (there a 401 means "not signed in") and in a demo session;
+ * every error still rejects, a redirected 401 included.
  *
  * Keep this file thin, and import nothing from outside `src/api/` to avoid
  * circular dependencies. Interceptor reference:
@@ -36,16 +41,7 @@ const httpClient = axios.create({
 httpClient.defaults.headers.common['Accept'] = 'application/json';
 httpClient.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-/**
- * Redirects unauthenticated requests to `/login`.
- *
- * Suppressed when the user is already on a public page (to prevent
- * redirect loops), when the failing call is the `/me` session probe
- * (a 401 is the expected "not logged in" signal there), or when a
- * demo session is active.
- *
- * Every error still rejects, a redirected 401 included.
- */
+// 401 -> /login, with the exceptions listed in the header
 httpClient.interceptors.response.use(
   (res) => res,
   (error: AxiosError) => {

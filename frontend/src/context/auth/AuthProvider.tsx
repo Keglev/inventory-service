@@ -1,6 +1,6 @@
 /**
  * @file AuthProvider.tsx
- * @module context/auth
+ * @module context/auth/AuthProvider
  * @summary
  * Re-export shim providing a .tsx import surface for AuthProvider
  * whose implementation lives in AuthContext.ts.

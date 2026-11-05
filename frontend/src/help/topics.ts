@@ -1,12 +1,14 @@
 /**
  * @file topics.ts
  * @module help/topics
- * @summary Static registry mapping help-topic keys to i18n metadata. Text bodies are
- *   NOT stored here — they are resolved by i18next at render time via bodyKey/titleKey.
+ * @summary Static registry mapping help-topic keys to i18n metadata.
  *
  * @enterprise
+ * Text bodies are NOT stored here — they are resolved by i18next at render time via
+ * bodyKey/titleKey.
+ *
  * - Keys in this registry are stable identifiers; renaming a key breaks any caller
- *   that passes it by string literal (including HelpContext route mappings).
+ *   that passes it by string literal (including navConfig's route mappings).
  * - Production consumer: HelpPanel.tsx (components/help/HelpPanel.tsx) looks up a
  *   topic via getHelpTopic(id) and passes the metadata to the renderer.
  * - Route-to-topic mapping lives in navConfig.ts (getHelpTopicForRoute); this file
@@ -44,7 +46,6 @@ export const HELP_TOPICS: Record<string, HelpTopic> = {
     bodyKey: 'help:inventory.overview.body',
     category: 'inventory',
   },
-  // WHY: backward-compat alias; external deep-links may still reference this key.
   // Opened by ItemFormDialog in create mode.
   'inventory.manage': {
     id: 'inventory.manage',

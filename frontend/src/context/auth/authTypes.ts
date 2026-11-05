@@ -1,6 +1,6 @@
 /**
  * @file authTypes.ts
- * @module context/auth
+ * @module context/auth/authTypes
  * @summary
  * Core authentication type shapes (AppUser + AuthContextType)
  * consumed by AuthContext, useAuth, and auth-related guards/pages.
@@ -14,7 +14,7 @@
  *   intentionally drops any incoming isDemo value (see AuthContext
  *   @enterprise).
  * - AuthContextType is consumed via the useAuth hook (built on
- *   createContextHook). 14 production call sites (B2 audit).
+ *   createContextHook).
  */
 
 /**

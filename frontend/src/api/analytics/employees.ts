@@ -3,12 +3,12 @@
  * @module api/analytics/employees
  *
  * @summary
- * Fetchers for the per-employee analytics endpoints (ADMIN + demo mode only):
+ * Fetchers for the per-employee analytics endpoints (ADMIN and demo mode only).
+ *
+ * @enterprise
  * - GET /api/analytics/by-employee: change counts per employee per time
  *   bucket, with server-side granularity (daily | weekly | monthly).
  * - GET /api/analytics/employee-changes: paginated newest-first change list.
- *
- * @enterprise
  * - employee-changes returns a Spring Data page; only `content` and the total
  *   are read, the total through extractPageTotal (same contract family as the
  *   inventory and stock-history search pages).

@@ -4,9 +4,10 @@
  *
  * @summary
  * Field extraction helpers for records of unknown shape coming from the backend.
- * Consumed by the inventory, supplier and shared API layers.
  *
  * @enterprise
+ * Consumed by the inventory, supplier and shared API layers.
+ *
  * pickNumber coerces string representations of numbers; pickString requires the
  * value to already be a string and never coerces. Both read one key, the name
  * the backend DTO uses, and return undefined rather than throwing on missing or

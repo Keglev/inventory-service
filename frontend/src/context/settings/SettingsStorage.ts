@@ -5,8 +5,7 @@
  * clear user preferences with graceful degradation.
  * @enterprise
  * - Pure persistence layer — no React, no context. Used only by
- *   SettingsContext.tsx (Provider) and index.ts (re-export for advanced
- *   consumers; no production caller verified).
+ *   SettingsContext.tsx (Provider).
  * - All three I/O helpers swallow exceptions and log warnings. Rationale:
  *   localStorage can throw (Safari private mode, quota exceeded, disabled
  *   storage); preference persistence is best-effort and must not block app
@@ -16,8 +15,7 @@
  *   detection is naive (startsWith('de')) but matches the i18n supportedLngs
  *   ['de', 'en'] contract.
  * - loadPreferencesFromStorage uses `as UserPreferences` without runtime
- *   validation — corrupt storage with wrong shape passes through silently.
- *   Acceptable today; could harden later if shape changes.
+ *   validation — corrupt storage with the wrong shape passes through unchecked.
  */
 
 import type { UserPreferences } from './SettingsContext.types';

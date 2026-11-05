@@ -1,18 +1,17 @@
 /**
  * @file useHealthCheck.ts
- * @module features/health/hooks
+ * @module features/health/hooks/useHealthCheck
  * @summary One shared /api/health probe (React Query, refreshed every 15 minutes): backend and
  * database online/offline, response time and the database product name.
  * @enterprise
- * - One source for every chrome surface (header badge, footer, About dialog; FW5 fork 3).
- *   The query key dedupes them: before, each consumer ran its own fetch and timer, so entering
- *   the demo sent two simultaneous requests and the settings context a third.
+ * - One source for every chrome surface (header badge, footer, About dialog): the query key
+ *   dedupes them, so several mounted consumers still send one request per refresh.
  * - Uses raw `fetch` (not the project-standard httpClient) by INTENT: health probe must be interceptor-less to avoid
  *   feedback loops (httpClient has auth/error interceptors that would redirect, retry, or toast on health failures).
  *   Raw fetch isolates the probe from app-level error handling.
  * - The URL still comes from VITE_API_BASE via api/apiBase, so the probe targets the same backend as every other
- *   request. A relative path followed the serving origin instead: the static server under `vite preview`, and the
- *   production backend behind the dev proxy.
+ *   request; a relative path would follow the serving origin instead (the static server under `vite preview`,
+ *   the production backend behind the dev proxy).
  * - Refresh: every 15 minutes while a consumer is mounted, on mount when the cached result is older than the app's
  *   default stale time (60 s, main.tsx), and on demand through refetch(). No window-focus refetch.
  * - Backend contract (verified against source): /api/health returns a flat JSON body

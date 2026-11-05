@@ -28,7 +28,7 @@ export function chartTooltipProps(theme: Theme) {
     labelStyle: { color: theme.palette.text.primary },
     // Recharts colours each item in its series colour. As text those colours fall
     // below 4.5:1 on the tooltip surface (dark: 3.32 for the green), so names and
-    // values take the text token; the series colour stays on the marks (LO-2).
+    // values take the text token; the series colour stays on the marks.
     itemStyle: { color: theme.palette.text.primary },
     // The band behind a hovered bar. Recharts paints it #ccc, which glares on a
     // dark card; the theme's selection tint is subtle in both modes.

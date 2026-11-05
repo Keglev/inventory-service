@@ -3,13 +3,12 @@
  * @module App
  *
  * @summary
- * Root application component. Delegates routing to `AppRouter`.
+ * Root application component; delegates routing to `AppRouter`.
  *
  * @enterprise
  * - The footer and the help panel are rendered inside each shell (AppShell /
- *   AppPublicShell) so they participate in the active MUI theme (the panel
- *   previously mounted here, outside both ThemeProviders, and always rendered
- *   light).
+ *   AppPublicShell) so they participate in the active MUI theme; mounted here,
+ *   outside both ThemeProviders, the panel would always render light.
  * - HelpProvider stays here: help state is global; only the themed panel
  *   rendering lives in the shells.
  * - ShellPreferencesProvider sits above the router so both shells share one

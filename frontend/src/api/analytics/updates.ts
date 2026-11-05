@@ -3,11 +3,12 @@
  * @module api/analytics/updates
  *
  * @summary
- * Stock updates from GET /api/analytics/stock-updates (the full list) and
- * GET /api/analytics/stock-updates/page (one page with the total). Returns an
- * empty array on any error.
+ * Stock updates from GET /api/analytics/stock-updates (the full list) and GET
+ * /api/analytics/stock-updates/page (one page with the total).
  *
  * @enterprise
+ * Returns an empty array on any error.
+ *
  * Each record is read by StockUpdateResultDTO's field names (timestamp,
  * itemName, change, reason, createdBy); a record without timestamp or item name
  * is dropped, so the tables never render a row they cannot label.
@@ -34,8 +35,7 @@ export type StockUpdatesFilter = {
 /**
  * GET /api/analytics/stock-updates?startDate&endDate[&supplierId][&itemName]
  *
- * Fetches every stock update in the window with tolerant field mapping so
- * backend renames don't break the UI. The endpoint has no row limit; use
+ * Fetches every stock update in the window. The endpoint has no row limit; use
  * {@link getStockUpdatesPage} where the rows are shown one page at a time.
  * Returns an empty array when the response is missing or malformed.
  * @param filter - Optional date range, supplier and item name

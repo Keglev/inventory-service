@@ -3,15 +3,15 @@
  * @module components/search/SupplierPickerField
  *
  * @summary
- * The one supplier picker: type two letters, pick a supplier from the
- * matches. A picker setting of the shared ListSearchField.
+ * The one supplier picker, a setting of the shared ListSearchField: type two letters,
+ * pick a supplier from the matches.
  *
  * @enterprise
- * - Replaces the supplier dropdowns, which listed every supplier at once and
- *   would open a 500-row menu for a large supplier base (S2-9, Carlos
- *   2026-10-30). Same rule as the item pickers: matching in the browser
- *   (matchSupplierOptions) over the supplier list already loaded and cached, at most six results with a
- *   count of the rest (ADR-0014).
+ * - Typing instead of a dropdown, because a dropdown lists every supplier at once
+ *   and would open a 500-row menu for a large supplier base. Same rule as the item
+ *   pickers: matching in the browser (matchSupplierOptions) over the supplier list
+ *   already loaded and cached, at most six results with a count of the rest
+ *   (frontend ADR-0014).
  * - Owns its typed text. A pick puts the supplier's name in the field;
  *   clearing it hands null to the caller; a value the caller sets or resets
  *   shows its name (Autocomplete resets the text on a value change).

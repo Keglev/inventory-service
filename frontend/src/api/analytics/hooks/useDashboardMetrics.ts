@@ -1,16 +1,14 @@
 /**
  * @file useDashboardMetrics.ts
- * @module api/analytics/hooks
+ * @module api/analytics/hooks/useDashboardMetrics
  *
  * @summary
- * Dashboard KPI metrics hook for inventory overview.
- * Provides real-time counts of inventory items, suppliers, and low-stock alerts.
+ * Dashboard KPI metrics hook: inventory item, supplier and low-stock counts.
  *
  * @enterprise
- * - Caches KPI data for 2 minutes to balance freshness and performance
- * - Conditional fetching support for performance optimization
- * - Graceful fallbacks on error
- * - Comprehensive TypeDoc documentation
+ * - Cached for 2 minutes (staleTime), so the counts are at most that old; the
+ *   header bell and the notifications menu read the same cached query.
+ * - Each count fetcher answers 0 on error, so a failed request shows 0, not an error.
  */
 
 import { useQuery } from '@tanstack/react-query';
@@ -23,20 +21,14 @@ import { getItemCount, getSupplierCount, getLowStockCount } from '../metrics';
  * @param enabled - Whether to fetch (defaults to true, typically tied to page visibility)
  * @returns React Query result with KPI metrics object
  *
- * @enterprise
- * - Only fetches when enabled (performance optimization)
- * - 2-minute cache reduces backend load
- * - Automatically handles loading and error states
- * - Returns graceful null values on error (no breaking)
- *
  * @example
  * ```typescript
  * const { data: metrics, isLoading } = useDashboardMetrics();
  *
  * return (
  *   <>
- *     <StatCard title="Items" value={metrics?.itemCount} loading={isLoading} />
- *     <StatCard title="Suppliers" value={metrics?.supplierCount} loading={isLoading} />
+ *     <StatCard title="Items" value={metrics?.inventoryCount} loading={isLoading} />
+ *     <StatCard title="Suppliers" value={metrics?.suppliersCount} loading={isLoading} />
  *     <StatCard title="Low Stock" value={metrics?.lowStockCount} loading={isLoading} />
  *   </>
  * );
@@ -59,7 +51,7 @@ export function useDashboardMetrics(enabled: boolean = true) {
       };
     },
     enabled,
-    staleTime: 2 * 60_000, // 2 minutes
-    gcTime: 10 * 60_000,   // 10 minutes (formerly cacheTime)
+    staleTime: 2 * 60_000,
+    gcTime: 10 * 60_000,
   });
 }

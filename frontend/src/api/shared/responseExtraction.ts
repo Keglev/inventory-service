@@ -3,10 +3,11 @@
  * @module api/shared/responseExtraction
  *
  * @summary
- * Response parsing for Spring Data pages: extractPageTotal reads the total of a
- * page. Consumed by the inventory and analytics API layers.
+ * Response parsing for Spring Data pages: extractPageTotal reads the total of a page.
  *
  * @enterprise
+ * Consumed by the inventory and analytics API layers.
+ *
  * It returns undefined rather than throwing when the body carries no total, so a
  * page without one renders without a counter instead of failing.
  */

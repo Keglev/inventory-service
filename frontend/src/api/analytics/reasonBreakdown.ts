@@ -3,12 +3,14 @@
  * @module api/analytics/reasonBreakdown
  *
  * @summary
- * Fetcher for GET /api/analytics/reason-breakdown: per-reason stock movement
- * totals, sign-split into increase (positive changes) and decrease (absolute
- * value of negative changes). A reason can carry both sides at once
- * (e.g. MANUAL_UPDATE corrections in both directions).
+ * Fetcher for GET /api/analytics/reason-breakdown: per-reason stock movement totals,
+ * sign-split into increase (positive changes) and decrease (absolute value of negative
+ * changes).
  *
  * @enterprise
+ * A reason can carry both sides at once (e.g. MANUAL_UPDATE corrections in both
+ * directions).
+ *
  * - The endpoint accepts ISO DATE bounds (yyyy-MM-dd), not date-times;
  *   the backend widens them to full-day timestamps itself.
  * - Tolerant parsing per the analytics API house style: malformed rows are

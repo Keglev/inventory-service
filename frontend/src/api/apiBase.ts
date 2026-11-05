@@ -7,9 +7,9 @@
  * @enterprise
  * - Readers: httpClient's axios baseURL, the login redirect (AuthContext),
  *   the logout form POST (LogoutPage) and the raw-fetch
- *   health probe (useHealthCheck). Before FO1 the client and the redirects
- *   used their own resolver, which turned '/' into '//logout' (a host named
- *   "logout") and an unset value into '/api/api/...'.
+ *   health probe (useHealthCheck). One resolver for all of them, so '/' can
+ *   never become '//logout' (a host named "logout") nor an unset value
+ *   '/api/api/...'.
  * - VITE_API_BASE is origin-only by contract (no '/api' suffix); call sites
  *   pass the full path. An unset or '/' value yields '', so every reader
  *   stays same-origin and the Vite dev proxy (/api, /oauth2, /logout)

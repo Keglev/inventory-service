@@ -11,14 +11,14 @@
  *   only guards a build that bypasses vite.config.
  * - VITE_BUILD_ID (git SHA) and VITE_APP_ENVIRONMENT arrive as Docker
  *   build args from CI. Local dev and tests see their fallbacks.
- * - All UI surfaces (footer, sidebar, system-info menu) read from here —
- *   never hardcode these values at a call site.
+ * - Every UI surface that shows them (the footer, the About dialog) reads from
+ *   here — never hardcode these values at a call site.
  */
 
 /** Application version, from package.json at build time. */
 export const APP_VERSION: string = import.meta.env.VITE_APP_VERSION ?? '0.0.0-dev';
 
-/** Short git SHA of the build, injected by CI. */
+/** Full git SHA of the build, injected by CI; the UI shows its first 10 characters. */
 export const BUILD_ID: string = import.meta.env.VITE_BUILD_ID ?? 'dev';
 
 /** Human-readable deployment environment label. */

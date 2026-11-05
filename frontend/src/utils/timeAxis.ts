@@ -7,8 +7,9 @@
  * scale="time") over a selected date range.
  *
  * @enterprise
- * Shared by the price trend and the stock activity chart. On a category axis
- * every point took the same width whatever lay between them; on a time axis
+ * Shared by the time-axis charts (price trend, stock value, stock activity, employee
+ * activity). On a category axis every point would take the same width whatever lay
+ * between them; on a time axis
  * the gap between two points shows the time that passed.
  */
 

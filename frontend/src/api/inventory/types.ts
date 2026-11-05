@@ -11,7 +11,7 @@
  * normalizers.
  */
 
-/** Server sort expression (e.g., "name,asc" or "onHand,desc"). */
+/** Grid sort expression ("field,dir" with grid field names, e.g. "onHand,desc"); toServerSort maps the field. */
 export type ServerSort = string;
 
 /** Filter & pagination params accepted by the list endpoint. */
@@ -34,7 +34,7 @@ export interface InventoryListParams {
 export interface InventoryRow {
   id: string;            // UI-stable id (string for consistency)
   name: string;
-  code?: string | null;  // Code/SKU (nullable - DB may not have SKU yet)
+  code?: string | null;  // Code/SKU
   supplierName?: string | null;
   supplierId?: string | number | null;
   onHand: number;        // current stock
@@ -53,13 +53,8 @@ export interface InventoryListResponse {
 }
 
 /**
- * Full item details fetched from backend /api/inventory/{id} endpoint.
- * Contains complete item information including actual current values.
- * Used by forms and dialogs to display/edit full item data.
- *
- * @remarks
- * This interface represents the complete item data fetched after user selects an item.
- * Use this for displaying actual current values and pre-filling forms.
+ * Full item details from GET /api/inventory/{id}, fetched after the user picks an
+ * item; forms and dialogs show and pre-fill the current values from it.
  */
 export interface ItemDetails {
   /** Unique item identifier */
@@ -123,7 +118,7 @@ export interface AdjustQuantityRequest {
   id: string;
   /** Positive = purchase/inbound; negative = correction/outbound. */
   delta: number;
-  /** Business reason (server may map to enum). */
+  /** StockChangeReason name; the server rejects any other value. */
   reason: string;
 }
 
