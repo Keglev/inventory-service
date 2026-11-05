@@ -24,7 +24,8 @@ components:
           description: |
             User's role in the system:
             - **ADMIN**: Full access to all operations
-            - **USER**: Read-only access to inventory data
+            - **USER**: Reads everything except the employee analytics; adjusts
+              quantity and price
           example: USER
         pictureUrl:
           type: string

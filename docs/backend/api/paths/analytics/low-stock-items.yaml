@@ -4,10 +4,11 @@ get:
   summary: Get low stock items
   description: |
     Gets items below minimum stock threshold for a supplier.
-    Lists items requiring reorder with current and recommended levels.
+    Lists each such item with its current quantity and its minimum.
   operationId: getLowStockItems
   security:
     - oauth2: [openid]
+    - {}
   parameters:
     - name: supplierId
       in: query

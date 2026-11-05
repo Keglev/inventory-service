@@ -14,7 +14,7 @@ get:
   operationId: searchInventoryItems
   security:
     - oauth2: [openid]
-    - {}  # Empty security allows demo mode unauthenticated access
+    - {}
   parameters:
     - name: name
       in: query

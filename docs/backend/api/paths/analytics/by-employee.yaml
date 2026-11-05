@@ -4,18 +4,21 @@ get:
   summary: Stock-update activity per employee
   description: |
     Buckets stock-history activity per employee (createdBy) over time.
-    Requires ROLE_ADMIN; readable unauthenticated only in demo mode.
+    Requires ROLE_ADMIN; readable unauthenticated only in demo mode, and a
+    signed-in USER gets 403 (backend ADR-0020).
   operationId: getEmployeeActivity
   security:
     - oauth2: [openid]
-    - {}  # Empty security allows demo mode unauthenticated access
+    - {}
   parameters:
     - name: granularity
       in: query
       required: false
-      description: Bucket granularity for the period field
+      description: Bucket granularity for the period field (case-insensitive)
       schema:
         type: string
+        enum: [daily, weekly, monthly]
+        default: monthly
     - name: supplierId
       in: query
       required: false
@@ -42,6 +45,8 @@ get:
             type: array
             items:
               $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/EmployeeActivityDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
     '401':
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
     '403':

@@ -52,7 +52,6 @@ components:
       type: object
       required:
         - name
-        - createdBy
       properties:
         name:
           type: string
@@ -77,7 +76,8 @@ components:
           example: "contact@newsupplier.com"
         createdBy:
           type: string
-          description: User creating this supplier (for audit trail)
+          readOnly: true
+          description: Ignored on input; the server sets the signed-in user
           example: "admin@example.com"
       description: |
         Request body for creating new suppliers.
@@ -111,5 +111,5 @@ components:
           example: "newemail@supplier.com"
       description: |
         Request body for updating existing suppliers.
-        Path parameter ID takes precedence; request body ID is ignored.
+        A body id, if present, must equal the path id (400 otherwise).
         Audit fields (createdBy, createdAt) are not updated.

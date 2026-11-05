@@ -9,6 +9,7 @@ get:
   operationId: getStockPerSupplier
   security:
     - oauth2: [openid]
+    - {}
   responses:
     '200':
       description: Stock quantity and value per supplier

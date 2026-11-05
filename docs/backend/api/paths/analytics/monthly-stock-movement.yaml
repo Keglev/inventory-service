@@ -8,6 +8,7 @@ get:
   operationId: getMonthlyStockMovement
   security:
     - oauth2: [openid]
+    - {}
   parameters:
     - name: start
       in: query

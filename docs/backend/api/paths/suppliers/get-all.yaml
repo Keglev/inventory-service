@@ -8,6 +8,7 @@ get:
   operationId: getAllSuppliers
   security:
     - oauth2: [openid]
+    - {}
   responses:
     '200':
       description: List of all suppliers

@@ -7,13 +7,13 @@ post:
     
     **Authorization:** 
     - Requires ROLE_ADMIN
-    - Blocked in demo mode (APP_DEMO_READONLY=true) - returns 403 Forbidden
+    - Anonymous callers get 401: demo mode opens reads only
     
     **Validation:**
     - ID must be absent (system-generated)
-    - Name, quantity, price, and supplierId are required
+    - Name, sku, quantity, price, and supplierId are required
     - Price must be positive
-    - Quantity must be zero or positive
+    - Quantity must be at least 1 (an existing item may later reach 0)
     
     **Response:**
     - 201 Created with Location header pointing to new resource
@@ -29,6 +29,7 @@ post:
           $ref: '../../schemas/inventory/inventory-item.yaml#/components/schemas/CreateInventoryItemRequest'
         example:
           name: "Premium Widget"
+          sku: "SKU-1001"
           quantity: 100
           price: 29.99
           supplierId: "supplier-123"

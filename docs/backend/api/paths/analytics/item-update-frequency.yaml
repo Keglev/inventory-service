@@ -8,6 +8,7 @@ get:
   operationId: getItemUpdateFrequency
   security:
     - oauth2: [openid]
+    - {}
   parameters:
     - name: supplierId
       in: query

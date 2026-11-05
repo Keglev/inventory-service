@@ -7,7 +7,7 @@ patch:
     
     **Authorization:** 
     - Requires ROLE_USER or ROLE_ADMIN
-    - Blocked in demo mode (APP_DEMO_READONLY=true) - returns 403 Forbidden
+    - Anonymous callers get 401: demo mode opens reads only
     
     **Delta Logic:**
     - Positive delta: Add stock (e.g., +50 to increase by 50 units)
@@ -20,13 +20,7 @@ patch:
   security:
     - oauth2: [openid]
   parameters:
-    - name: id
-      in: path
-      required: true
-      description: Inventory item identifier
-      schema:
-        type: string
-      example: "550e8400-e29b-41d4-a716-446655440000"
+    - $ref: '../../parameters/ids.yaml#/components/parameters/id'
     - name: delta
       in: query
       required: true
@@ -67,5 +61,15 @@ patch:
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
     '404':
       $ref: '../../responses/errors.yaml#/components/responses/NotFound'
+    '422':
+      description: The delta would take the stock below zero
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/common.yaml#/components/schemas/ErrorResponse'
+          example:
+            error: unprocessable_content
+            message: Resulting stock cannot be negative
+            timestamp: '2026-11-05T10:30:00Z'
     '500':
       $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

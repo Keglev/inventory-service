@@ -15,6 +15,7 @@ get:
   operationId: getFilteredStockUpdatesFromParams
   security:
     - oauth2: [openid]
+    - {}
   parameters:
     - name: startDate
       in: query

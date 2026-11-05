@@ -3,22 +3,15 @@ delete:
     - Suppliers
   summary: Delete supplier
   description: |
-    Deletes a supplier permanently. Requires ADMIN role.
-    
-    **Referential Integrity:**
-    - System enforces referential integrity checks
-    - May fail if supplier has active inventory items
+    Deletes the supplier row (a hard delete). Requires ADMIN role.
+
+    **Business rule:** fails with 409 while any item of this supplier still has
+    stock (quantity > 0).
   operationId: deleteSupplier
   security:
     - oauth2: [openid]
   parameters:
-    - name: id
-      in: path
-      required: true
-      description: Supplier identifier
-      schema:
-        type: string
-      example: "550e8400-e29b-41d4-a716-446655440000"
+    - $ref: '../../parameters/ids.yaml#/components/parameters/id'
   responses:
     '204':
       description: Supplier deleted successfully (no content)
@@ -29,14 +22,14 @@ delete:
     '404':
       $ref: '../../responses/errors.yaml#/components/responses/NotFound'
     '409':
-      description: Conflict - Supplier has dependent items
+      description: Conflict - an item of this supplier still has stock
       content:
         application/json:
           schema:
             $ref: '../../schemas/common/common.yaml#/components/schemas/ErrorResponse'
           example:
             error: conflict
-            message: "Cannot delete supplier with active inventory items"
+            message: "Cannot delete supplier with linked items"
             timestamp: "2026-07-09T14:30:00Z"
     '500':
       $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'
