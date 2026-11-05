@@ -4,9 +4,9 @@
  * @summary Gives each entity (an employee, keyed by email) a colour from a
  *   palette that depends on its key, not on its position in the current list.
  * @enterprise
- * Colour must follow the entity: coloured by index, an employee changed colour
- * when the granularity or range changed which employees were present (fork 7,
- * Carlos 2026-10-13). A hash of the key picks the slot. When two keys in view
+ * Colour must follow the entity: coloured by index, an employee would change colour
+ * whenever the granularity or range changes which employees are present. A hash of
+ * the key picks the slot. When two keys in view
  * hash to the same slot, the later key (in sorted order) takes the next free
  * slot, so the visible lines never share a colour; only a key that collides
  * with another visible key can move, and only while that key is in view.

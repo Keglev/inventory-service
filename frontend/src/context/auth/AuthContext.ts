@@ -1,6 +1,6 @@
 /**
  * @file AuthContext.ts
- * @module context/auth
+ * @module context/auth/AuthContext
  * @summary
  * AuthProvider component owning the dual-session auth model (server
  * /api/me + client-only DEMO) plus cross-tab logout broadcast.
@@ -57,10 +57,9 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   const [logoutInProgress, setLogoutInProgress] = useState<boolean>(false);
   const logoutTimerRef = useRef<number | null>(null);
 
-  // WHY: a successful re-login (server or demo) after logout must clear
-  // logoutInProgress so guards stop suppressing routes, and cancel the pending
-  // safety-valve timer. Done where a user is set rather than in an effect on
-  // user, which rendered once more with the stale flag.
+  // WHY: a re-login (server or demo) after logout clears logoutInProgress and the pending
+  // safety-valve timer here, where a user is set: an effect on user would render once
+  // more with the stale flag, and guards would keep suppressing routes.
   const setUser = useCallback((next: AppUser | null) => {
     if (next) {
       setLogoutInProgress(false);
@@ -74,7 +73,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
   /** One-time server-session hydration via /api/me; a demo session skips it. */
   useEffect(() => {
-    if (initialDemo) return; // demo sessions don't call /api/me
+    if (initialDemo) return;
 
     const ac = new AbortController();
     (async () => {

@@ -4,9 +4,10 @@
  *
  * @summary
  * Historical price trend for a single item, from GET /api/analytics/price-trend.
- * Returns an empty array on any error.
  *
  * @enterprise
+ * Returns an empty array on any error.
+ *
  * The backend requires `start` and `end`, so `paramClean` always supplies them
  * (defaulting to the last 180 days) rather than letting a missing bound reach
  * the server.

@@ -5,12 +5,11 @@
  *   header, filters and grid on, with an optional slot for its dialogs.
  *
  * @enterprise
- * - Both boards repeated the same column box and flat Paper (jscpd, G-L7); one
- *   component keeps them identical, including the square corner next to the rail
- *   (theme/pagePanel.ts explains why the panel has no radius or shadow).
- * - `overlays` render after the panel, outside it, as the boards did: dialogs
- *   portal to the body, so they take no room in the column either way, and the
- *   DOM order stays the one the boards had before the extraction.
+ * - One component keeps both boards' column box and flat Paper identical, including
+ *   the square corner next to the rail (theme/pagePanel.ts explains why the panel
+ *   has no radius or shadow).
+ * - `overlays` render after the panel, outside it: dialogs portal to the body, so
+ *   they take no room in the column.
  */
 import type { PropsWithChildren, ReactNode } from 'react';
 import { Box, Paper } from '@mui/material';

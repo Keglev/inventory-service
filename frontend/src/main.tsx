@@ -3,8 +3,7 @@
  * @module main
  *
  * @summary
- * Application entry point. Mounts the React tree, wires the top-level providers,
- * and ensures localization is initialized before any UI renders.
+ * Application entry point: mounts the React tree and wires the top-level providers.
  *
  * @enterprise
  * - Keep this file minimal and deterministic.
@@ -36,7 +35,6 @@ import './index.css';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // sensible defaults
       refetchOnWindowFocus: false,
       retry: 1,
       staleTime: 60_000,
@@ -57,7 +55,7 @@ ReactDOM.createRoot(root).render(
   <React.StrictMode>
     {/* Client-side routing. For server deployments, ensure the backend serves index.html for unknown routes. */}
     <BrowserRouter>
-    {/* Provide React Query context so useQueryClient() works in LogoutPage */}
+    {/* React Query context for every query and mutation in the app */}
       <QueryClientProvider client={queryClient}>
         {/* Auth context (session state, user profile, guards). Placed high to be available to routes/shell. */}
         <AuthProvider>

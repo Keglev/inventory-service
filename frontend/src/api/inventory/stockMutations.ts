@@ -3,10 +3,11 @@
  * @module api/inventory/stockMutations
  *
  * @summary
- * Quantity-adjustment mutations for inventory items. Returns a structured result
- * ({ ok, error, errorToken, status }).
+ * Quantity-adjustment mutations for inventory items.
  *
  * @enterprise
+ * Returns a structured result ({ ok, error, errorToken, status }).
+ *
  * All stock changes route through PATCH /api/inventory/{id}/quantity so error
  * handling and endpoint encoding are uniform across the app, and callers map
  * failures by backend status token.

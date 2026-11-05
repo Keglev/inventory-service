@@ -18,9 +18,9 @@ import { z } from 'zod';
  * window or supplier scope — omitting fields returns unscoped results.
  */
 export const analyticsParamsSchema = z.object({
-  from: z.iso.date().optional(),                // ISO date YYYY-MM-DD
-  to: z.iso.date().optional(),                  // ISO date YYYY-MM-DD
-  supplierId: z.string().optional(),             // Optional supplier filter
+  from: z.iso.date().optional(),
+  to: z.iso.date().optional(),
+  supplierId: z.string().optional(),
 });
 
 /** Inferred once here so callers avoid repeating `z.infer<typeof analyticsParamsSchema>` at every use site. */

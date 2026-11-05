@@ -1,16 +1,14 @@
 /**
  * @file index.ts
- * @module i18n
- * @summary i18next runtime initialization (German-first). Bootstrapped via side-effect
- *   import in main.tsx; not consumed via named imports anywhere in production code.
- *   After init, components access translations via react-i18next's useTranslation()
- *   against the initialized singleton.
+ * @module i18n/index
+ * @summary i18next runtime initialization (German-first).
  *
  * @enterprise
- * - Side-effect import contract: imported once from main.tsx (`import './i18n'`).
- *   No production code imports from this module's named exports; I18N_NAMESPACES
- *   exists as test-pinning surface only (consumed by
- *   __tests__/i18n/i18n.test.ts).
+ * - Side-effect import contract: imported once from main.tsx (`import './i18n'`);
+ *   components then use react-i18next's useTranslation() against the initialized
+ *   singleton. No production code imports this module's named exports;
+ *   I18N_NAMESPACES exists as test-pinning surface only
+ *   (__tests__/i18n/i18n.test.ts).
  * - Translation JSON lives in frontend/public/locales/{en,de}/<ns>.json. Eleven
  *   namespaces match I18N_NAMESPACES exactly. EN files double as the typing source
  *   via resources.d.ts (see that file's header).
@@ -20,8 +18,10 @@
  * - Regional variants collapse to base language (de-DE -> de, en-US -> en) via
  *   supportedLngs + nonExplicitSupportedLngs + load:'languageOnly'.
  * - Vite BASE_URL is in the loadPath — supports sub-path deployment (e.g. /app/).
- * - MUI theme locale must be kept in sync via the languageChanged event (see
- *   @remarks block below).
+ * - MUI theme locale must be kept in sync via the languageChanged event
+ *   (`buildTheme(locale)`).
+ * - To change the language manually, call `i18n.changeLanguage('de' | 'en')`; to
+ *   start German again for a demo, clear the localStorage key `i18nextLng`.
  */
 
 import i18n from 'i18next';
@@ -50,7 +50,7 @@ void _namespacesMatchResources; // WHY: satisfies noUnusedLocals — this bindin
 const saved = typeof window !== 'undefined' ? localStorage.getItem(LANGUAGE_KEY) : null;
 const initialLng = saved || 'de';
 if (!saved && typeof window !== 'undefined') {
-  localStorage.setItem(LANGUAGE_KEY, 'de'); // <- guarantees German-first
+  localStorage.setItem(LANGUAGE_KEY, 'de');
 }
 
 // WHY: <html lang> tells screen readers, hyphenation and the browser's
@@ -61,25 +61,16 @@ i18n.on('languageChanged', (lng) => {
 });
 
 i18n
-  // Load /locales/{{lng}}/{{ns}}.json at runtime
   .use(Backend)
   // Detect language (we still pass `lng: initialLng` below to bias first render)
   .use(LanguageDetector)
-  // React integration (context + hooks)
   .use(initReactI18next)
-
-  // Initialization options
   .init({
-    // German-first unless a saved choice exists
     lng: initialLng,
-
-    // Fallback & supported languages
     fallbackLng: 'de',
     supportedLngs: ['de', 'en'],
     nonExplicitSupportedLngs: true, // WHY: regional variants collapse so a user with browser lang en-US sees English without an exact match in supportedLngs.
-    load: 'languageOnly',           // ignore region code
-
-    // Namespaces
+    load: 'languageOnly',
     ns: I18N_NAMESPACES as unknown as string[],
     defaultNS: 'common',
 
@@ -107,13 +98,7 @@ i18n
   // active language and loaded translations can be inspected from the console.
   // Guarded by import.meta.env.DEV — never present in production builds.
   if (import.meta.env.DEV) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- window declares no i18next property
     (window as any).i18next = i18n;
   }
 
-/**
- * @remarks
- * - To change the language manually, call `i18n.changeLanguage('de' | 'en')`.
- * - If you want to "reset" to German for demos, clear localStorage key `i18nextLng`.
- * - Keep MUI's locale (theme) in sync via `buildTheme(locale)` and i18n's `languageChanged` event.
- */

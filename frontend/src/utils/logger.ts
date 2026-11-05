@@ -3,10 +3,12 @@
  * @module utils/logger
  *
  * @summary
- * Minimal DEV-gated logging helpers. Production bundles stay silent;
- * development and test builds forward to the browser console.
+ * Minimal DEV-gated logging helpers.
  *
  * @enterprise
+ * Production bundles stay silent; development and test builds forward to the browser
+ * console.
+ *
  * - import.meta.env.DEV is true for the dev server and for Vitest
  *   (mode 'test'), false for production builds — so failure paths remain
  *   observable in development and assertable in tests without shipping

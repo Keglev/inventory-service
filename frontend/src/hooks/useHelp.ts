@@ -4,9 +4,8 @@
  * @summary Convenience hook bridging HelpContext to the component tree.
  * @enterprise
  * - Built via createContextHook (shared factory with useAuth, useSettings).
- * - Seven production consumers: HelpPanel, HelpIconButton, and five dialog
- *   files across pages/inventory and pages/suppliers — each calls openHelp()
- *   with a topic id sourced from the topic registry at help/topics.ts.
+ * - Production consumers: HelpPanel and HelpIconButton; the dialogs reach help
+ *   through HelpIconButton, with a topic id from the registry at help/topics.ts.
  * - HelpContext is imported from context/help/HelpContext.types (the types
  *   module owns the context object, separating type/value surface for HMR +
  *   test mocking).

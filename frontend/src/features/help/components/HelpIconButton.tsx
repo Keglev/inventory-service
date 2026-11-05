@@ -5,11 +5,11 @@
  * the canonical surface for exposing context-sensitive help.
  * @enterprise
  * - The standard surface for exposing help topics across layout chrome
- *   (sidebar, toolbar, settings) and page content (analytics, dashboard,
+ *   (toolbar, settings) and page content (analytics, dashboard,
  *   inventory board, and every inventory and supplier dialog). Callers
  *   pass a topic id string from help/topics.ts.
  * - Click delegates to openHelp() on the canonical useHelp hook
- *   (hooks/useHelp.ts). HelpPanel.tsx (mounted in App.tsx)
+ *   (hooks/useHelp.ts). HelpPanel.tsx (mounted in each shell)
  *   resolves the topic and renders the drawer.
  * - Topic id validation is downstream: an unknown id returns null
  *   at HelpPanel and the drawer silently renders nothing. Callers

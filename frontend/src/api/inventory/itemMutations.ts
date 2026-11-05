@@ -53,8 +53,7 @@ export async function createItem(req: CreateItemRequest): Promise<ItemWriteResul
 }
 
 /**
- * Patches the item name via PATCH /api/inventory/{id}/name rather than going through
- * the full PUT update, so the backend can enforce per-field authorization.
+ * Patches the item name via PATCH /api/inventory/{id}/name (ADMIN only on the backend).
  * Sends the new name as a query param (not a body), matching the backend endpoint contract.
  *
  * @param req - Rename payload with item id and new name

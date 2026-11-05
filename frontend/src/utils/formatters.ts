@@ -2,27 +2,22 @@
  * @file formatters.ts
  * @module utils/formatters
  * @summary Locale-aware date and number formatting helpers used across analytics,
- *   dashboard, inventory, supplier, and settings surfaces. 'DE' and 'EN_US' are
- *   app-internal format codes, not BCP-47 locale tags.
+ *   dashboard, inventory, supplier, and settings surfaces.
  *
  * @enterprise
+ * 'DE' and 'EN_US' are app-internal format codes, not BCP-47 locale tags.
+ *
  * - Cross-feature utility used by api/analytics, app/settings, hooks, utils and
  *   the analytics, dashboard, inventory and supplier pages; a change here reaches
  *   all of them.
  * - Type-only dependency on SettingsContext for DateFormat / NumberFormat union
  *   types; no runtime coupling to context state.
- * - Thousands separation is manual regex, not Intl.NumberFormat — historical
- *   choice.
+ * - Thousands separation is a manual regex, not Intl.NumberFormat, so DE and
+ *   EN_US output is byte-identical across browsers and Node versions.
  * - Pure functions: no state, no side effects, safe to call in render paths.
  */
 import type { DateFormat, NumberFormat } from '../context/settings/SettingsContext';
 
-/**
- * @example
- * formatDate(new Date(2025, 10, 27), 'DD.MM.YYYY')  // -> '27.11.2025'
- * formatDate(new Date(2025, 10, 27), 'YYYY-MM-DD')  // -> '2025-11-27'
- * formatDate(new Date(2025, 10, 27), 'MM/DD/YYYY')  // -> '11/27/2025'
- */
 // A bare ISO day ('2026-10-05') names a calendar day, but new Date() reads it as
 // UTC midnight, which is the previous day west of UTC. Parse it as a local day.
 const ISO_DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -33,6 +28,12 @@ const toDate = (value: Date | string): Date => {
   return day ? new Date(Number(day[1]), Number(day[2]) - 1, Number(day[3])) : new Date(value);
 };
 
+/**
+ * @example
+ * formatDate(new Date(2025, 10, 27), 'DD.MM.YYYY')  // -> '27.11.2025'
+ * formatDate(new Date(2025, 10, 27), 'YYYY-MM-DD')  // -> '2025-11-27'
+ * formatDate(new Date(2025, 10, 27), 'MM/DD/YYYY')  // -> '11/27/2025'
+ */
 export const formatDate = (date: Date | string, format: DateFormat): string => {
   const d = toDate(date);
 
@@ -92,7 +93,7 @@ export const getDaysAgoIso = (n: number): string => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
-/** Today's local calendar day as YYYY-MM-DD (FO3: one day helper, not two copies). */
+/** Today's local calendar day as YYYY-MM-DD. */
 export const getTodayIso = (): string => getDaysAgoIso(0);
 
 /**

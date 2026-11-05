@@ -6,8 +6,8 @@
  *
  * @enterprise
  * - Consumers: the item name step of EditItemForm and both steps of the supplier
- *   edit dialog (EditSupplierInfoStep, EditSupplierConfirmation). The three held
- *   the same markup until FO5; one copy keeps the panel identical across dialogs.
+ *   edit dialog (EditSupplierInfoStep, EditSupplierConfirmation); one copy keeps the
+ *   panel identical across dialogs.
  * - Caller-side i18n: label and hint arrive translated; the component reads no
  *   namespace, so inventory and supplier dialogs share it.
  * - Not an input: no role or label association, because nothing here is

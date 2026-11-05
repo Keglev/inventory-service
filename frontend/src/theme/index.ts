@@ -1,19 +1,20 @@
 /**
  * @file index.ts
- * @module theme
- * @summary MUI theme factory — builds the fully-configured ThemeProvider input for a
- *   given locale and color mode. Single source of truth for palette, typography,
- *   spacing, and component overrides.
+ * @module theme/index
+ * @summary MUI theme factory — builds the fully-configured ThemeProvider input for a given
+ *   locale and color mode.
  *
  * @enterprise
+ * Single source of truth for palette, typography, spacing, and component overrides.
+ *
  * - Consumed by ShellPreferencesProvider (context/shellPreferences), which owns locale
  *   and themeMode for both shells and memoises buildTheme(locale, themeMode); each
  *   shell applies the result in its own ThemeProvider.
  * - Color-mode state is persisted to localStorage key 'themeMode' by that provider.
  * - Import direction: leaf — depends only on @mui/material and @mui/x-data-grid; no
  *   imports from /utils, /context, /components, or feature code.
- * - CSS variables (cssVariables: true) are a MUI v7 feature; they let consuming
- *   components reference palette tokens without importing the theme object at runtime.
+ * - CSS variables (cssVariables: true) let consuming components reference palette
+ *   tokens without importing the theme object at runtime.
  */
 
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
@@ -39,7 +40,7 @@ const TABLE_CELL_PADDING_Y = 6;
 export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark' = 'light') => {
   const base = createTheme(
     {
-      // WHY: MUI v7 CSS-variable output; consuming components reference palette tokens without importing the theme object.
+      // WHY: CSS-variable output; consuming components reference palette tokens without importing the theme object.
       cssVariables: true,
 
       spacing: 8,
@@ -93,7 +94,7 @@ export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark
               // and chart cards would differ; the overlay is dropped for one card colour.
               ...(mode === 'dark' && { backgroundColor: darkCardSurface, backgroundImage: 'none' }),
               // WHY: in light mode card and panel share one colour; the outline separates them,
-              // and a slightly stronger shadow lifts the card (mockup approved 2026-10-09).
+              // and a slightly stronger shadow lifts the card.
               ...(mode === 'light' && {
                 border: `1px solid ${lightCardOutline}`,
                 boxShadow: '0 1px 3px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.05)',

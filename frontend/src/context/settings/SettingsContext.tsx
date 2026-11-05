@@ -7,15 +7,12 @@
  * @enterprise
  * - User preferences only (locale-sensitive, persisted to localStorage under
  *   'appSettings'). Runtime system facts (backend status, database product) come
- *   from the shared health query (features/health/useHealthCheck); this context
- *   no longer fetches /api/health (FW5 fork 3).
+ *   from the shared health query (features/health/useHealthCheck), not from here.
  * - Format preferences are language-independent: the i18n language sets the
  *   initial default (first load) and the reset baseline only. Once chosen, a
  *   date/number format is sticky and a language change never rewrites it — a
  *   German UI with a US date format is a valid, persisted combination.
- * - Consumed via hooks/useSettings.ts — the factory-built consumer hook with
- *   16 production call sites. The former sibling duplicate
- *   context/settings/useSettings.ts has been removed.
+ * - Consumed via hooks/useSettings.ts, the factory-built consumer hook.
  */
 
 import * as React from 'react';

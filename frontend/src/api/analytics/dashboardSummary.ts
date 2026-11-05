@@ -3,12 +3,13 @@
  * @module api/analytics/dashboardSummary
  *
  * @summary
- * Fetcher for GET /api/analytics/summary. The dashboard consumes only the
- * unfiltered (all-suppliers) low-stock list; the backend populates it when no
- * supplier filter is supplied and defaults the date window itself, so this call
- * needs no params.
+ * Fetcher for GET /api/analytics/summary.
  *
  * @enterprise
+ * The dashboard consumes only the unfiltered (all-suppliers) low-stock list; the backend
+ * populates it when no supplier filter is supplied and defaults the date window itself, so
+ * this call needs no params.
+ *
  * Tolerant per the analytics API house style: malformed rows are dropped and
  * transport errors collapse to an empty list.
  */

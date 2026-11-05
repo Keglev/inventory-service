@@ -50,12 +50,9 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   // WHY: re-subscribe the heartbeat when isDemo flips (login/logout transitions) so the DEMO short-circuit applies correctly.
   const { user } = useAuth();
 
-  // ---- Heartbeat: detect server-side invalidation ----
-  // Every request refreshes the server session, so a ping on a timer kept an
-  // unattended tab signed in forever. The interval pings only when the user
-  // did something since the last ping; the server's session timeout (Spring
-  // Boot's 30 min) is then the one idle limit, shared by all tabs because
-  // they share the session (fork 10 C).
+  // Heartbeat: every request refreshes the server session, so it pings only if the user acted
+  // since the last ping; the server's 30-minute session timeout is then the one idle limit,
+  // shared by all tabs (they share the session).
   React.useEffect(() => {
     let timer: number | null = null;
     let activeSinceLastPing = false;
@@ -72,9 +69,8 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
         // httpClient sends the session cookie by default (withCredentials).
         await httpClient.get(pingEndpoint);
       } catch (error) {
-        // WHY: only the server saying the session is gone ends it. Offline, a
-        // timeout or a 5xx says nothing about the session, and ending it there
-        // logged the user out in every tab on a network blip.
+        // WHY: only a 401 ends the session. Offline, a timeout or a 5xx says nothing about
+        // the session; ending it on one would log every tab out on a network blip.
         if (!isAxiosError(error) || error.response?.status !== 401) return;
         // LogoutPage calls AuthContext.logout, which tells the other tabs.
         navigate('/logout', { replace: true });
@@ -114,7 +110,7 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
     };
   }, [user?.isDemo, pingEndpoint, pingIntervalMs, navigate]);
 
-  // ---- Cross-tab sync for logout ----
+  // Cross-tab sync for logout
   React.useEffect(() => {
     const onStorage = (ev: StorageEvent) => {
       if (ev.key === FORCE_LOGOUT_FLAG && ev.newValue === '1') {

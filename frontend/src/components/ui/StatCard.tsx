@@ -11,9 +11,9 @@
  *   (e.g. t('common:dashboard.kpi.totalItems')). The component itself is i18n-agnostic.
  * - Value fallback uses em-dash (U+2014, not hyphen) — visually distinguishes "no data"
  *   from a real zero. Loading state shows a skeleton sized to the value line.
- * - Compact by design (Carlos, 2026-10-12): the cards take one short row so the
- *   dashboard fits a desktop viewport without scrolling. The value is a paragraph,
- *   not a heading: a number is not a section title, and an h4 outranked the page h5.
+ * - Compact by design: the cards take one short row so the dashboard fits a desktop
+ *   viewport without scrolling. The value is a paragraph, not a heading: a number is
+ *   not a section title, and a heading would outrank the page title.
  */
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton } from '@mui/material';

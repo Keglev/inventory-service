@@ -1,12 +1,13 @@
 /**
  * @file resources.d.ts
  * @module i18n/resources
- * @summary TypeScript module augmentation for i18next CustomTypeOptions. Ties the
- *   runtime translation keys to compile-time types: useTranslation('<ns>') only
- *   accepts declared namespaces; t('<key>') is validated against the JSON shapes
- *   at compile time.
+ * @summary TypeScript module augmentation for i18next CustomTypeOptions.
  *
  * @enterprise
+ * Ties the runtime translation keys to compile-time types: useTranslation('<ns>') only
+ * accepts declared namespaces; t('<key>') is validated against the JSON shapes at compile
+ * time.
+ *
  * - Augments 'i18next' directly via declare module — affects every useTranslation()
  *   call site project-wide.
  * - Typing source contract: the eleven EN JSON files (public/locales/en/*.json) are

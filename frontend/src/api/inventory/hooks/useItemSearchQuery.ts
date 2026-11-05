@@ -49,7 +49,7 @@ export function useItemSearchQuery(
     queryFn: () => listItemsForSupplier(supplierId),
     enabled: supplierId !== '',
     staleTime: 30_000,
-    // Drop an unused supplier's list at once (Carlos, 2026-10-06).
+    // Drop an unused supplier's list at once.
     gcTime: 0,
   });
 

@@ -3,15 +3,11 @@
  * @module api/inventory/rowNormalizers
  *
  * @summary
- * DTO normalization for inventory list rows.
- * Converts raw API responses to strongly-typed InventoryRow shapes.
- * Maps backend fields (quantity, minimumQuantity, sku) -> frontend fields (onHand, minQty, code).
+ * Normalizes one inventory DTO into the grid's InventoryRow shape.
  *
  * @enterprise
- * - Single responsibility: DTO -> InventoryRow transformation
- * - Handles backend field name mappings transparently
- * - Type-safe with full TypeScript support
- * - Reusable for both single rows and batch operations
+ * Backend fields map to frontend names (quantity -> onHand, minimumQuantity -> minQty,
+ * sku -> code), so the grid never reads DTO names directly.
  */
 
 import type { InventoryRow } from './types';
@@ -20,7 +16,6 @@ import { pickString, pickNumber } from '../shared/fieldPickers';
 /**
  * Normalize a raw API response object into a strongly-typed InventoryRow.
  * Maps backend fields:
- *  - id -> itemId
  *  - quantity -> onHand
  *  - minimumQuantity -> minQty
  *  - createdAt -> createdAt (creation timestamp; backend has no update field)
@@ -40,7 +35,6 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null => {
 
   const r = raw as Record<string, unknown>;
 
-  // ID is required
   const id = pickString(r, 'id');
   if (!id) return null;
 
@@ -53,17 +47,14 @@ export const toInventoryRow = (raw: unknown): InventoryRow | null => {
 
   const supplierName = pickString(r, 'supplierName') ?? null;
 
-  // quantity -> onHand
   const onHand = pickNumber(r, 'quantity') ?? 0;
 
-  // minimumQuantity -> minQty
   const minQty = pickNumber(r, 'minimumQuantity') ?? null;
 
-  // price -> price (unit price); totalValue -> totalValue (falls back to price x onHand)
+  // totalValue falls back to price x onHand
   const price = pickNumber(r, 'price') ?? null;
   const totalValue = pickNumber(r, 'totalValue') ?? (price != null ? price * onHand : null);
 
-  // createdAt -> createdAt (creation timestamp for display)
   const createdAt = pickString(r, 'createdAt') ?? null;
 
   return {

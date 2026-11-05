@@ -1,6 +1,6 @@
 /**
  * @file useItemDetailsQuery.ts
- * @module api/inventory/hooks
+ * @module api/inventory/hooks/useItemDetailsQuery
  *
  * @summary
  * Fetches complete item data from GET /api/inventory/{id}, used to pre-fill edit
@@ -45,6 +45,8 @@ export function useItemDetailsQuery(itemId: string | undefined | null) {
 
       try {
         const response = await http.get(`/api/inventory/${encodeURIComponent(itemId)}`);
+        // An axios response carries the body in `data`; a record without that key is read as
+        // the body itself (only test mocks resolve that way).
         const data: Record<string, unknown> = isRecord(response) && 'data' in response
           ? (response as { data: unknown }).data as Record<string, unknown>
           : isRecord(response) ? response : {};

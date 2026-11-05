@@ -11,10 +11,8 @@
  * - Authenticated routes render *inside* `AppShell` (SAP/Fiori-style chrome),
  *   and are protected by `RequireAuth`.
  * - A single 404 fallback (NotFoundPage) handles unknown routes.
- *
- * @notes
- * - We intentionally removed the legacy `Topbar.tsx`. The AppBar / nav lives in
- *   `AppShell`, which wraps all authenticated pages.
+ * - Every authenticated route passes `allowDemo`: the demo sees each page
+ *   read-only (writes are blocked by the dialogs and the backend).
  * - If the authentication context is still resolving on first load, we render a
  *   centered progress indicator to avoid guard flicker.
  */
@@ -61,9 +59,7 @@ const AppRouter: React.FC = () => {
   return (
     <>
       <Routes>
-        {/**
-         * PUBLIC ROUTES (no AppShell)
-         */}
+        {/* PUBLIC ROUTES (no AppShell) */}
       <Route element={<AppPublicShell />}>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
@@ -72,20 +68,13 @@ const AppRouter: React.FC = () => {
         {/* Legal pages: public, reachable from every page via the footer */}
         <Route path="/impressum" element={<ImpressumPage />} />
         <Route path="/datenschutz" element={<DatenschutzPage />} />
-        {/**
-         * 404 FALLBACK: unknown paths render inside the public shell so the
-         * header, footer, and legal links stay reachable.
-         */}
+        {/* 404 fallback inside the public shell, so header, footer and legal links stay reachable */}
         <Route path="*" element={<NotFoundPage />} />
       </Route>
       {/* Make /logout public: it's safe & avoids RequireAuth race during cleanup */}
       <Route path="/logout" element={<LogoutPage />} />
 
-      {/**
-       * AUTHENTICATED ROUTES (inside AppShell)
-       * - Children below render within AppShell's AppBar+Drawer+Content layout.
-       * - Each child is additionally protected with RequireAuth for safety.
-       */}
+      {/* AUTHENTICATED ROUTES: inside AppShell, each also guarded by RequireAuth */}
       <Route element={<AppShell />}>
         <Route
           path="/dashboard"
@@ -95,11 +84,6 @@ const AppRouter: React.FC = () => {
             </RequireAuth>
           }
         />
-        {/**
-         * Inventory route (read-only in demo - write ops blocked by backend/dialogs).
-         * Demo users are allowed to access for viewing, but cannot modify data.
-         * @enterprise Guarded route: requires auth, allowDemo enables demo user access.
-        */}
         <Route
           path="/inventory"
           element={
