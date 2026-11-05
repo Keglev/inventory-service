@@ -8,6 +8,7 @@ get:
   operationId: getLowStockCount
   security:
     - oauth2: [openid]
+    - {}
   responses:
     '200':
       description: Number of low-stock items

@@ -28,5 +28,3 @@ get:
         application/json:
           schema:
             $ref: '../../schemas/system/system.yaml#/HealthDbError'
-    '500':
-      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

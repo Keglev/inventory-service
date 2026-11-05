@@ -8,6 +8,7 @@ get:
   operationId: getFinancialSummary
   security:
     - oauth2: [openid]
+    - {}
   parameters:
     - name: from
       in: query

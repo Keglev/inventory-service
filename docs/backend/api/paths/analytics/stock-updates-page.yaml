@@ -16,7 +16,7 @@ get:
   operationId: getFilteredStockUpdatesPage
   security:
     - oauth2: [openid]
-    - {}  # Empty security allows demo mode unauthenticated access
+    - {}
   parameters:
     - name: startDate
       in: query

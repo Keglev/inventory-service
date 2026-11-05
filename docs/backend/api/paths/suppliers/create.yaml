@@ -7,7 +7,7 @@ post:
     
     **Validation:**
     - ID must be absent (system-generated)
-    - Name and createdBy are required
+    - Name is required; createdBy is set by the server from the signed-in user
     - Email (if provided) must be valid format
     
     **Response:**
@@ -27,7 +27,6 @@ post:
           contactName: "Alice Johnson"
           phone: "+1-555-0200"
           email: "contact@newsupplier.com"
-          createdBy: "admin@example.com"
   responses:
     '201':
       description: Supplier created successfully
@@ -48,5 +47,17 @@ post:
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
     '403':
       $ref: '../../responses/errors.yaml#/components/responses/Forbidden'
+    '409':
+      description: Another supplier already has this name
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/common.yaml#/components/schemas/ErrorResponse'
+          example:
+            error: conflict
+            message: Supplier already exists
+            timestamp: '2026-11-05T10:30:00Z'
+            fieldErrors:
+              name: Supplier already exists
     '500':
       $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

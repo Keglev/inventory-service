@@ -10,7 +10,7 @@ get:
   operationId: countInventoryItems
   security:
     - oauth2: [openid]
-    - {}  # Empty security allows demo mode unauthenticated access
+    - {}
   responses:
     '200':
       description: Total count of inventory items

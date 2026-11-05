@@ -6,6 +6,7 @@ get:
   operationId: countSuppliers
   security:
     - oauth2: [openid]
+    - {}
   responses:
     '200':
       description: Total count of suppliers

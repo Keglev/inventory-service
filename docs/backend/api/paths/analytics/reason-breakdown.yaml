@@ -8,7 +8,7 @@ get:
   operationId: getReasonBreakdown
   security:
     - oauth2: [openid]
-    - {}  # Empty security allows demo mode unauthenticated access
+    - {}
   parameters:
     - name: startDate
       in: query
@@ -51,6 +51,8 @@ get:
             - reason: "RETURNED_BY_CUSTOMER"
               increase: 12
               decrease: 0
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
     '401':
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
     '500':

@@ -15,6 +15,7 @@ get:
   operationId: getStockValueOverTime
   security:
     - oauth2: [openid]
+    - {}
   parameters:
     - name: start
       in: query

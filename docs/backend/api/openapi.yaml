@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Smart Supply Pro – Backend API
-  version: 1.0.0
+  version: 2.0.0
   description: |
     Enterprise REST API for Smart Supply Pro inventory and supplier management system.
     
@@ -10,11 +10,25 @@ info:
     - Inventory item management with audit trail
     - Supplier relationship management
     - Stock movement tracking and analytics
-    - Real-time dashboard KPIs
+    - Dashboard KPIs
     
     ## Authentication
-    All endpoints (except health checks) require OAuth2 authentication via Google.
-    The API uses JWT tokens managed through secure HTTP-only cookies.
+    Sign-in uses Google OAuth2 with the authorization-code flow, run by the
+    backend (start: `/oauth2/authorization/google`); only e-mail addresses on the
+    sign-in allow-list are admitted. After sign-in the backend keeps a server
+    session, and the browser sends its session cookie (`JSESSIONID`, HttpOnly,
+    Secure, SameSite=Lax) with every request. No bearer token is accepted.
+
+    Roles: **USER** reads everything except the employee analytics (403) and may
+    adjust quantity and price; **ADMIN** may also create, rename and delete items
+    and manage suppliers.
+
+    ## Demo mode
+    With demo mode on (`app.demo-readonly`, the production default), every GET
+    under `/api/inventory`, `/api/analytics` and `/api/suppliers` also answers
+    anonymous callers; those operations list `{}` among their security
+    requirements, and identities in their responses are masked. Writes always
+    need a signed-in user: an anonymous write answers 401.
 
   contact:
     name: Smart Supply Pro Team
@@ -30,19 +44,14 @@ servers:
   - url: http://localhost:8081
     description: Local development
 
-# Tags moved to a separate file
 tags:
   $ref: './tags.yaml#/tags'
 
-# All components (security, params, responses, examples, schemas if you add)
 components:
   $ref: './components.yaml#/components'
 
-# Global security stays here (short and clear)
 security:
   - oauth2: [openid, profile, email]
-  - bearerAuth: []
 
-# All path wiring moved to paths/index.yaml
 paths:
   $ref: './paths/index.yaml#/paths'

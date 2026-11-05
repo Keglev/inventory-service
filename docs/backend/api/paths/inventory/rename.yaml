@@ -9,11 +9,7 @@ patch:
   security:
     - oauth2: [openid]
   parameters:
-    - name: id
-      in: path
-      required: true
-      schema:
-        type: string
+    - $ref: '../../parameters/ids.yaml#/components/parameters/id'
     - name: name
       in: query
       required: true

@@ -40,17 +40,13 @@ components:
 
     LowStockItemDTO:
       type: object
+      required: [itemName, quantity, minimumQuantity]
       properties:
-        itemId:
-          type: string
-          format: uuid
-          description: Inventory item identifier
-          example: "550e8400-e29b-41d4-a716-446655440000"
         itemName:
           type: string
           description: Item display name
-          example: "Premium Widget"
-        currentQuantity:
+          example: "Deep Groove Ball Bearing 6204-2RS"
+        quantity:
           type: integer
           format: int32
           description: Current stock quantity
@@ -58,66 +54,45 @@ components:
         minimumQuantity:
           type: integer
           format: int32
-          description: Minimum threshold
-          example: 50
-        supplierId:
-          type: string
-          description: Associated supplier
-          example: "supplier-123"
-        supplierName:
-          type: string
-          description: Supplier name
-          example: "Acme Corp"
-      description: Item requiring reorder due to low stock
+          description: The item's minimum; the item is listed while quantity is below it
+          example: 25
+      description: An item of the requested supplier whose stock is below its minimum
 
     ItemUpdateFrequencyDTO:
       type: object
+      required: [itemName, updateCount]
       properties:
-        itemId:
-          type: string
-          format: uuid
-          description: Inventory item identifier
-          example: "550e8400-e29b-41d4-a716-446655440000"
         itemName:
           type: string
           description: Item display name
-          example: "Premium Widget"
+          example: "Deep Groove Ball Bearing 6204-2RS"
         updateCount:
           type: integer
           format: int64
-          description: Number of updates in period
-          example: 45
-      description: Item update frequency metrics
+          description: Number of stock changes recorded for the item
+          example: 14
+      description: How often an item's stock changed
 
     MonthlyStockMovementDTO:
       type: object
+      required: [month, stockIn, stockOut]
       properties:
-        year:
-          type: integer
-          format: int32
-          description: Calendar year
-          example: 2025
         month:
-          type: integer
-          format: int32
-          description: Month (1-12)
-          example: 11
-        inboundQuantity:
-          type: integer
-          format: int64
-          description: Total inbound (restocks, returns)
-          example: 500
-        outboundQuantity:
+          type: string
+          pattern: '^[0-9]{4}-[0-9]{2}$'
+          description: Calendar month, YYYY-MM
+          example: "2026-10"
+        stockIn:
           type: integer
           format: int64
-          description: Total outbound (sales, adjustments)
-          example: 250
-        netChange:
+          description: Units received or restocked in the month
+          example: 99
+        stockOut:
           type: integer
           format: int64
-          description: Net change (inbound - outbound)
-          example: 250
-      description: Monthly inventory flow metrics
+          description: Units sold or written off in the month (a positive number)
+          example: 8
+      description: Inbound and outbound units for one calendar month
 
     ReasonBreakdownDTO:
       type: object
@@ -156,67 +131,49 @@ components:
 
     StockUpdateResultDTO:
       type: object
+      required: [itemName, supplierName, change, reason, createdBy, timestamp]
       properties:
-        id:
-          type: string
-          description: Update record identifier
-          example: "update-001"
-        itemId:
-          type: string
-          format: uuid
-          description: Affected inventory item
-          example: "550e8400-e29b-41d4-a716-446655440000"
         itemName:
           type: string
-          description: Item display name
-          example: "Premium Widget"
+          description: Display name of the affected item
+          example: "Holzpellets 06 mm Sackware 15kg"
+        supplierName:
+          type: string
+          description: Display name of the item's supplier
+          example: "Obi markt"
         change:
           type: integer
           format: int32
-          description: Quantity change (positive/negative)
-          example: -25
+          description: Signed quantity delta (positive inbound, negative outbound; 0 for a price change)
+          example: -3
         reason:
           type: string
-          description: Change reason code
+          description: Stock change reason code
           example: "SOLD"
-        timestamp:
-          type: string
-          format: date-time
-          description: When the update occurred
-          example: "2025-11-15T14:30:00Z"
         createdBy:
           type: string
-          description: User who made the change
-          example: "user@example.com"
-        supplierId:
+          description: E-mail of the user who made the change; masked for anonymous demo callers
+          example: "demo-user-2@example.com"
+        timestamp:
           type: string
-          description: Associated supplier
-          example: "supplier-123"
-        supplierName:
-          type: string
-          description: Supplier name
-          example: "Acme Corp"
-      description: Stock update result with full context
+          description: Server-local date-time of the change, ISO-8601 without an offset
+          example: "2026-10-28T19:40:02.730095"
+      description: One stock change, with item and supplier resolved to display names
 
     PriceTrendDTO:
       type: object
+      required: [timestamp, price]
       properties:
-        date:
+        timestamp:
           type: string
           format: date
-          description: Date of the price point
-          example: "2025-11-15"
+          description: Day of the price point (yyyy-MM-dd; day granularity on every database)
+          example: "2026-09-01"
         price:
           type: number
-          format: double
-          description: Unit price on this date
-          example: 29.99
-        quantity:
-          type: integer
-          format: int32
-          description: Quantity at this price point
-          example: 150
-      description: Historical price change data point
+          description: Unit price on that day
+          example: 4.1
+      description: One point of an item's price history
 
     DashboardSummaryDTO:
       type: object
@@ -242,46 +199,81 @@ components:
             $ref: '#/components/schemas/ItemUpdateFrequencyDTO'
           description: Most frequently updated items
       description: |
-        Comprehensive dashboard summary with multiple analytics aggregated.
-        Provides executive-level inventory overview for decision making.
+        The dashboard's aggregates in one response.
 
     FinancialSummaryDTO:
       type: object
+      required: [method, fromDate, toDate, openingQty, openingValue, purchasesQty, purchasesCost,
+                 returnsInQty, returnsInCost, cogsQty, cogsCost, writeOffQty, writeOffCost,
+                 endingQty, endingValue]
       properties:
-        totalInventoryValue:
-          type: number
-          format: double
-          description: Total current inventory value
-          example: 157500.00
-        totalQuantity:
+        method:
+          type: string
+          enum: [WAC]
+          description: Costing method; always Weighted Average Cost
+          example: WAC
+        fromDate:
+          type: string
+          format: date
+          description: Period start (inclusive)
+          example: "2026-09-01"
+        toDate:
+          type: string
+          format: date
+          description: Period end (inclusive)
+          example: "2026-10-31"
+        openingQty:
           type: integer
           format: int64
-          description: Total units in inventory
-          example: 5243
-        weightedAverageCost:
+          description: Units on hand at the start of the period
+          example: 318
+        openingValue:
           type: number
-          format: double
-          description: Weighted average cost per unit
-          example: 30.04
-        totalCost:
+          description: Value of the opening stock at WAC
+          example: 1789.95
+        purchasesQty:
+          type: integer
+          format: int64
+          description: Units received (inbound with a price, or INITIAL_STOCK), net of RETURNED_TO_SUPPLIER
+          example: 6
+        purchasesCost:
           type: number
-          format: double
-          description: Total cost value (WAC × quantity)
-          example: 157500.00
-        period:
-          type: object
-          properties:
-            from:
-              type: string
-              format: date
-              description: Period start date
-              example: "2025-09-01"
-            to:
-              type: string
-              format: date
-              description: Period end date
-              example: "2025-11-30"
-          description: Financial reporting period
-      description: |
-        Financial summary with Weighted Average Cost (WAC) calculations.
-        Used for accounting, cost analysis, and financial reporting.
+          description: Cost of the units received
+          example: 59.4
+        returnsInQty:
+          type: integer
+          format: int64
+          description: Units returned by customers (RETURNED_BY_CUSTOMER)
+          example: 0
+        returnsInCost:
+          type: number
+          description: Value of the customer returns
+          example: 0
+        cogsQty:
+          type: integer
+          format: int64
+          description: Units sold (cost of goods sold)
+          example: 7
+        cogsCost:
+          type: number
+          description: Cost of the units sold at WAC
+          example: 69.3
+        writeOffQty:
+          type: integer
+          format: int64
+          description: Units written off (scrapped, destroyed, damaged, expired, lost)
+          example: 0
+        writeOffCost:
+          type: number
+          description: Value written off at WAC
+          example: 0
+        endingQty:
+          type: integer
+          format: int64
+          description: Units on hand at the end of the period
+          example: 317
+        endingValue:
+          type: number
+          description: Value of the closing stock at WAC
+          example: 1780.05
+      description: Stock movements and values for one period, costed by Weighted Average Cost (WAC).

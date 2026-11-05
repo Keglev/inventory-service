@@ -3,50 +3,11 @@ components:
     id:
       name: id
       in: path
-      description: Unique identifier for the resource
-      required: true
-      schema:
-        type: string
-        format: uuid
-      example: "550e8400-e29b-41d4-a716-446655440000"
-
-    itemId:
-      name: itemId
-      in: path
-      description: Unique identifier for an inventory item
-      required: true
-      schema:
-        type: string
-        format: uuid
-      example: "550e8400-e29b-41d4-a716-446655440000"
-
-    supplierId:
-      name: supplierId
-      in: path
-      description: Unique identifier for a supplier
-      required: true
-      schema:
-        type: string
-      example: "supplier-123"
-    
-    reason:
-      name: reason
-      in: path
       description: |
-        Stock change reason filter. One of:
-        - INITIAL_STOCK: Initial stock entry
-        - MANUAL_UPDATE: Manual quantity correction
-        - PRICE_CHANGE: Price adjustment recorded against the item
-        - SOLD: Items sold to customers
-        - SCRAPPED: Removed as scrap
-        - DESTROYED: Destroyed stock
-        - DAMAGED: Damaged stock removal
-        - EXPIRED: Expired items
-        - LOST: Lost or unaccounted for
-        - RETURNED_TO_SUPPLIER: Returned to supplier
-        - RETURNED_BY_CUSTOMER: Returned by customer
+        Identifier of the inventory item or supplier the path names. Records
+        created through the API carry a UUID; the demo seed uses readable ids
+        such as seed-item-001 and seed-sup-001.
       required: true
       schema:
         type: string
-        enum: [INITIAL_STOCK, MANUAL_UPDATE, PRICE_CHANGE, SOLD, SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER, RETURNED_BY_CUSTOMER]
-      example: SOLD
+      example: "550e8400-e29b-41d4-a716-446655440000"

@@ -27,7 +27,7 @@ get:
               database:
                 type: string
                 enum: [ok, down]
-                description: Cached database connectivity state
+                description: Result of this request's database ping
               databaseProduct:
                 type: string
                 description: Database product name reported by JDBC metadata, or "unknown"

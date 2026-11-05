@@ -5,11 +5,12 @@ get:
   description: |
     Pages through individual stock-history rows, optionally filtered by employee
     (createdBy), supplier, and date window. Requires ROLE_ADMIN; readable
-    unauthenticated only in demo mode.
+    unauthenticated only in demo mode, and a signed-in USER gets 403 (backend
+    ADR-0020).
   operationId: getEmployeeChanges
   security:
     - oauth2: [openid]
-    - {}  # Empty security allows demo mode unauthenticated access
+    - {}
   parameters:
     - name: createdBy
       in: query
@@ -42,9 +43,11 @@ get:
     - name: size
       in: query
       required: false
+      description: Page size; values above 100 are clamped to 100
       schema:
         type: integer
         default: 25
+        maximum: 100
   responses:
     '200':
       description: Spring Data page of stock-update rows
@@ -62,6 +65,8 @@ get:
                   $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/StockUpdateResultDTO'
               page:
                 $ref: '../../schemas/common/common.yaml#/components/schemas/PageMetadata'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
     '401':
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
     '403':

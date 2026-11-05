@@ -7,6 +7,8 @@ get:
     full name, role, and profile picture URL from OAuth2 provider.
     
     User data is loaded from the database based on OAuth2 email claim.
+    Answers 401 when there is no session, when the provider sent no e-mail, and
+    when the signed-in e-mail has no user row ("User not found").
   operationId: getCurrentUser
   security:
     - oauth2: [openid, profile, email]
@@ -34,15 +36,5 @@ get:
                 pictureUrl: https://lh3.googleusercontent.com/a/example456
     '401':
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
-    '404':
-      description: User not found in database
-      content:
-        application/json:
-          schema:
-            $ref: '../../schemas/common/common.yaml#/components/schemas/ErrorResponse'
-          example:
-            error: not_found
-            message: User not found
-            timestamp: '2026-07-09T10:30:00Z'
     '500':
       $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'
