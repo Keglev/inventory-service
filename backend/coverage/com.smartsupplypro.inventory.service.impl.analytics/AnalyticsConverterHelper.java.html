@@ -18,8 +18,6 @@ final class AnalyticsConverterHelper {
 
     private AnalyticsConverterHelper() {}
 
-    // -- Date/Time conversions -------------------------------------------------
-
     /**
      * Converts a date-like projection value to {@link LocalDate}.
      * Accepts {@code LocalDate}, {@code java.sql.Date}, {@code java.sql.Timestamp},
@@ -30,23 +28,23 @@ final class AnalyticsConverterHelper {
      * @throws IllegalStateException if the value cannot be interpreted as a date
      */
     static LocalDate asLocalDate(Object o) {
-<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (o instanceof LocalDate ld) return ld;</span>
-<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (o instanceof java.sql.Date d) return d.toLocalDate();</span>
-<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (o instanceof java.sql.Timestamp ts) return ts.toLocalDateTime().toLocalDate();</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        if (o instanceof LocalDate ld) return ld;</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (o instanceof java.sql.Date d) return d.toLocalDate();</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (o instanceof java.sql.Timestamp ts) return ts.toLocalDateTime().toLocalDate();</span>
 
-<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (o instanceof CharSequence cs) {</span>
-<span class="fc" id="L38">            String s = cs.toString();</span>
-<span class="fc bfc" id="L39" title="All 2 branches covered.">            if (s.length() &gt;= 10) return LocalDate.parse(s.substring(0, 10));</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (o instanceof CharSequence cs) {</span>
+<span class="fc" id="L36">            String s = cs.toString();</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">            if (s.length() &gt;= 10) return LocalDate.parse(s.substring(0, 10));</span>
         }
 
         // Last resort: toString() on timestamp literals from H2 (e.g. &quot;2025-03-15 00:00:00.0&quot;)
-<span class="fc" id="L43">        String s = String.valueOf(o);</span>
-<span class="fc bfc" id="L44" title="All 6 branches covered.">        if (s.length() &gt;= 10 &amp;&amp; s.charAt(4) == '-' &amp;&amp; s.charAt(7) == '-') {</span>
-<span class="fc" id="L45">            return LocalDate.parse(s.substring(0, 10));</span>
+<span class="fc" id="L41">        String s = String.valueOf(o);</span>
+<span class="fc bfc" id="L42" title="All 6 branches covered.">        if (s.length() &gt;= 10 &amp;&amp; s.charAt(4) == '-' &amp;&amp; s.charAt(7) == '-') {</span>
+<span class="fc" id="L43">            return LocalDate.parse(s.substring(0, 10));</span>
         }
 
-<span class="fc" id="L48">        throw new IllegalStateException(&quot;Expected LocalDate/Date/Timestamp/String but got: &quot; +</span>
-<span class="fc bfc" id="L49" title="All 2 branches covered.">                (o == null ? &quot;null&quot; : o.getClass().getName() + &quot; -&gt; &quot; + o));</span>
+<span class="fc" id="L46">        throw new IllegalStateException(&quot;Expected LocalDate/Date/Timestamp/String but got: &quot; +</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">                (o == null ? &quot;null&quot; : o.getClass().getName() + &quot; -&gt; &quot; + o));</span>
     }
 
     /**
@@ -57,9 +55,9 @@ final class AnalyticsConverterHelper {
      * @throws IllegalStateException if the object type is unsupported
      */
     static LocalDateTime asLocalDateTime(Object o) {
-<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (o instanceof LocalDateTime ldt) return ldt;</span>
-<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (o instanceof Timestamp ts) return ts.toLocalDateTime();</span>
-<span class="fc" id="L62">        throw new IllegalStateException(&quot;Expected LocalDateTime or java.sql.Timestamp but got: &quot; + o);</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (o instanceof LocalDateTime ldt) return ldt;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (o instanceof Timestamp ts) return ts.toLocalDateTime();</span>
+<span class="fc" id="L60">        throw new IllegalStateException(&quot;Expected LocalDateTime or java.sql.Timestamp but got: &quot; + o);</span>
     }
 
     /**
@@ -70,12 +68,10 @@ final class AnalyticsConverterHelper {
      * @return corresponding {@link Number}
      */
     static Number asNumber(Object o) {
-<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (o == null) return java.math.BigDecimal.ZERO;</span>
-<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (o instanceof Number n) return n;</span>
-<span class="fc" id="L75">        throw new IllegalStateException(&quot;Expected numeric type but got: &quot; + o);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (o == null) return java.math.BigDecimal.ZERO;</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (o instanceof Number n) return n;</span>
+<span class="fc" id="L73">        throw new IllegalStateException(&quot;Expected numeric type but got: &quot; + o);</span>
     }
-
-    // -- Date window utilities -------------------------------------------------
 
     /**
      * Applies a 30-day default window when bounds are null and validates {@code start &lt;= end}.
@@ -86,32 +82,30 @@ final class AnalyticsConverterHelper {
      * @throws InvalidRequestException if effective start is after effective end
      */
     static LocalDate[] defaultAndValidateDateWindow(LocalDate start, LocalDate end) {
-<span class="fc bfc" id="L89" title="All 2 branches covered.">        LocalDate s = (start == null) ? LocalDate.now().minusDays(30) : start;</span>
-<span class="fc bfc" id="L90" title="All 2 branches covered.">        LocalDate e = (end == null) ? LocalDate.now() : end;</span>
-<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (s.isAfter(e)) {</span>
-<span class="fc" id="L92">            throw new InvalidRequestException(&quot;start must be on or before end&quot;);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        LocalDate s = (start == null) ? LocalDate.now().minusDays(30) : start;</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        LocalDate e = (end == null) ? LocalDate.now() : end;</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (s.isAfter(e)) {</span>
+<span class="fc" id="L88">            throw new InvalidRequestException(&quot;start must be on or before end&quot;);</span>
         }
-<span class="fc" id="L94">        return new LocalDate[]{s, e};</span>
+<span class="fc" id="L90">        return new LocalDate[]{s, e};</span>
     }
 
     /** Returns the start-of-day boundary (00:00:00) for the given date (inclusive lower bound). */
     static LocalDateTime startOfDay(LocalDate d) {
-<span class="fc" id="L99">        return LocalDateTime.of(d, LocalTime.MIN);</span>
+<span class="fc" id="L95">        return LocalDateTime.of(d, LocalTime.MIN);</span>
     }
 
     /** Returns the end-of-day boundary (23:59:59.999...) for the given date (inclusive upper bound). */
     static LocalDateTime endOfDay(LocalDate d) {
-<span class="fc" id="L104">        return LocalDateTime.of(d, LocalTime.MAX);</span>
+<span class="fc" id="L100">        return LocalDateTime.of(d, LocalTime.MAX);</span>
     }
-
-    // -- String utilities ------------------------------------------------------
 
     /**
      * Returns null if the string is blank, otherwise a trimmed value.
      * Used to normalize optional filter parameters before passing to repository queries.
      */
     static String blankToNull(String s) {
-<span class="fc bfc" id="L114" title="All 4 branches covered.">        return (s == null || s.trim().isEmpty()) ? null : s.trim();</span>
+<span class="fc bfc" id="L108" title="All 4 branches covered.">        return (s == null || s.trim().isEmpty()) ? null : s.trim();</span>
     }
 
     /**
@@ -119,10 +113,10 @@ final class AnalyticsConverterHelper {
      * @throws InvalidRequestException if value is blank
      */
     static String requireNonBlank(String v, String name) {
-<span class="fc bfc" id="L122" title="All 4 branches covered.">        if (v == null || v.trim().isEmpty()) {</span>
-<span class="fc" id="L123">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
+<span class="fc bfc" id="L116" title="All 4 branches covered.">        if (v == null || v.trim().isEmpty()) {</span>
+<span class="fc" id="L117">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
         }
-<span class="fc" id="L125">        return v.trim();</span>
+<span class="fc" id="L119">        return v.trim();</span>
     }
 
     /**
@@ -130,10 +124,10 @@ final class AnalyticsConverterHelper {
      * @throws InvalidRequestException if value is null
      */
     static &lt;T&gt; T requireNonNull(T v, String name) {
-<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (v == null) {</span>
-<span class="fc" id="L134">            throw new InvalidRequestException(name + &quot; must not be null&quot;);</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        if (v == null) {</span>
+<span class="fc" id="L128">            throw new InvalidRequestException(name + &quot; must not be null&quot;);</span>
         }
-<span class="fc" id="L136">        return v;</span>
+<span class="fc" id="L130">        return v;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

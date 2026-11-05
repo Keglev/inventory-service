@@ -45,13 +45,12 @@ public class StockHistoryServiceImpl implements StockHistoryService {
     /**
      * Returns a new primary key for a history row.
      *
-     * &lt;p&gt;Random, not time-based: one request can log several changes in the
-     * same millisecond (an update logs price and quantity back to back), and
-     * a key built from item id and clock millis made the second save merge
-     * into the first row instead of inserting a new one.&lt;/p&gt;
+     * &lt;p&gt;Random, not time-based: two changes to one item can be logged in the same
+     * millisecond, and a key built from item id and clock millis would make the
+     * second save merge into the first row instead of inserting a new one.&lt;/p&gt;
      */
     private static String newHistoryId() {
-<span class="fc" id="L54">        return UUID.randomUUID().toString();</span>
+<span class="fc" id="L53">        return UUID.randomUUID().toString();</span>
     }
 
     /**
@@ -68,31 +67,31 @@ public class StockHistoryServiceImpl implements StockHistoryService {
                                BigDecimal priceAtChange) {
 
         // A null reason fails validate(); the price snapshot enables WAC and PRICE_CHANGE tracking
-<span class="fc" id="L71">        StockHistoryDTO dto = StockHistoryDTO.builder()</span>
-<span class="fc" id="L72">                .itemId(itemId)</span>
-<span class="fc" id="L73">                .change(change)</span>
-<span class="fc bfc" id="L74" title="All 2 branches covered.">                .reason(reason == null ? null : reason.name())</span>
-<span class="fc" id="L75">                .createdBy(createdBy)</span>
-<span class="fc" id="L76">                .priceAtChange(priceAtChange)</span>
-<span class="fc" id="L77">                .build();</span>
+<span class="fc" id="L70">        StockHistoryDTO dto = StockHistoryDTO.builder()</span>
+<span class="fc" id="L71">                .itemId(itemId)</span>
+<span class="fc" id="L72">                .change(change)</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">                .reason(reason == null ? null : reason.name())</span>
+<span class="fc" id="L74">                .createdBy(createdBy)</span>
+<span class="fc" id="L75">                .priceAtChange(priceAtChange)</span>
+<span class="fc" id="L76">                .build();</span>
 
-<span class="fc" id="L79">        StockHistoryValidator.validate(dto);</span>
+<span class="fc" id="L78">        StockHistoryValidator.validate(dto);</span>
 
-<span class="fc" id="L81">        String supplierId = resolveSupplierId(itemId);</span>
+<span class="fc" id="L80">        String supplierId = resolveSupplierId(itemId);</span>
 
-        // Server-authoritative timestamp ensures consistency across distributed writes
-<span class="fc" id="L84">        StockHistory history = StockHistory.builder()</span>
-<span class="fc" id="L85">                .id(newHistoryId())</span>
-<span class="fc" id="L86">                .itemId(itemId)</span>
-<span class="fc" id="L87">                .supplierId(supplierId)</span>
-<span class="fc" id="L88">                .change(change)</span>
-<span class="fc" id="L89">                .reason(reason)</span>
-<span class="fc" id="L90">                .createdBy(createdBy)</span>
-<span class="fc" id="L91">                .timestamp(LocalDateTime.now())</span>
-<span class="fc" id="L92">                .priceAtChange(priceAtChange)</span>
-<span class="fc" id="L93">                .build();</span>
+        // The server's clock sets the timestamp, never the client's
+<span class="fc" id="L83">        StockHistory history = StockHistory.builder()</span>
+<span class="fc" id="L84">                .id(newHistoryId())</span>
+<span class="fc" id="L85">                .itemId(itemId)</span>
+<span class="fc" id="L86">                .supplierId(supplierId)</span>
+<span class="fc" id="L87">                .change(change)</span>
+<span class="fc" id="L88">                .reason(reason)</span>
+<span class="fc" id="L89">                .createdBy(createdBy)</span>
+<span class="fc" id="L90">                .timestamp(LocalDateTime.now())</span>
+<span class="fc" id="L91">                .priceAtChange(priceAtChange)</span>
+<span class="fc" id="L92">                .build();</span>
 
-<span class="fc" id="L95">        repository.save(history);</span>
-<span class="fc" id="L96">    }</span>
+<span class="fc" id="L94">        repository.save(history);</span>
+<span class="fc" id="L95">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

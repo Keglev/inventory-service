@@ -112,14 +112,15 @@ public class SupplierServiceImpl implements SupplierService {
 <span class="fc" id="L112">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
         }
 
-<span class="fc" id="L115">        supplierRepository.deleteById(id);</span>
-<span class="fc" id="L116">    }</span>
+        // TODO(S-9): a linked item at quantity 0 still references the supplier; measure the FK answer
+<span class="fc" id="L116">        supplierRepository.deleteById(id);</span>
+<span class="fc" id="L117">    }</span>
 
     /** {@inheritDoc} */
     @Override
     @Transactional(readOnly = true)
     public long countSuppliers() {
-<span class="fc" id="L122">        return supplierRepository.count();</span>
+<span class="fc" id="L123">        return supplierRepository.count();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>
