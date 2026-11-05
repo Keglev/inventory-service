@@ -72,9 +72,10 @@ public class InventoryItemPatchController {
      * @param id   item identifier
      * @param name new item name
      * @return updated item with new name
-     * @throws InvalidRequestException             400 if the name is blank
-     * @throws java.util.NoSuchElementException     404 if the item does not exist
-     * @throws DuplicateResourceException           409 if the name already exists for the same supplier
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException 400 if the name is blank
+     * @throws java.util.NoSuchElementException 404 if the item does not exist
+     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException 409 if the name
+     *         already exists for the same supplier
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/name")
