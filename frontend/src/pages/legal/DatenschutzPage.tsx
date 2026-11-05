@@ -3,10 +3,11 @@
  * @module pages/legal/DatenschutzPage
  *
  * @summary
- * Public privacy policy (Datenschutzerklärung) page. All content lives in
- * the 'legal' i18n namespace; the language toggle flips de/en.
+ * Public privacy policy (Datenschutzerklärung) page.
  *
  * @enterprise
+ * All content lives in the 'legal' i18n namespace; the language toggle flips de/en.
+ *
  * - Art. 13 GDPR information covering exactly what this app does: hosting
  *   server logs (Koyeb/Hetzner), Google OAuth sign-in, technically required
  *   LocalStorage (no consent banner needed, § 25 (2) TDDDG), demo data,

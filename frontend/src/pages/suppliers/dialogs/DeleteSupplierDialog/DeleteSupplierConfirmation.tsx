@@ -1,17 +1,13 @@
 /**
  * @file DeleteSupplierConfirmation.tsx
- * @module dialogs/DeleteSupplierDialog/DeleteSupplierConfirmation
+ * @module pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierConfirmation
  *
  * @summary
- * Confirmation step for supplier deletion dialog.
- * Displays selected supplier details and deletion warning.
+ * Confirmation step of the supplier deletion dialog: the supplier's details, a warning,
+ * and any backend error.
  *
  * @enterprise
  * - Pure presentation component, no business logic
- * - Shows supplier details (name, contact, email, phone)
- * - Displays warning message before deletion
- * - Shows loading state during deletion
- * - Displays error messages from backend
  */
 
 import * as React from 'react';
@@ -85,7 +81,6 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
       </DialogTitle>
 
       <DialogContent>
-        {/* Warning Alert */}
         <Alert severity="warning" sx={{ mb: 2 }}>
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
             {t(
@@ -94,7 +89,6 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
           </Typography>
         </Alert>
 
-        {/* Selected Supplier Info */}
         <Paper
           variant="outlined"
           sx={{
@@ -143,7 +137,6 @@ export const DeleteSupplierConfirmation: React.FC<DeleteSupplierConfirmationProp
           </Stack>
         </Paper>
 
-        {/* Error Message */}
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             <Typography variant="body2">{error}</Typography>

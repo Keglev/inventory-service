@@ -1,12 +1,13 @@
 /**
  * @file useCreateSupplierForm.ts
- * @module dialogs/CreateSupplierDialog/useCreateSupplierForm
+ * @module pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm
  *
  * @summary
  * Form logic for creating a new supplier.
- * Handles validation, submission, and error mapping.
  *
  * @enterprise
+ * Handles validation, submission, and error mapping.
+ *
  * - React Hook Form + Zod for type-safe validation
  * - Server error mapping to field-level errors
  * - Tolerant error handling (no throws)
@@ -48,11 +49,8 @@ export interface UseCreateSupplierFormReturn {
 /**
  * Hook for supplier creation form logic.
  * 
- * Handles:
- * - Form validation with Zod schema
- * - Server error mapping to field/form errors
- * - Submission to backend
- * - Success/failure notification
+ * Handles Zod validation, the POST, and mapping a server error to a field or the
+ * form banner; the parent's onCreated reports success.
  * 
  * @param onCreated - Callback when supplier is successfully created
  * @returns Form methods and submission handler
@@ -93,9 +91,6 @@ export const useCreateSupplierForm = (
     setFormError(supplierErrorMessage(failure, t, 'add'));
   };
 
-  /**
-   * Submit form: validate -> POST -> notify parent.
-   */
   const onSubmit = async (data: CreateSupplierForm): Promise<{ success: boolean }> => {
     setFormError(null);
 
@@ -112,7 +107,6 @@ export const useCreateSupplierForm = (
         return { success: false };
       }
 
-      // Success: notify parent and reset
       reset();
       onCreated();
       return { success: true };

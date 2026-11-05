@@ -4,9 +4,10 @@
  *
  * @summary
  * Public confirmation screen shown after a successful server-side logout.
- * Pure UI — no side effects; all logout work happens in LogoutPage.
  *
  * @enterprise
+ * Pure UI — no side effects; all logout work happens in LogoutPage.
+ *
  * - Separating the success view from the logout effect keeps the
  *   navigation-after-form-POST flow deterministic: the backend redirects
  *   the browser to /logout-success, which then renders this static page.

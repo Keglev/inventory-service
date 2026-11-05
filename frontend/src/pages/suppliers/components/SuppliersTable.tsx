@@ -4,9 +4,10 @@
  *
  * @summary
  * Data grid component for suppliers board.
- * Displays suppliers list with pagination, sorting, and row selection.
  *
  * @enterprise
+ * Displays suppliers list with pagination, sorting, and row selection.
+ *
  * - MUI DataGrid with client-side pagination and sorting: GET /api/suppliers
  *   returns every supplier and takes no parameters, so the grid pages and sorts
  *   the full list itself. The component is a shell that owns layout, the loading

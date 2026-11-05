@@ -1,12 +1,13 @@
 /**
  * @file DeleteSupplierSearch.tsx
- * @module dialogs/DeleteSupplierDialog/DeleteSupplierSearch
+ * @module pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearch
  *
  * @summary
  * Search step for supplier deletion dialog.
- * Hint, the shared supplier search field, and Cancel.
  *
  * @enterprise
+ * Hint, the shared supplier search field, and Cancel.
+ *
  * - Uses SupplierSearchField, the search the board and the edit dialog use.
  * - Cancel stays enabled: matching runs in the browser, and leaving the
  *   dialog never needs to wait for the supplier list.
@@ -51,8 +52,7 @@ export interface DeleteSupplierSearchProps {
 /**
  * Search step for supplier deletion dialog.
  *
- * Allows user to search for and select supplier to delete.
- * Composes search input, results list, and empty state components.
+ * Lets the user search for and select the supplier to delete (the shared SupplierSearchField).
  *
  * @component
  * @param props - Component props

@@ -4,12 +4,11 @@
  *
  * @summary
  * Centralized state management for suppliers board page.
- * Manages search, pagination, sorting, dialog toggles, and selection.
  *
  * @enterprise
- * - Single source of truth for UI state
- * - Separated from data fetching and processing logic
- * - Allows components to be pure and testable
+ * - Single source of truth for UI state: search, pagination, sorting, dialog toggles
+ *   and selection
+ * - Separated from data fetching and processing logic, so components stay pure
  */
 
 import * as React from 'react';
@@ -69,7 +68,7 @@ export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
     page: 0,
-    // Ten rows fill a 1920x1080 screen without the former show-all card (S2-15).
+    // Ten rows fill a 1920x1080 screen.
     pageSize: 10,
   });
   const [sortModel, setSortModel] = React.useState<GridSortModel>([

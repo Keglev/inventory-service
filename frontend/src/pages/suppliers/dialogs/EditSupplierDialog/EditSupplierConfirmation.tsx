@@ -1,12 +1,13 @@
 /**
  * @file EditSupplierConfirmation.tsx
- * @module dialogs/EditSupplierDialog/EditSupplierConfirmation
+ * @module pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation
  *
  * @summary
  * Confirmation dialog for supplier changes.
- * Displays changes summary before applying updates.
  *
  * @enterprise
+ * Displays changes summary before applying updates.
+ *
  * - Pure presentation component
  * - Shows supplier info (name field is read-only in this UI; not a backend constraint)
  * - Displays what will change (before -> after)
@@ -121,7 +122,6 @@ export const EditSupplierConfirmation: React.FC<EditSupplierConfirmationProps> =
 
               <Divider sx={{ my: 2 }} />
 
-              {/* Changes Summary */}
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
                 {t('suppliers:confirmations.changes')}
               </Typography>

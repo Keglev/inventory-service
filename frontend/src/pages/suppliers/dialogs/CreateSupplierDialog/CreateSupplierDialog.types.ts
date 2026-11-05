@@ -1,23 +1,15 @@
 /**
  * @file CreateSupplierDialog.types.ts
- * @module dialogs/CreateSupplierDialog/CreateSupplierDialog.types
+ * @module pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog.types
  *
  * @summary
  * Type definitions for CreateSupplierDialog component.
  *
  * @enterprise
- * - Centralized type definitions for easy reuse
- * - Clear documentation of props contract
+ * - Kept apart from the component, so the props contract has one home.
  */
 
-/**
- * Props for CreateSupplierDialog component.
- * 
- * @interface CreateSupplierDialogProps
- * @property {boolean} open - Whether dialog is visible
- * @property {() => void} onClose - Callback when dialog should close
- * @property {() => void} onCreated - Callback after successful creation
- */
+/** Props for CreateSupplierDialog component. */
 export interface CreateSupplierDialogProps {
   /** Whether the dialog is visible. */
   open: boolean;

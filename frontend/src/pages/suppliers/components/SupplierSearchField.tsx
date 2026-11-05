@@ -3,10 +3,11 @@
  * @module pages/suppliers/components/SupplierSearchField
  *
  * @summary
- * The supplier search: the suppliers board and the edit and delete dialogs
- * all use it. A thin setting of the shared ListSearchField.
+ * The supplier search: the suppliers board and the edit and delete dialogs all use it.
  *
  * @enterprise
+ * A thin setting of the shared ListSearchField.
+ *
  * - Search mode: the field keeps no value; the caller shows the pick.
  * - The second line of a result names the contact and an email or phone,
  *   when the supplier has them; nothing is shown otherwise.

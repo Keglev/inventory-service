@@ -1,12 +1,13 @@
 /**
  * @file EditSupplierDialog.tsx
- * @module dialogs/EditSupplierDialog/EditSupplierDialog
+ * @module pages/suppliers/dialogs/EditSupplierDialog/EditSupplierDialog
  *
  * @summary
  * Dialog container for editing supplier contact information.
- * Orchestrates form logic hook and view components.
  *
  * @enterprise
+ * Orchestrates form logic hook and view components.
+ *
  * - Separation of concerns: Dialog wrapper, form logic, view components
  * - Two-step workflow: search/select -> edit info
  * - Manages dialog lifecycle (open/close/reset)
@@ -102,7 +103,6 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
 
   return (
     <>
-      {/* Main Edit Dialog */}
       <Dialog open={open && !form.showConfirmation} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle>
           <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
@@ -113,7 +113,6 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
 
         <DialogContent dividers>
           <Box sx={{ display: 'grid', gap: 2.5, mt: 1 }}>
-            {/* Error Display */}
             {form.formError && (
               <Alert severity="error" onClose={() => form.setFormError('')}>
                 {form.formError}
@@ -155,7 +154,6 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
         </DialogActions>
       </Dialog>
 
-      {/* Confirmation Dialog */}
       <EditSupplierConfirmation
         open={form.showConfirmation}
         supplier={form.selectedSupplier}

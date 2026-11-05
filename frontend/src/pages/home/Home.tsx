@@ -3,16 +3,15 @@
  * @module pages/home/Home
  *
  * @summary
- * Public landing page at the root route (/). Three states:
- *  - Auth hydrating: centered spinner.
- *  - Authenticated: redirect to /dashboard with history replace.
- *  - Unauthenticated: marketing landing composed of hero, feature grid,
- *    how-it-works, engineering callout, and a closing call to action.
+ * Public landing page at the root route (/), with three states.
  *
  * @enterprise
+ * - Auth hydrating: centered spinner.
+ * - Authenticated: redirect to /dashboard with history replace.
+ * - Unauthenticated: marketing landing composed of hero, feature grid,
+ *   how-it-works, engineering callout, and a closing call to action.
  * - Orchestrator only: it owns auth gating and the two entry actions and passes
- *   them down; every section below is presentational, which keeps this file under
- *   the page size budget as the landing copy grows.
+ *   them down; every section below is presentational.
  * - Navigate replace on the authenticated branch so the root URL never accumulates
  *   in browser history once a session exists.
  * - Demo Mode is a read-only session started client-side via useAuth; the browser

@@ -4,9 +4,11 @@
  *
  * @summary
  * Custom hook that provides dialog event handlers for SuppliersBoard.
- * Manages: Create, Edit, Delete dialog callbacks with toast notifications and cache invalidation.
  *
  * @enterprise
+ * Manages: Create, Edit, Delete dialog callbacks with toast notifications and cache
+ * invalidation.
+ *
  * - Separation of concerns: handler logic isolated from component
  * - Centralized CRUD operation callbacks
  * - Toast notifications for user feedback

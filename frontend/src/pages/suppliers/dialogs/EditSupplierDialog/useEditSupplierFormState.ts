@@ -1,12 +1,13 @@
 /**
  * @file useEditSupplierFormState.ts
- * @module dialogs/EditSupplierDialog/useEditSupplierFormState
+ * @module pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierFormState
  *
  * @summary
  * Hook for managing supplier edit form state.
- * Handles form initialization, validation, and lifecycle.
  *
  * @enterprise
+ * Handles form initialization, validation, and lifecycle.
+ *
  * - React Hook Form with Zod validation
  * - Form reset and setValue management
  * - Supplier data pre-fill on selection
@@ -77,10 +78,6 @@ export const useEditSupplierFormState = (): UseEditSupplierFormStateReturn => {
     },
   });
 
-  /**
-   * Populate form with supplier data.
-   * Pre-fills form fields when supplier is selected.
-   */
   const populateWithSupplier = React.useCallback(
     (supplier: SupplierRow) => {
       setValue('supplierId', supplier.id);

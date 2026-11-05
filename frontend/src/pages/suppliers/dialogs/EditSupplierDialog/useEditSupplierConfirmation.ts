@@ -1,15 +1,12 @@
 /**
  * @file useEditSupplierConfirmation.ts
- * @module dialogs/EditSupplierDialog/useEditSupplierConfirmation
+ * @module pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierConfirmation
  *
  * @summary
- * Hook for managing supplier edit confirmation state.
- * Handles confirmation dialog visibility and pending changes.
+ * Hook for the supplier edit confirmation state: dialog visibility and pending changes.
  *
  * @enterprise
- * - Focused confirmation state management
- * - Reusable for other edit dialogs
- * - Clean API for confirmation flow
+ * - Kept apart from useEditSupplierForm, so the confirmation flow has one owner.
  */
 
 import * as React from 'react';

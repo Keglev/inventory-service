@@ -1,15 +1,13 @@
 /**
  * @file CreateSupplierDialog.tsx
- * @module dialogs/CreateSupplierDialog/CreateSupplierDialog
+ * @module pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierDialog
  *
  * @summary
  * Dialog container for creating a new supplier.
- * Composes form logic hook and form view component.
  *
  * @enterprise
- * - Separation of concerns: Dialog wrapper, form logic, form view
- * - Orchestrates form lifecycle (open/close/reset)
- * - Clean, readable component hierarchy
+ * - Separation of concerns: dialog wrapper, form logic (useCreateSupplierForm),
+ *   form view (CreateSupplierForm); this file owns the open/close/reset lifecycle
  */
 
 import * as React from 'react';
@@ -60,17 +58,13 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
 }) => {
   const { t } = useTranslation(['common', 'suppliers']);
 
-  // Form logic hook
   const form = useCreateSupplierForm(onCreated);
 
-  /**
-   * Handle dialog close - reset form state
-   */
   const handleClose = React.useCallback(() => {
     form.reset();
     form.setFormError(null);
     onClose();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `form` is a new object each render; its stable members are listed
   }, [form.reset, form.setFormError, onClose]);
 
   /**

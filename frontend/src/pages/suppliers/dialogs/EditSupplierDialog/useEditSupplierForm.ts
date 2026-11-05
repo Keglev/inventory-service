@@ -1,18 +1,18 @@
 /**
  * @file useEditSupplierForm.ts
- * @module dialogs/EditSupplierDialog/useEditSupplierForm
+ * @module pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm
  *
  * @summary
- * Hook for supplier editing workflow logic.
- * Orchestrates form state, search, confirmation, and submission.
+ * Hook for the supplier editing workflow: search, form state, confirmation and the update.
  *
  * @enterprise
  * - Two-step workflow: search/select -> edit info
- * - Delegates form state to useEditSupplierFormState
- * - Delegates confirmation to useEditSupplierConfirmation
- * - Uses mapSupplierError utility for error handling
- * - Authorization checks (admin-only)
- * - Name field is immutable (cannot be changed)
+ * - Delegates form state to useEditSupplierFormState and confirmation to
+ *   useEditSupplierConfirmation; mapSupplierError maps server errors
+ * - No role check here: the backend answers a non-ADMIN with 403, which the error
+ *   mapping shows
+ * - The name stays read-only in this UI (the backend would accept a new name); the
+ *   update re-sends the current one
  */
 
 import * as React from 'react';
@@ -69,12 +69,8 @@ export interface UseEditSupplierFormReturn {
 /**
  * Hook for supplier editing workflow.
  *
- * Manages:
- * - Supplier search and selection
- * - Form state and validation (delegated)
- * - Confirmation dialog state (delegated)
- * - Submission and error handling
- * - Authorization checks
+ * Manages supplier search and selection, form state and validation (delegated),
+ * confirmation state (delegated), and submission with error handling.
  *
  * @param onUpdated - Callback after a successful update; the form is already reset when it runs
  * @returns Workflow state and handlers
@@ -84,21 +80,14 @@ export const useEditSupplierForm = (
 ): UseEditSupplierFormReturn => {
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
 
-  // Delegate to specialized hooks
   const search = useSupplierSearch();
   const formState = useEditSupplierFormState();
   const confirmation = useEditSupplierConfirmation();
 
-  // Selection state
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierRow | null>(null);
 
-  // Error state
   const [formError, setFormError] = React.useState('');
 
-  /**
-   * Handle supplier selection from search results.
-   * Clears search and pre-fills form.
-   */
   const onSelectSupplierAndLoadForm = React.useCallback(
     (supplier: SupplierRow) => {
       setSelectedSupplier(supplier);
@@ -109,9 +98,6 @@ export const useEditSupplierForm = (
     [search, formState]
   );
 
-  /**
-   * Reset form to initial state.
-   */
   const resetForm = React.useCallback(() => {
     setSelectedSupplier(null);
     search.resetSearch();
@@ -120,9 +106,6 @@ export const useEditSupplierForm = (
     formState.reset();
   }, [search, confirmation, formState]);
 
-  /**
-   * Handle update confirmation and submission.
-   */
   const handleConfirmChanges = React.useCallback(async () => {
     if (!confirmation.pendingChanges || !selectedSupplier) return;
 

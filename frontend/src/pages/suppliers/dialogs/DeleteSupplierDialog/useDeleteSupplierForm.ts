@@ -1,16 +1,14 @@
 /**
  * @file useDeleteSupplierForm.ts
- * @module dialogs/DeleteSupplierDialog/useDeleteSupplierForm
+ * @module pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm
  *
  * @summary
- * Hook for supplier deletion workflow.
- * Handles selection, confirmation, and deletion submission.
+ * Hook for the supplier deletion workflow: selection, confirmation and the DELETE.
  *
  * @enterprise
- * - Focuses on deletion-specific logic only
- * - Delegates search to useSupplierSearch hook
- * - Business rule enforcement (admin-only, linked items check)
- * - Server error mapping with intelligent heuristics
+ * - Focuses on deletion-specific logic only; search is delegated to useSupplierSearch
+ * - Blocks a non-ADMIN in the client; the linked-stock rule is the backend's (409)
+ * - Server errors are classified from the structured envelope, not the message text
  */
 
 import * as React from 'react';
@@ -71,21 +69,14 @@ export const useDeleteSupplierForm = (
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const { user } = useAuth();
 
-  // Search functionality
   const search = useSupplierSearch();
 
-  // Selection state
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierRow | null>(null);
 
-  // Confirmation state
   const [showConfirmation, setShowConfirmation] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  /**
-   * Handle supplier selection from search results.
-   * Clears search and shows confirmation step.
-   */
   const handleSelectSupplier = React.useCallback((supplier: SupplierRow) => {
     setSelectedSupplier(supplier);
     search.resetSearch();
@@ -93,17 +84,12 @@ export const useDeleteSupplierForm = (
     setShowConfirmation(true);
   }, [search]);
 
-  /**
-   * Handle delete confirmation and submission.
-   * Checks authorization, sends DELETE request, maps errors.
-   */
   const handleConfirmDelete = React.useCallback(async () => {
     if (!selectedSupplier) {
       setError(t('errors:supplier.selection.noSupplierSelected'));
       return;
     }
 
-    // Check authorization
     if (user?.role !== 'ADMIN') {
       setError(t('errors:supplier.adminOnly'));
       return;
@@ -116,11 +102,9 @@ export const useDeleteSupplierForm = (
       const response = await deleteSupplier(selectedSupplier.id);
 
       if (response.success) {
-        // Success: notify parent
         onDeleted();
       } else {
-        // Classified from the structured envelope: on delete, a 409 is the
-        // linked-items rule, not a duplicate name.
+        // On delete, a 409 is the linked-stock rule, not a duplicate name.
         setError(supplierErrorMessage(response, t, 'delete'));
       }
     } catch (err) {
