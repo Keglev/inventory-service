@@ -28,8 +28,6 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-      // TODO(S-6): create-vite's default; measure "latest" against the build target first.
-      ecmaVersion: 2020,
       globals: globals.browser,
     },
   },
