@@ -2,12 +2,17 @@
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
 
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.smartsupplypro.inventory.exception.dto.ErrorResponse;
+
 import jakarta.servlet.http.HttpServletResponse;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Factory for authentication entry points and logout response handlers.
@@ -16,20 +21,28 @@ import jakarta.servlet.http.HttpServletResponse;
  * while browser requests receive redirects to the configured frontend.&lt;/p&gt;
  */
 @Component
-<span class="fc" id="L19">public class SecurityEntryPointHelper {</span>
+<span class="fc" id="L24">public class SecurityEntryPointHelper {</span>
 
-    /** Returns 401 JSON for unauthenticated API requests so clients can handle it programmatically. */
+<span class="fc" id="L26">    private static final ObjectMapper MAPPER = new JsonMapper();</span>
+
+    /**
+     * Returns 401 with the ErrorResponse envelope for unauthenticated API requests. The entry
+     * point runs in the filter chain, before any controller advice, so it writes the envelope
+     * itself; the message equals the advice's 401 message.
+     */
     public AuthenticationEntryPoint createApiEntryPoint() {
-<span class="fc" id="L23">        return (req, res, ex) -&gt; {</span>
-<span class="fc" id="L24">            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);</span>
-<span class="fc" id="L25">            res.setContentType(&quot;application/json&quot;);</span>
-<span class="fc" id="L26">            res.getWriter().write(&quot;{\&quot;message\&quot;:\&quot;Unauthorized\&quot;}&quot;);</span>
-<span class="fc" id="L27">        };</span>
+<span class="fc" id="L34">        return (req, res, ex) -&gt; {</span>
+<span class="fc" id="L35">            ErrorResponse body = new ErrorResponse(&quot;unauthorized&quot;, &quot;Authentication required&quot;,</span>
+<span class="fc" id="L36">                Instant.now().toString(), null);</span>
+<span class="fc" id="L37">            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);</span>
+<span class="fc" id="L38">            res.setContentType(&quot;application/json&quot;);</span>
+<span class="fc" id="L39">            res.getWriter().write(MAPPER.writeValueAsString(body));</span>
+<span class="fc" id="L40">        };</span>
     }
 
     /** Sends unauthenticated browser requests to the frontend login page. */
     public AuthenticationEntryPoint createWebEntryPoint(String frontendBaseUrl) {
-<span class="fc" id="L32">        return (req, res, ex) -&gt; res.sendRedirect(frontendBaseUrl + &quot;/login&quot;);</span>
+<span class="fc" id="L45">        return (req, res, ex) -&gt; res.sendRedirect(frontendBaseUrl + &quot;/login&quot;);</span>
     }
 
     /**
@@ -38,28 +51,28 @@ import jakarta.servlet.http.HttpServletResponse;
      * and port) equals the origin of the configured frontend base URL.
      */
     public LogoutSuccessHandler createLogoutSuccessHandler(AppProperties props) {
-<span class="fc" id="L41">        return (req, res, auth) -&gt; {</span>
-<span class="fc" id="L42">            String base = props.getFrontend().getBaseUrl();</span>
-<span class="fc" id="L43">            String ret = req.getParameter(&quot;return&quot;);</span>
-<span class="fc bfc" id="L44" title="All 2 branches covered.">            String target = isSameOrigin(ret, base) ? ret : base + &quot;/logout-success&quot;;</span>
-<span class="fc" id="L45">            res.sendRedirect(target);</span>
-<span class="fc" id="L46">        };</span>
+<span class="fc" id="L54">        return (req, res, auth) -&gt; {</span>
+<span class="fc" id="L55">            String base = props.getFrontend().getBaseUrl();</span>
+<span class="fc" id="L56">            String ret = req.getParameter(&quot;return&quot;);</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            String target = isSameOrigin(ret, base) ? ret : base + &quot;/logout-success&quot;;</span>
+<span class="fc" id="L58">            res.sendRedirect(target);</span>
+<span class="fc" id="L59">        };</span>
     }
 
     // /logout takes cross-site form posts, so this check alone stops an open redirect. A prefix
     // is no origin (https://app.example.attacker.test, https://app.example@attacker.test);
     // user info is refused too, as the frontend never sends it.
     private static boolean isSameOrigin(String candidate, String base) {
-<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (candidate == null) return false;</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (candidate == null) return false;</span>
         try {
-<span class="fc" id="L55">            URI target = new URI(candidate);</span>
-<span class="fc" id="L56">            URI origin = new URI(base);</span>
-<span class="fc bfc" id="L57" title="All 2 branches covered.">            return target.getRawUserInfo() == null</span>
-<span class="fc bfc" id="L58" title="All 2 branches covered.">                &amp;&amp; origin.getScheme().equalsIgnoreCase(target.getScheme())</span>
-<span class="fc bfc" id="L59" title="All 2 branches covered.">                &amp;&amp; origin.getHost().equalsIgnoreCase(target.getHost())</span>
-<span class="fc bfc" id="L60" title="All 2 branches covered.">                &amp;&amp; origin.getPort() == target.getPort();</span>
-<span class="fc" id="L61">        } catch (URISyntaxException e) {</span>
-<span class="fc" id="L62">            return false;</span>
+<span class="fc" id="L68">            URI target = new URI(candidate);</span>
+<span class="fc" id="L69">            URI origin = new URI(base);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            return target.getRawUserInfo() == null</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">                &amp;&amp; origin.getScheme().equalsIgnoreCase(target.getScheme())</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">                &amp;&amp; origin.getHost().equalsIgnoreCase(target.getHost())</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">                &amp;&amp; origin.getPort() == target.getPort();</span>
+<span class="fc" id="L74">        } catch (URISyntaxException e) {</span>
+<span class="fc" id="L75">            return false;</span>
         }
     }
 }
