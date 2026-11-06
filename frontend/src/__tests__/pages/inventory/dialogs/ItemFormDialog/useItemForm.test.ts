@@ -191,8 +191,7 @@ describe('useItemForm', () => {
     // A field error carries a KEY, never display text: the render boundary
     // (utils/fieldErrorText) is what resolves it, so the hook must not translate.
     await waitFor(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((result.current.formState.errors as any).name?.message)
+      expect((result.current.formState.errors).name?.message)
         .toBe('errors:inventory.conflicts.duplicateName');
     });
   });
@@ -211,13 +210,11 @@ describe('useItemForm', () => {
     // fieldErrors is a signal (which input), never copy: the server's English
     // sentence must not survive into a German form.
     await waitFor(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((result.current.formState.errors as any).code?.message)
+      expect((result.current.formState.errors).code?.message)
         .toBe('errors:inventory.conflicts.duplicateSku');
     });
     // The token fallback must not also fire when a field error was applied.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((result.current.formState.errors as any).name).toBeUndefined();
+    expect((result.current.formState.errors).name).toBeUndefined();
   });
 
   it('uses a generic message for a not_found token', async () => {

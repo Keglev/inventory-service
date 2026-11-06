@@ -102,17 +102,7 @@ describe('EditItemDialog', () => {
 
     render(<EditItemDialog open onClose={vi.fn()} onItemRenamed={vi.fn()} />);
 
-    // Prefer accessible close/cancel button if present.
-    const closeButton =
-      screen.queryByRole('button', { name: /close|cancel/i }) ??
-      screen.queryByLabelText(/close|cancel/i);
-
-    if (!closeButton) {
-      // A close control without an accessible name fails the test.
-      throw new Error('Close button is missing an accessible name (close/cancel).');
-    }
-
-    await user.click(closeButton);
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
