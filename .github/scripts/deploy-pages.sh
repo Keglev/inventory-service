@@ -20,9 +20,13 @@
 # unset).
 #
 # Failure mode: exits 1 when the deployment is refused, fails, is cancelled or
-# is lost, after 10 failed status reads, or after 10 minutes; on the last two,
-# and on a cancelled job, the deployment is cancelled first so it cannot block
-# the next one.
+# is lost, after 10 failed status reads, or after TIMEOUT_SECONDS (420); on the
+# last two, and on a cancelled job, the deployment is cancelled first so it
+# cannot block the next one. The deadline stays below the job's timeout-minutes
+# (10), or the job ends first and the cancel never runs. A refusal that names a
+# blocking deployment ("cancel <sha> first") cancels that one and retries once:
+# the workflow's concurrency group runs one deploy job at a time, so a
+# deployment still in progress belongs to a run that has ended.
 # =============================================================================
 set -euo pipefail
 
@@ -32,7 +36,7 @@ set -euo pipefail
 : "${ACTIONS_ID_TOKEN_REQUEST_URL:?the job needs permission id-token: write}"
 : "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:?the job needs permission id-token: write}"
 OUT="${GITHUB_OUTPUT:-/dev/stdout}"
-TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-600}"
+TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-420}"
 POLL_SECONDS="${POLL_SECONDS:-5}"
 MAX_ERRORS=10
 API="repos/${GITHUB_REPOSITORY}/pages/deployments"
@@ -48,13 +52,25 @@ oidc="$(curl -sSf -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
 
 # The request body goes through stdin so the token never appears in a process list.
 # On a refusal gh prints the API's error body to stdout: it is logged, it holds no token.
-created="$(jq -n --argjson id "$ARTIFACT_ID" --arg v "$BUILD_VERSION" --arg t "$oidc" \
-    '{artifact_id: $id, pages_build_version: $v, oidc_token: $t}' \
-  | gh api -X POST "$API" -H 'Content-Type: application/json' --input -)" || {
+request_deployment() {
+  jq -n --argjson id "$ARTIFACT_ID" --arg v "$BUILD_VERSION" --arg t "$oidc" \
+      '{artifact_id: $id, pages_build_version: $v, oidc_token: $t}' \
+    | gh api -X POST "$API" -H 'Content-Type: application/json' --input -
+}
+refused() {
   echo "$created"
   echo "::error::Pages refused the deployment of build version $BUILD_VERSION"
   exit 1
 }
+if ! created="$(request_deployment)"; then
+  blocker="$(grep -oE 'cancel [0-9a-f]{40} first' <<< "$created" | head -n 1 | cut -d' ' -f2)" || true
+  [ -n "$blocker" ] || refused
+  echo "$created"
+  echo "::warning::deployment $blocker is still in progress from an ended run; cancelling it"
+  gh api -X POST "$API/$blocker/cancel" > /dev/null || refused
+  sleep "$POLL_SECONDS"
+  created="$(request_deployment)" || refused
+fi
 unset oidc
 
 deployment_id="$(jq -r '.id // ((.status_url // "") | split("/") | last | select(. != "")) // empty' <<< "$created")"

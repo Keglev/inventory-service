@@ -37,6 +37,7 @@ jobs:
   deploy-ghpages:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-24.04
+    # Above deploy-pages.sh's 420 s deadline, so the script cancels its own deployment.
     timeout-minutes: 10
     environment:
       name: github-pages
