@@ -317,6 +317,17 @@
         ones); verify the cookie is delivered when testing auth locally
         over HTTP.</li>
         </ul>
+        <h2 id="amendment-2026-11-06-one-landing-path">Amendment
+        2026-11-06: one landing path</h2>
+        <p>The validated return origin is now joined with
+        <code>frontend.landingPath</code>, the same path the fallback
+        target uses, instead of a literal <code>/auth</code>. Both
+        redirects therefore follow one setting
+        (<code>app.frontend.landing-path</code>,
+        <code>APP_FRONTEND_LANDING_PATH</code>; default
+        <code>/auth</code>, the SPA’s callback route). Where this record
+        says <code>{validatedOrigin}/auth</code>, read
+        <code>{validatedOrigin}{landingPath}</code>.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a href="../05-building-blocks.html#cross-cutting">§5
@@ -352,6 +363,9 @@
       </ul></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#amendment-2026-11-06-one-landing-path"
+      id="toc-amendment-2026-11-06-one-landing-path">Amendment
+      2026-11-06: one landing path</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
