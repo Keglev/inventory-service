@@ -50,7 +50,7 @@
     "businessRules": {
       "duplicateName": "A supplier with this name already exists",
       "supplierNotFound": "Supplier not found",
-      "cannotDeleteWithItems": "This supplier cannot be deleted because there are still items with stock > 0. Please reduce the stock to 0 before deleting the supplier."
+      "cannotDeleteWithItems": "This supplier cannot be deleted because items still reference it, deleted items included. Deleted items keep their supplier and their stock history."
     }
   }
 }

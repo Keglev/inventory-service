@@ -71,7 +71,7 @@ presentational components, and dialog containers.
 | Domain | Responsibility |
 |---|---|
 | Inventory | Item CRUD, quantity adjustment, price changes, stock reasons |
-| Suppliers | Supplier CRUD, search/display modes, active-stock delete guard |
+| Suppliers | Supplier CRUD, search/display modes, linked-items delete guard |
 | Analytics | Chart/table blocks, filters with URL sync, supplier-gated queries |
 | Dashboard | KPI cards, movement mini-chart, navigation hub |
 | Auth | Login, OAuth callback + session hydration, demo entry, logout |

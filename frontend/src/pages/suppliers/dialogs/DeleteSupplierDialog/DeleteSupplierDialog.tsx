@@ -30,7 +30,7 @@ import type { DeleteSupplierDialogProps } from './DeleteSupplierDialog.types';
  *
  * Business rules:
  * - Only ADMIN role can delete (enforced by backend)
- * - Cannot delete while a linked item holds stock (quantity above zero; 409 Conflict)
+ * - Cannot delete while any item references the supplier, deleted items included (409 Conflict)
  * - Backend returns 204 No Content on success
  *
  * @component

@@ -50,7 +50,7 @@
     "businessRules": {
       "duplicateName": "Ein Lieferant mit diesem Namen existiert bereits",
       "supplierNotFound": "Lieferant nicht gefunden",
-      "cannotDeleteWithItems": "Dieser Lieferant kann nicht gelöscht werden, da noch Waren mit Bestand > 0 vorhanden sind. Bitte reduzieren Sie den Bestand auf 0, bevor Sie den Lieferanten löschen."
+      "cannotDeleteWithItems": "Dieser Lieferant kann nicht gelöscht werden, da noch Artikel auf ihn verweisen, auch gelöschte. Gelöschte Artikel behalten ihren Lieferanten und ihre Bestandshistorie."
     }
   }
 }

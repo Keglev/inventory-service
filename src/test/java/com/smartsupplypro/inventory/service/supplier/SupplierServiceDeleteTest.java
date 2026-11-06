@@ -20,9 +20,9 @@ import com.smartsupplypro.inventory.exception.BusinessRuleViolationException;
 class SupplierServiceDeleteTest extends SupplierServiceTestBase {
 
     @Test
-    void should_throw_a_business_rule_violation_when_supplier_has_active_stock() {
+    void should_throw_a_business_rule_violation_when_an_item_still_references_the_supplier() {
         String id = "sup-1";
-        when(inventoryItemRepository.existsActiveStockForSupplier(eq(id), eq(0))).thenReturn(true);
+        when(inventoryItemRepository.existsBySupplierId(eq(id))).thenReturn(true);
 
         BusinessRuleViolationException ex = assertThrows(BusinessRuleViolationException.class,
                 () -> supplierService.delete(id));
@@ -33,7 +33,7 @@ class SupplierServiceDeleteTest extends SupplierServiceTestBase {
     @Test
     void should_throw_not_found_when_supplier_does_not_exist() {
         String id = "missing";
-        when(inventoryItemRepository.existsActiveStockForSupplier(eq(id), eq(0))).thenReturn(false);
+        when(inventoryItemRepository.existsBySupplierId(eq(id))).thenReturn(false);
         when(supplierRepository.existsById(id)).thenReturn(false);
 
         NoSuchElementException ex = assertThrows(NoSuchElementException.class,
@@ -43,9 +43,9 @@ class SupplierServiceDeleteTest extends SupplierServiceTestBase {
     }
 
     @Test
-    void should_delete_supplier_when_no_active_links_and_exists() {
+    void should_delete_supplier_when_no_item_references_it_and_it_exists() {
         String id = "sup-1";
-        when(inventoryItemRepository.existsActiveStockForSupplier(eq(id), eq(0))).thenReturn(false);
+        when(inventoryItemRepository.existsBySupplierId(eq(id))).thenReturn(false);
         when(supplierRepository.existsById(id)).thenReturn(true);
 
         supplierService.delete(id);

@@ -1,7 +1,7 @@
 # §5.2 Suppliers Domain
 
 Supplier master data under `frontend/src/pages/suppliers/`: a paged list with
-search, and CRUD dialogs with an active-stock delete guard.
+search, and CRUD dialogs with a linked-items delete guard.
 
 ## Search & Display Modes
 
@@ -39,9 +39,9 @@ since 2026-10-28 (frontend ADR-0014 amendment).
   uniqueness check), so immutability here is a frontend form decision, not a
   backend rule.
 - **Delete** (`DeleteSupplierDialog`) — search/select → confirm; physical delete
-  behind the backend's stock guard: blocked while any linked item holds stock
-  (`quantity > 0`); zero-quantity items never block, regardless of their active
-  flag. Admin-gated, enforced both client-side in the form hook and server-side.
+  behind the backend's linked-items guard: blocked while any item references the
+  supplier, deleted items included (they keep their stock history). Admin-gated,
+  enforced both client-side in the form hook and server-side.
 
 ## Error Handling & Open Items
 

@@ -7,7 +7,7 @@
  *
  * @enterprise
  * - Focuses on deletion-specific logic only; search is delegated to useSupplierSearch
- * - Blocks a non-ADMIN in the client; the linked-stock rule is the backend's (409)
+ * - Blocks a non-ADMIN in the client; the linked-items rule is the backend's (409)
  * - Server errors are classified from the structured envelope, not the message text
  */
 
@@ -104,7 +104,7 @@ export const useDeleteSupplierForm = (
       if (response.success) {
         onDeleted();
       } else {
-        // On delete, a 409 is the linked-stock rule, not a duplicate name.
+        // On delete, a 409 is the linked-items rule, not a duplicate name.
         setError(supplierErrorMessage(response, t, 'delete'));
       }
     } catch (err) {
