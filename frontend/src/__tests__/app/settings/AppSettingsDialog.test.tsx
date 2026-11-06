@@ -130,37 +130,22 @@ describe('AppSettingsDialog', () => {
   });
 
   it('invokes onClose when the close button is clicked', async () => {
-    // Behavior: close affordance must delegate to consumer callback.
     const { user, onClose } = renderDialog(true);
 
-    // Prefer accessible name first (best practice).
-    const closeBtn =
-      screen.queryByRole('button', { name: /close/i }) ??
-      screen.queryByLabelText(/close/i);
-
-    // If the component uses an icon-only button without accessible name,
-    // fall back to "any button" as last resort (still asserting callback).
-    const fallbackBtn = closeBtn ?? screen.getAllByRole('button')[0];
-
-    await user.click(fallbackBtn);
+    await user.click(screen.getByRole('button', { name: 'Close' }));
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('invokes onClose when the backdrop is clicked (if enabled)', async () => {
-    // Note: MUI Dialog can disable backdrop click via props; we only assert if backdrop exists.
-    const { user, onClose, container } = renderDialog(true);
+  it('invokes onClose when the backdrop is clicked', async () => {
+    const { user, onClose } = renderDialog(true);
 
-    const backdrop = container.querySelector('.MuiBackdrop-root');
-    if (!backdrop) {
-      // If Dialog implementation does not expose a backdrop in this render mode, the test remains valid.
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-      return;
-    }
+    // MUI renders the dialog in a portal under document.body, outside the render container
+    const backdrop = document.querySelector('.MuiBackdrop-root');
+    expect(backdrop).not.toBeNull();
+    await user.click(backdrop as HTMLElement);
 
-    await user.click(backdrop);
-
-    expect(onClose).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('toggles visibility when open prop changes', () => {

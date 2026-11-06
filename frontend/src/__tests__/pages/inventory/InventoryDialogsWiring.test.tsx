@@ -90,24 +90,19 @@ describe('InventoryDialogs', () => {
     const quantityAdjustDialogMock = vi.mocked(QuantityAdjustDialog);
     const priceChangeDialogMock = vi.mocked(PriceChangeDialog);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (itemFormDialogMock.mock.calls[0]?.[0] as any).onClose();
+    itemFormDialogMock.mock.calls[0]?.[0].onClose();
     expect(baseProps.setOpenNew).toHaveBeenCalledWith(false);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (editItemDialogMock.mock.calls[0]?.[0] as any).onClose();
+    editItemDialogMock.mock.calls[0]?.[0].onClose();
     expect(baseProps.setOpenEditName).toHaveBeenCalledWith(false);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (deleteItemDialogMock.mock.calls[0]?.[0] as any).onClose();
+    deleteItemDialogMock.mock.calls[0]?.[0].onClose();
     expect(baseProps.setOpenDelete).toHaveBeenCalledWith(false);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (quantityAdjustDialogMock.mock.calls[0]?.[0] as any).onClose();
+    quantityAdjustDialogMock.mock.calls[0]?.[0].onClose();
     expect(baseProps.setOpenAdjust).toHaveBeenCalledWith(false);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (priceChangeDialogMock.mock.calls[0]?.[0] as any).onClose();
+    priceChangeDialogMock.mock.calls[0]?.[0].onClose();
     expect(baseProps.setOpenPrice).toHaveBeenCalledWith(false);
   });
 

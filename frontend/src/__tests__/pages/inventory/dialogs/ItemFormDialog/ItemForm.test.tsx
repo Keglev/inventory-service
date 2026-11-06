@@ -23,8 +23,8 @@ vi.mock('react-i18next', () => ({
 }));
 
 // ItemForm's supplier field (SupplierPickerField -> ListSearchField) is a MUI
-// Autocomplete, hard to drive in unit tests; the stub captures and invokes its
-// handler props, raising branch/function coverage without testing MUI internals.
+// Autocomplete; the stub records its props and renders only its input, so these
+// tests stay on ItemForm (ListSearchField's own specs cover its callbacks).
 const muiSpies = vi.hoisted(() => ({
   autocompleteProps: vi.fn(),
 }));
@@ -37,16 +37,6 @@ vi.mock('@mui/material', async () => {
     Tooltip: ({ children }: { children: unknown }) => <>{children as never}</>,
     Autocomplete: (props: unknown) => {
       muiSpies.autocompleteProps(props);
-      // Proactively exercise common callbacks so Istanbul/V8 counts them as covered.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- stub reads untyped Autocomplete props
-      const p = props as any;
-      if (p.getOptionLabel && Array.isArray(p.options) && p.options.length) {
-        p.getOptionLabel(p.options[0]);
-      }
-      if (p.isOptionEqualToValue && Array.isArray(p.options) && p.options.length) {
-        p.isOptionEqualToValue(p.options[0], p.options[0]);
-        p.isOptionEqualToValue(p.options[0], { ...p.options[0], id: '__different__' });
-      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- stub reads untyped Autocomplete props
       const renderInput = (props as any).renderInput as (p: any) => unknown;
       return <div data-testid="supplier-autocomplete">{renderInput({}) as never}</div>;
