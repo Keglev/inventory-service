@@ -10,13 +10,12 @@ public final class StockDetailSqlBuilder {
 
     private StockDetailSqlBuilder() {}
 
-    // TODO(S-8): StockMetricsSqlBuilder and the H2 trend queries match supplier ids with UPPER()
-    // and streamEventsForWAC lower-cases them; one rule for every query is still to be chosen.
     /**
      * Returns the SQL for multi-criteria filtered stock history search.
      *
      * <p>The supplier FK is compared without {@code UPPER()}: Oracle stores IDs case-sensitively
-     * and an uppercase comparison would bypass any index on the column.
+     * and an uppercase comparison would bypass any index on the column. Every analytics query
+     * matches supplier ids this way (backend ADR-0006, amendment 2026-11-06).
      *
      * @return parameterised SQL string with named parameters
      */

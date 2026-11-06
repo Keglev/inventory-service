@@ -189,6 +189,16 @@ class StockDetailQueryRepositoryImplTest {
             sup1.forEach(e -> assertEquals("sup1", e.supplierId()));
             assertEquals("itemA", sup1.get(0).itemId());
         }
+
+        @Test
+        void should_match_no_rows_when_the_supplier_id_differs_in_case() {
+            seedTestData();
+            StockDetailQueryRepositoryImpl repo = newRepo();
+            LocalDateTime end = LocalDateTime.of(2024, 12, 31, 23, 59);
+
+            assertEquals(2, repo.streamEventsForWAC(end, " sup1 ").size());
+            assertTrue(repo.streamEventsForWAC(end, "SUP1").isEmpty());
+        }
     }
 
     private StockDetailQueryRepositoryImpl newRepo() {

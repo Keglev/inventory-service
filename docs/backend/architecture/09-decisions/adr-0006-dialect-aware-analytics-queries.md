@@ -137,6 +137,18 @@ a `DatabaseDialectDetector`. The supplier filter of the search is case-sensitive
 H2 as it already was on Oracle. Paired variants remain where the dialects really
 differ (`StockTrendSqlBuilder`: date bucketing and valuation).
 
+## Amendment 2026-11-06: one supplier-id rule
+Every analytics query now compares the supplier id exactly, after the shared
+normalisation (`OptionalQueryParam.normalize`: blank means all suppliers, the value is
+trimmed). Before, the update counts and the H2 variants of the monthly movement, daily
+item movement and price trend queries compared `UPPER()` of both sides, and the WAC
+event stream lower-cased both sides, while every other query compared exactly. An id
+in another case therefore matched in some charts and not in others. The H2 trend
+queries also differed from their Oracle variants in this alone. Ids are generated in
+lower case (UUIDs, `seed-sup-nnn`) and clients send them back as received. An exact
+comparison keeps any index on the column usable, as the 2026-10-19 amendment noted
+for the search.
+
 ## References
 - [ADR-0003: DTO boundary](./adr-0003-dto-boundary-no-entity-exposure.md) — the
   reporting exception these repositories implement

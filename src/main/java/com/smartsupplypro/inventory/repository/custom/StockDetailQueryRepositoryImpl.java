@@ -156,16 +156,13 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
             FROM StockHistory sh, InventoryItem i
             WHERE i.id = sh.itemId
               AND sh.timestamp <= :end
-              AND (:supplierIdNorm IS NULL OR LOWER(sh.supplierId) = :supplierIdNorm)
+              AND (:supplierId IS NULL OR sh.supplierId = :supplierId)
             ORDER BY sh.itemId ASC, sh.timestamp ASC
         """;
 
-        final String supplierIdNorm = (supplierId == null || supplierId.isBlank())
-            ? null : supplierId.trim().toLowerCase();
-
         return em.createQuery(jpql, StockEventRowDTO.class)
                 .setParameter("end", end)
-                .setParameter("supplierIdNorm", supplierIdNorm)
+                .setParameter("supplierId", OptionalQueryParam.normalize(supplierId))
                 .getResultList();
     }
 }
