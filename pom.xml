@@ -167,12 +167,12 @@
   <!-- Build plugins -->
   <build>
     <plugins>
-      <!-- Java compiler (retain parameter names; annotation processors wired) -->
+      <!-- Java compiler: annotation processors. -parameters, which unnamed @PathVariable and
+           @RequestParam arguments need, comes from spring-boot-starter-parent. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <parameters>true</parameters>
           <annotationProcessorPaths>
             <path>
               <groupId>org.projectlombok</groupId>
