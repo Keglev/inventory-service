@@ -98,21 +98,21 @@ public class SupplierServiceImpl implements SupplierService {
     /**
      * {@inheritDoc}
      *
-     * &lt;p&gt;Deletion is blocked when any inventory item with a positive on-hand
-     * quantity references this supplier, to prevent orphaned stock records.&lt;/p&gt;
+     * &lt;p&gt;Deletion is blocked while any inventory item references this supplier,
+     * deleted (inactive) items included: they keep their stock history, which
+     * names the supplier.&lt;/p&gt;
      */
     @Override
     public void delete(String id) {
-<span class="fc" id="L106">        SupplierValidator.assertDeletable(</span>
+<span class="fc" id="L107">        SupplierValidator.assertDeletable(</span>
             id,
-<span class="fc" id="L108">            () -&gt; inventoryItemRepository.existsActiveStockForSupplier(id, 0)</span>
+<span class="fc" id="L109">            () -&gt; inventoryItemRepository.existsBySupplierId(id)</span>
         );
 
-<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (!supplierRepository.existsById(id)) {</span>
-<span class="fc" id="L112">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (!supplierRepository.existsById(id)) {</span>
+<span class="fc" id="L113">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
         }
 
-        // TODO(S-9): a linked item at quantity 0 still references the supplier; measure the FK answer
 <span class="fc" id="L116">        supplierRepository.deleteById(id);</span>
 <span class="fc" id="L117">    }</span>
 
