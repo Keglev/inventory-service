@@ -175,6 +175,16 @@
         <code>readOnly</code> prop and rely on backend authorization (<a
         href="../05-domains/suppliers.html">Suppliers domain</a>).</li>
         </ul>
+        <h2 id="amendment-2026-11-06-rename-wired">Amendment 2026-11-06:
+        rename wired</h2>
+        <p>Ruled by Carlos (FE-7 A, 2026-11-03). The rename dialog now
+        follows the rule: <code>InventoryDialogs</code> passes
+        <code>isDemo</code> as <code>readOnly</code>, and
+        <code>useEditItemForm</code> stops a valid submit before the
+        request with <code>common:demoDisabled</code>. All five
+        inventory dialogs honor demo mode; the Consequences line on
+        rename no longer holds. The supplier dialogs stay outside this
+        decision.</p>
       </article>
     </main>
 
@@ -195,6 +205,9 @@
       id="toc-alternatives-considered">Alternatives Considered</a></li>
       <li><a href="#consequences"
       id="toc-consequences">Consequences</a></li>
+      <li><a href="#amendment-2026-11-06-rename-wired"
+      id="toc-amendment-2026-11-06-rename-wired">Amendment 2026-11-06:
+      rename wired</a></li>
       </ul></li>
       </ul>
     </nav>

@@ -194,9 +194,8 @@
         cover all five flows client-side; the backend remains the source
         of truth for authorization (rename/delete are ADMIN) and
         business invariants (uniqueness, zero-quantity gate). In demo
-        mode every dialog except rename stops a valid submit before any
-        request is sent; a demo rename still reaches the backend, which
-        refuses it.</p>
+        mode every dialog stops a valid submit before any request is
+        sent and shows the demo notice (frontend ADR-0013).</p>
       </article>
     </main>
 
