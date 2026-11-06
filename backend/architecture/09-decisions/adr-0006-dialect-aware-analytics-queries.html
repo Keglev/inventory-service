@@ -309,6 +309,22 @@
         Paired variants remain where the dialects really differ
         (<code>StockTrendSqlBuilder</code>: date bucketing and
         valuation).</p>
+        <h2 id="amendment-2026-11-06-one-supplier-id-rule">Amendment
+        2026-11-06: one supplier-id rule</h2>
+        <p>Every analytics query now compares the supplier id exactly,
+        after the shared normalisation
+        (<code>OptionalQueryParam.normalize</code>: blank means all
+        suppliers, the value is trimmed). Before, the update counts and
+        the H2 variants of the monthly movement, daily item movement and
+        price trend queries compared <code>UPPER()</code> of both sides,
+        and the WAC event stream lower-cased both sides, while every
+        other query compared exactly. An id in another case therefore
+        matched in some charts and not in others. The H2 trend queries
+        also differed from their Oracle variants in this alone. Ids are
+        generated in lower case (UUIDs, <code>seed-sup-nnn</code>) and
+        clients send them back as received. An exact comparison keeps
+        any index on the column usable, as the 2026-10-19 amendment
+        noted for the search.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -353,6 +369,9 @@
       href="#amendment-2026-10-19-one-statement-where-the-dialects-agree"
       id="toc-amendment-2026-10-19-one-statement-where-the-dialects-agree">Amendment
       2026-10-19: one statement where the dialects agree</a></li>
+      <li><a href="#amendment-2026-11-06-one-supplier-id-rule"
+      id="toc-amendment-2026-11-06-one-supplier-id-rule">Amendment
+      2026-11-06: one supplier-id rule</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
