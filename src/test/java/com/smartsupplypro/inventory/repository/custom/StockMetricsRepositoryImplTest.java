@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.repository.custom;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -108,6 +109,15 @@ class StockMetricsRepositoryImplTest {
             assertTrue(forAll.size() >= 2);
             assertEquals("Item A", forAll.get(0)[0]);
             assertEquals(2L, ((Number) forAll.get(0)[1]).longValue());
+        }
+
+        @Test
+        void should_match_no_rows_when_the_supplier_id_differs_in_case() {
+            seedTestData();
+            StockMetricsRepositoryImpl repo = newRepo();
+
+            assertFalse(repo.getUpdateCountByItem("sup1").isEmpty());
+            assertTrue(repo.getUpdateCountByItem("SUP1").isEmpty());
         }
     }
 

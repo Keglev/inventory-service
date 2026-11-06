@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -112,6 +113,17 @@ class StockTrendAnalyticsRepositoryImplH2Test {
             assertTrue(blank.size() >= 2);
             assertEquals(6L, ((Number) blank.get(0)[1]).longValue());
         }
+
+        @Test
+        void should_match_no_rows_when_the_supplier_id_differs_in_case() {
+            seedTestData();
+            StockTrendAnalyticsRepositoryImpl repo = repoH2();
+            LocalDateTime start = LocalDateTime.of(2024, 2, 1, 0, 0);
+            LocalDateTime end = LocalDateTime.of(2024, 3, 31, 23, 59);
+
+            assertFalse(repo.getMonthlyStockMovementBySupplier(start, end, "sup1").isEmpty());
+            assertTrue(repo.getMonthlyStockMovementBySupplier(start, end, "SUP1").isEmpty());
+        }
     }
 
     /**
@@ -146,6 +158,16 @@ class StockTrendAnalyticsRepositoryImplH2Test {
             assertMovement(out.get(0), "itemA", LocalDate.of(2024, 2, 5), 5, "4.00");
             assertMovement(out.get(1), "itemA", LocalDate.of(2024, 2, 6), -2, "2.00");
         }
+
+        @Test
+        void should_match_no_rows_when_the_supplier_id_differs_in_case() {
+            seedTestData();
+            StockTrendAnalyticsRepositoryImpl repo = repoH2();
+            LocalDateTime end = LocalDateTime.of(2024, 3, 1, 23, 59, 59);
+
+            assertFalse(repo.getDailyItemMovements(end, "sup1").isEmpty());
+            assertTrue(repo.getDailyItemMovements(end, "SUP1").isEmpty());
+        }
     }
 
     /**
@@ -171,6 +193,17 @@ class StockTrendAnalyticsRepositoryImplH2Test {
             assertEquals(0, out.get(1).getPrice().compareTo(new BigDecimal("2.00")));
             assertEquals("2024-03-01", out.get(2).getTimestamp());
             assertEquals(0, out.get(2).getPrice().compareTo(new BigDecimal("2.50")));
+        }
+
+        @Test
+        void should_match_no_rows_when_the_supplier_id_differs_in_case() {
+            seedTestData();
+            StockTrendAnalyticsRepositoryImpl repo = repoH2();
+            LocalDateTime start = LocalDateTime.of(2024, 2, 1, 0, 0);
+            LocalDateTime end = LocalDateTime.of(2024, 3, 31, 23, 59);
+
+            assertFalse(repo.getItemPriceTrend("itemA", "sup1", start, end).isEmpty());
+            assertTrue(repo.getItemPriceTrend("itemA", "SUP1", start, end).isEmpty());
         }
     }
 
