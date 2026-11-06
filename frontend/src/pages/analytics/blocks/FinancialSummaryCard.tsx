@@ -3,17 +3,16 @@
  * @module pages/analytics/blocks/FinancialSummaryCard
  *
  * @summary
- * WAC-based financial summary for the selected period and supplier:
- * an Opening/Ending KPI row plus a horizontal bar chart (Purchases,
- * COGS, Write-offs, Returns).
+ * WAC-based financial summary for the selected period, of one supplier or of
+ * all suppliers when none is picked: an Opening/Ending KPI row plus a horizontal
+ * bar chart (Purchases, COGS, Write-offs, Returns).
  *
  * @enterprise
- * - The hook is declared unconditionally and gated via `enabled =
- *   !!supplierId` (Rules of Hooks); the card asks for a supplier first,
- *   although the endpoint answers for all suppliers too (TODO(S-13) at the gate).
- * - An all-zero result triggers a distinct empty-state, separate from
- *   the no-supplier helper card, so the user can tell "no supplier"
- *   apart from "nothing happened in this period".
+ * - An empty supplier filter means all suppliers (Standards, S2-9; FE-6 A): the
+ *   endpoint answers without supplierId with the all-supplier summary. The query
+ *   waits only for the date range, which the endpoint requires.
+ * - An all-zero result triggers a distinct empty state, so "nothing happened in
+ *   this period" does not read as a broken chart.
  * - The API layer (getFinancialSummary) returns one normalized shape with
  *   zero defaults; this component consumes it as is.
  * - A caption names the costing method the backend reports. The ending value
@@ -43,31 +42,11 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
   const muiTheme = useMuiTheme();
   const { userPreferences } = useSettings();
 
-  /** Finance API on this backend expects a supplier; do not fire without one. */
-  const enabled = !!supplierId;
-
-  // TODO(S-13): GET /api/analytics/financial/summary answers 200 without a supplier too,
-  // and an empty supplier filter means all suppliers; this gate is to go.
   const q = useQuery<FinancialSummary>({
     queryKey: ['analytics', 'financialSummary', from, to, supplierId ?? null],
     queryFn: () => getFinancialSummary({ from, to, supplierId: supplierId ?? undefined }),
-    enabled,
+    enabled: !!from && !!to,
   });
-
-  if (!enabled) {
-    return (
-      <Card>
-        <CardContent>
-          <Typography variant="subtitle1" sx={{ mb: 1 }}>
-            {t('analytics:finance.title')}
-          </Typography>
-          <Box sx={{ color: 'text.secondary' }}>
-            {t('analytics:frequency.selectSupplier')}
-          </Box>
-        </CardContent>
-      </Card>
-    );
-  }
 
   // Each bar carries its colour as `fill`, which Recharts reads per entry (Cell is
   // deprecated in Recharts 3 and goes in 4).

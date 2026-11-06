@@ -3,7 +3,7 @@
  * @module __tests__/pages/analytics/blocks/FinancialSummaryCard
  * @description
  * Enterprise tests for FinancialSummaryCard:
- * - Supplier requirement gate (no fetch without supplier)
+ * - All suppliers when none is picked; no fetch without a date range
  * - Query parameters passed to API
  * - Loading state, KPI/chart rendering, and empty state
  * - Refetch behavior when supplierId changes
@@ -81,7 +81,7 @@ function setup(
 ) {
   return render(
     <QueryClientProvider client={client}>
-      <FinancialSummaryCard {...props} />
+      <FinancialSummaryCard from="2025-01-01" to="2025-12-31" {...props} />
     </QueryClientProvider>,
   );
 }
@@ -115,11 +115,24 @@ describe('FinancialSummaryCard', () => {
     queryClient = createTestQueryClient();
   });
 
-  it('renders title and prompts to select a supplier when supplierId is missing', () => {
+  it('fetches the all-supplier summary when no supplier is picked', async () => {
+    vi.mocked(getFinancialSummary).mockResolvedValue(nonZeroSummary);
+
     setup(queryClient);
 
+    await waitFor(() => expect(screen.getByTestId('bar-chart')).toBeInTheDocument());
+    expect(getFinancialSummary).toHaveBeenCalledWith({
+      from: '2025-01-01',
+      to: '2025-12-31',
+      supplierId: undefined,
+    });
+    expect(screen.queryByText('analytics:frequency.selectSupplier')).not.toBeInTheDocument();
+  });
+
+  it('does not fetch when the date range is missing', () => {
+    setup(queryClient, { supplierId: 'sup-123', from: undefined, to: undefined });
+
     expect(screen.getByText('analytics:finance.title')).toBeInTheDocument();
-    expect(screen.getByText('analytics:frequency.selectSupplier')).toBeInTheDocument();
     expect(getFinancialSummary).not.toHaveBeenCalled();
   });
 

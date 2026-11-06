@@ -58,7 +58,6 @@ Files above their band and below their alarm are watched:
 | `components/help/HelpPanel.tsx` | components | 120 |
 | `components/search/ListSearchField.tsx` | components | 119 |
 | `pages/analytics/blocks/StockValuePerSupplierPie.tsx` | components | 117 |
-| `pages/analytics/blocks/FinancialSummaryCard.tsx` | components | 116 |
 | `pages/analytics/sections/EmployeesActivityChart.tsx` | components | 111 |
 | `app/layout/AppShell.tsx` | components | 102 |
 | `pages/inventory/components/InventoryTable.tsx` | components | 101 |
