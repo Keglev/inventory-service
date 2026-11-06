@@ -5,8 +5,8 @@
 `npm run build` runs `tsc -b` then `vite build`, emitting content-hashed assets
 under `dist/`. The Vite config groups vendor code into one chunk per dependency
 family (Rolldown `codeSplitting` groups: React, MUI, the MUI data grid, router,
-forms/validation, charts, i18n, utilities) so growth is attributable. The
-chunk-size warning limit is set to 800 kB.
+forms/validation, charts, i18n, utilities) so growth is attributable. Vite's
+default chunk-size warning (500 kB) applies: every chunk fits it.
 The router loads pages eagerly — chunking is by vendor, not by route
 (see [§6](06-runtime.md)).
 

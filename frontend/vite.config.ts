@@ -50,8 +50,6 @@ export default defineConfig({
     },
   },
   build: {
-    // TODO(S-2): every chunk now fits Vite's 500 kB default; drop this with a build check.
-    chunkSizeWarningLimit: 800,
     rolldownOptions: {
       output: {
         // Rolldown groups replace manualChunks (deprecated in Vite 8). A group also
