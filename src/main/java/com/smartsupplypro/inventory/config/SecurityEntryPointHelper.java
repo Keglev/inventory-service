@@ -2,12 +2,17 @@ package com.smartsupplypro.inventory.config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
 
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.smartsupplypro.inventory.exception.dto.ErrorResponse;
+
 import jakarta.servlet.http.HttpServletResponse;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Factory for authentication entry points and logout response handlers.
@@ -18,12 +23,20 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class SecurityEntryPointHelper {
 
-    /** Returns 401 JSON for unauthenticated API requests so clients can handle it programmatically. */
+    private static final ObjectMapper MAPPER = new JsonMapper();
+
+    /**
+     * Returns 401 with the ErrorResponse envelope for unauthenticated API requests. The entry
+     * point runs in the filter chain, before any controller advice, so it writes the envelope
+     * itself; the message equals the advice's 401 message.
+     */
     public AuthenticationEntryPoint createApiEntryPoint() {
         return (req, res, ex) -> {
+            ErrorResponse body = new ErrorResponse("unauthorized", "Authentication required",
+                Instant.now().toString(), null);
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             res.setContentType("application/json");
-            res.getWriter().write("{\"message\":\"Unauthorized\"}");
+            res.getWriter().write(MAPPER.writeValueAsString(body));
         };
     }
 

@@ -8,9 +8,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 /**
  * Test-only security configuration for {@code @WebMvcTest} slices.
  * Disables OAuth2 and CSRF, and returns a JSON 401 for unauthenticated API requests.
@@ -33,13 +30,8 @@ public class TestSecurityConfig {
                     && accept != null && accept.contains("application/json");
         };
 
-        AuthenticationEntryPoint jsonEntryPoint = (HttpServletRequest req,
-                                                   HttpServletResponse res,
-                                                   org.springframework.security.core.AuthenticationException ex) -> {
-            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            res.setContentType("application/json");
-            res.getWriter().write("{\"message\":\"Unauthorized\"}");
-        };
+        // The production entry point, so web-slice tests see the real 401 body
+        AuthenticationEntryPoint jsonEntryPoint = new SecurityEntryPointHelper().createApiEntryPoint();
 
         http
             .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
