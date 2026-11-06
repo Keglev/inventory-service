@@ -7,12 +7,13 @@
 #        requires on main (backend ADR-0019). It builds the site as docs-build.yml
 #        does, minus the coverage reports (CI artifacts) and TypeDoc (it needs the
 #        frontend install), checks every internal link, and requires the YAML lint
-#        (yaml-lint.yml, skipped unless a checked YAML file changed). Nothing is
-#        uploaded or deployed.
+#        (yaml-lint.yml, skipped unless a checked YAML file changed) and the
+#        OpenAPI drift check (openapi-drift.yml, skipped unless the spec
+#        changed). Nothing is uploaded or deployed.
 #
 # Failure mode: a page that fails to render, a Mermaid loading mismatch, a
-# broken internal link or a YAML finding fails build-and-test-docs and blocks the
-# merge. Nothing is published either way.
+# broken internal link, a YAML finding or OpenAPI drift fails build-and-test-docs
+# and blocks the merge. Nothing is published either way.
 # =============================================================================
 name: Docs PR Check
 
@@ -92,21 +93,29 @@ jobs:
     if: needs.changes.outputs.run == 'true'
     uses: ./.github/workflows/yaml-lint.yml
 
+  # The OpenAPI spec against the controllers and DTOs; skipped unless the pull
+  # request changes the spec (gate inside openapi-drift.yml).
+  openapi-drift:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
+    uses: ./.github/workflows/openapi-drift.yml
+
   # The only job branch protection sees: fails when the gate failed, the site
-  # job did not succeed or the lint failed or was cancelled; passes a skipped
-  # lint, and passes when the gate found no docs path (backend ADR-0019).
+  # job did not succeed or the lint or drift check failed or was cancelled;
+  # passes a skipped lint or drift check, and passes when the gate found no docs
+  # path (backend ADR-0019).
   build-and-test:
     name: build-and-test-docs
-    needs: [changes, docs, yaml-lint]
+    needs: [changes, docs, yaml-lint, openapi-drift]
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Require the site job and the YAML lint
+      - name: Require the site job, the YAML lint and the drift check
         run: |
           set -eu
-          echo "gate=${{ needs.changes.result }}/${{ needs.changes.outputs.run }} docs=${{ needs.docs.result }} yaml-lint=${{ needs.yaml-lint.result }}"
+          echo "gate=${{ needs.changes.result }}/${{ needs.changes.outputs.run }} docs=${{ needs.docs.result }} yaml-lint=${{ needs.yaml-lint.result }} openapi-drift=${{ needs.openapi-drift.result }}"
           [ "${{ needs.changes.result }}" = "success" ] || exit 1
           [ "${{ needs.changes.outputs.run }}" = "false" ] && exit 0
           [ "${{ needs.docs.result }}" = "success" ] || exit 1
-          case "${{ needs.yaml-lint.result }}" in success|skipped) ;; *) exit 1 ;; esac
+          for r in "${{ needs.yaml-lint.result }}" "${{ needs.openapi-drift.result }}"; do case "$r" in success|skipped) ;; *) exit 1 ;; esac; done

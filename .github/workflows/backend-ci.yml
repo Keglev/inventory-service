@@ -10,7 +10,7 @@
 #        main the run backend-docker.yml chains on.
 #
 # Failure mode: a hadolint finding, a failing test, coverage under the JaCoCo
-# floor, a failed browser suite or a YAML finding fails its job, and
+# floor, a failed browser suite, a YAML finding or OpenAPI drift fails its job, and
 # build-and-test-backend fails with it. On a pull request that blocks the merge; on
 # main backend-docker.yml does not start, so no image is built or released.
 # =============================================================================
@@ -139,21 +139,29 @@ jobs:
     if: needs.changes.outputs.run == 'true'
     uses: ./.github/workflows/yaml-lint.yml
 
+  # The OpenAPI spec against the controllers and DTOs; skipped unless the pull
+  # request changes one of them (gate inside openapi-drift.yml).
+  openapi-drift:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
+    uses: ./.github/workflows/openapi-drift.yml
+
   # The only job branch protection sees: fails when the gate or a job above failed
   # or was cancelled, so a red browser suite stops the deploy chain (backend
-  # ADR-0016); passes a skipped suite or lint, and run=false (backend ADR-0019).
+  # ADR-0016); passes a skipped suite, lint or drift check, and run=false
+  # (backend ADR-0019).
   build-and-test:
     name: build-and-test-backend
-    needs: [changes, backend, e2e, yaml-lint]
+    needs: [changes, backend, e2e, yaml-lint, openapi-drift]
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Require the backend job, the browser suite and the YAML lint
+      - name: Require the backend job, the browser suite, the YAML lint and the drift check
         run: |
           set -eu
-          echo "gate=${{ needs.changes.result }}/${{ needs.changes.outputs.run }} backend=${{ needs.backend.result }} e2e=${{ needs.e2e.result }} yaml-lint=${{ needs.yaml-lint.result }}"
+          echo "gate=${{ needs.changes.result }}/${{ needs.changes.outputs.run }} backend=${{ needs.backend.result }} e2e=${{ needs.e2e.result }} yaml-lint=${{ needs.yaml-lint.result }} openapi-drift=${{ needs.openapi-drift.result }}"
           [ "${{ needs.changes.result }}" = "success" ] || exit 1
           [ "${{ needs.changes.outputs.run }}" = "false" ] && exit 0
           [ "${{ needs.backend.result }}" = "success" ] || exit 1
-          for r in "${{ needs.e2e.result }}" "${{ needs.yaml-lint.result }}"; do case "$r" in success|skipped) ;; *) exit 1 ;; esac; done
+          for r in "${{ needs.e2e.result }}" "${{ needs.yaml-lint.result }}" "${{ needs.openapi-drift.result }}"; do case "$r" in success|skipped) ;; *) exit 1 ;; esac; done

@@ -1,0 +1,4 @@
+# Lint configuration for the OpenAPI spec, read by check-openapi-drift.sh.
+# Redocly's recommended rules, the same set it applies without a config file.
+extends:
+  - recommended

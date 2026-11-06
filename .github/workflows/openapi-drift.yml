@@ -1,0 +1,86 @@
+# =============================================================================
+# openapi-drift.yml - OpenAPI lint and spec-versus-code check (reusable)
+# Usage: called as a job by backend-ci.yml and docs-pr-check.yml, behind their
+#        build-and-test aggregators; also runs by hand (workflow_dispatch).
+#
+# The spec in docs/backend/api is written by hand, so it drifts when either side
+# changes alone: six response schemas once drifted through backend pull requests
+# that never touched the spec. A spec change is claimed by docs-pr-check, a
+# controller or DTO change by backend-ci, so both call this workflow
+# (Standards OPENAPI, FY-1 A). No chain prefix: it belongs to two chains
+# (backend ADR-0017). No concurrency block, as in yaml-lint.yml: two callers of
+# one pull request share a ref.
+#
+# Produces: lint findings and drift lines in the job log
+# (.github/scripts/docs/check-openapi-drift.sh, its comparison check-openapi-drift.mjs
+# and the Java reader java-reader.mjs).
+#
+# Three outcomes, decided by the gate job. A pull request whose diff touches
+# docs/backend/api/, a controller/ or dto/ folder under src/main/java, the check's
+# scripts or this workflow runs the check, and a finding fails the caller's
+# build-and-test. A manual run always checks. Anything else, every push to main
+# included (its pull request was checked), skips the check and the caller passes
+# it as skipped.
+#
+# FAILURE MODE: a lint error or warning outside the accepted list, or any
+# difference between spec and code, fails the check job and with it the caller's
+# build-and-test.
+# =============================================================================
+name: OpenAPI Drift
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      # HEAD^..HEAD is the pull request's own diff (the merge commit).
+      - name: Decide whether the check is relevant
+        id: decide
+        run: |
+          set -euo pipefail
+          case "$GITHUB_EVENT_NAME" in
+            workflow_dispatch) echo "run=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+            pull_request) ;;
+            *) echo "run=false" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+          changed=$(git diff --name-only HEAD^ HEAD)
+          relevant=$(grep -E '^docs/backend/api/|^src/main/java/.*/(controller|dto)/|^\.github/(scripts/docs/(check-openapi-drift\.|java-reader\.mjs$)|workflows/openapi-drift\.yml$)' <<< "$changed" || true)
+          echo "${relevant:-no spec, controller or DTO in this diff}"
+          if [ -n "$relevant" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "No spec, controller or DTO changed; the OpenAPI drift check is skipped." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  drift:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The Redocly pin the docs site renders with, from one place.
+      - name: Docs toolchain
+        uses: ./.github/actions/docs-toolchain
+        with:
+          redoc: 'true'
+
+      - name: Lint the spec and compare it with the code
+        run: bash .github/scripts/docs/check-openapi-drift.sh .
