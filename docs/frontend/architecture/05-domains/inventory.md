@@ -66,5 +66,5 @@ once; a page that does not hold every item falls back to the server search
 Zod schemas in `validation/inventoryValidation.ts` cover all five flows
 client-side; the backend remains the source of truth for authorization
 (rename/delete are ADMIN) and business invariants (uniqueness, zero-quantity
-gate). In demo mode every dialog except rename stops a valid submit before any
-request is sent; a demo rename still reaches the backend, which refuses it.
+gate). In demo mode every dialog stops a valid submit before any request is
+sent and shows the demo notice (frontend ADR-0013).

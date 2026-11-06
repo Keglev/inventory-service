@@ -48,16 +48,19 @@ export interface EditItemDialogProps {
   onClose: () => void;
   /** Callback after successful item rename (for parent refresh) */
   onItemRenamed: () => void;
+  /** Demo mode: the submit shows the demo notice instead of renaming (frontend ADR-0013) */
+  readOnly?: boolean;
 }
 
 export const EditItemDialog: React.FC<EditItemDialogProps> = ({
   open,
   onClose,
   onItemRenamed,
+  readOnly = false,
 }) => {
   const { t } = useTranslation(['common', 'inventory']);
 
-  const form = useEditItemForm(open, onClose, onItemRenamed);
+  const form = useEditItemForm(open, onClose, onItemRenamed, readOnly);
 
   return (
     <Dialog open={open} onClose={form.handleClose} fullWidth maxWidth="sm">

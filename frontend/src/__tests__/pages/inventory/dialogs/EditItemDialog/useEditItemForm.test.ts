@@ -139,8 +139,8 @@ describe('useEditItemForm', () => {
     renameItemMock.mockReturnValue({ ok: true } as unknown as ReturnType<typeof renameItem>);
   });
 
-  function render(open = true) {
-    return renderHook(() => useEditItemForm(open, onClose, onItemRenamed));
+  function render(open = true, readOnly = false) {
+    return renderHook(() => useEditItemForm(open, onClose, onItemRenamed, readOnly));
   }
 
   /** Picks supplier and item, then submits a rename of item-1 to 'New Name'. */
@@ -265,6 +265,16 @@ describe('useEditItemForm', () => {
       expect(onItemRenamed).toHaveBeenCalledTimes(1);
       expect(onClose).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalled();
+    });
+
+    it('shows the demo notice and sends no rename when read-only', async () => {
+      const { result } = render(true, true);
+
+      await submitRename(result);
+
+      expect(renameItemMock).not.toHaveBeenCalled();
+      expect(result.current.formError).toBe(tEn('common:demoDisabled'));
+      expect(onClose).not.toHaveBeenCalled();
     });
 
     it('surfaces a generic error when the failure has no mapped token', async () => {

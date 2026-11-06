@@ -42,7 +42,7 @@ what the chart shows and how it reads, a different level from the card that lays
 it out.
 
 Three functions sit above their band and below their alarm: `DateRangeFilter`
-122 and `MovementsSection` 120 (components, band 100), and `useEditItemForm` 88
+122 and `MovementsSection` 120 (components, band 100), and `useEditItemForm` 89
 (hooks, band 80). `PriceChangeForm` 113, `EditItemForm` 102, `PriceTrendCard` 82,
 `usePriceChangeForm` 79 and `EmployeesActivityChart` 71 are inside their bands. The band is guidance, the alarm is the gate.
 
@@ -64,7 +64,7 @@ Files above their band and below their alarm are watched:
 | `pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` | dialogs (120 / 160) | 134 |
 | `pages/inventory/dialogs/EditItemDialog/EditItemForm.tsx` | dialogs | 122 |
 | `pages/inventory/dialogs/ItemFormDialog/useItemForm.ts` | hooks (80 / 120) | 120 |
-| `pages/inventory/dialogs/EditItemDialog/useEditItemForm.ts` | hooks | 116 |
+| `pages/inventory/dialogs/EditItemDialog/useEditItemForm.ts` | hooks | 118 |
 | `pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm.ts` | hooks | 107 |
 | `pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm.ts` | hooks | 103 |
 | `pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm.ts` | hooks | 103 |

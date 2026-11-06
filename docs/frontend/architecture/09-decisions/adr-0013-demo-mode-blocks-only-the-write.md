@@ -57,3 +57,10 @@ anyway with a message that says why.
 - The supplier dialogs are outside this decision. They take no `readOnly`
   prop and rely on backend authorization
   ([Suppliers domain](../05-domains/suppliers.md)).
+
+## Amendment 2026-11-06: rename wired
+Ruled by Carlos (FE-7 A, 2026-11-03). The rename dialog now follows the rule:
+`InventoryDialogs` passes `isDemo` as `readOnly`, and `useEditItemForm` stops a
+valid submit before the request with `common:demoDisabled`. All five inventory
+dialogs honor demo mode; the Consequences line on rename no longer holds. The
+supplier dialogs stay outside this decision.
