@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.smartsupplypro.inventory.config.OAuth2Config;
@@ -62,7 +63,9 @@ class SecurityConfigAuthorizationRulesTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(header().string("Content-Type",
                     org.hamcrest.Matchers.containsString("application/json")))
-                .andExpect(content().string("{\"message\":\"Unauthorized\"}"));
+                .andExpect(jsonPath("$.error").value("unauthorized"))
+                .andExpect(jsonPath("$.message").value("Authentication required"))
+                .andExpect(jsonPath("$.timestamp").exists());
         }
 
         @Test

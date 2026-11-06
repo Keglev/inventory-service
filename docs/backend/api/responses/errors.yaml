@@ -8,7 +8,7 @@ components:
             $ref: '../schemas/common/common.yaml#/components/schemas/ErrorResponse'
           example:
             error: unauthorized
-            message: No authentication provided
+            message: Authentication required
             timestamp: '2026-07-09T10:30:00Z'
 
     Forbidden:

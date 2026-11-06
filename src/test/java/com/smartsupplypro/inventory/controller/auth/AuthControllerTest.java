@@ -112,7 +112,8 @@ public class AuthControllerTest {
     void should_return_401_when_there_is_no_authentication() throws Exception {
         mockMvc.perform(get("/api/me").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value("Unauthorized"));
+                .andExpect(jsonPath("$.error").value("unauthorized"))
+                .andExpect(jsonPath("$.message").value("Authentication required"));
     }
 
     @Test

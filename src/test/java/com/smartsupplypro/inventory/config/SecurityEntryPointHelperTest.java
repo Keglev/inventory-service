@@ -3,6 +3,8 @@ package com.smartsupplypro.inventory.config;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.time.Instant;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -12,13 +14,16 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+
 /** Verifies entry point and logout response decisions in {@link SecurityEntryPointHelper}. */
 class SecurityEntryPointHelperTest {
 
     private final SecurityEntryPointHelper helper = new SecurityEntryPointHelper();
 
     @Test
-    void should_return_401_json_when_the_api_entry_point_is_invoked() throws Exception {
+    void should_return_401_with_the_error_envelope_when_the_api_entry_point_is_invoked() throws Exception {
         AuthenticationEntryPoint entryPoint = helper.createApiEntryPoint();
 
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/inventory/demo-ok");
@@ -29,7 +34,12 @@ class SecurityEntryPointHelperTest {
         assertEquals(401, res.getStatus());
         assertNotNull(res.getContentType());
         assertEquals("application/json", res.getContentType());
-        assertEquals("{\"message\":\"Unauthorized\"}", res.getContentAsString());
+        JsonNode body = new JsonMapper().readTree(res.getContentAsString());
+        assertEquals("unauthorized", body.get("error").asString());
+        assertEquals("Authentication required", body.get("message").asString());
+        assertNotNull(Instant.parse(body.get("timestamp").asString()));
+        // fieldErrors is NON_NULL in the record: three keys, as the advice's 401 has
+        assertEquals(3, body.size());
     }
 
     @Test

@@ -9,9 +9,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import com.smartsupplypro.inventory.config.SecurityEntryPointHelper;
+
 /**
- * Test-only dual-chain security config: JSON API requests get 401, every other request is
- * redirected to the OAuth2 login endpoint (production sends it to the frontend login page).
+ * Test-only dual-chain security config: JSON API requests get the production 401, every other
+ * request is redirected to the OAuth2 login endpoint (production sends it to the frontend login
+ * page).
  */
 @TestConfiguration
 @EnableMethodSecurity
@@ -29,11 +32,9 @@ class ApiEntryPointTestSecurityConfig {
         RequestMatcher apiJson = new org.springframework.security.web.util.matcher
                 .AndRequestMatcher(apiPath, acceptsJson);
 
-        org.springframework.security.web.AuthenticationEntryPoint apiEntry = (req, res, ex) -> {
-            res.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
-            res.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            res.getWriter().write("{\"message\":\"Unauthorized\"}");
-        };
+        // The production API entry point; only the chain split is test-specific
+        org.springframework.security.web.AuthenticationEntryPoint apiEntry =
+            new SecurityEntryPointHelper().createApiEntryPoint();
 
         return http
             .securityMatcher(apiJson)
