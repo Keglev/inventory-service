@@ -144,6 +144,13 @@ receive the cross-site cookie. Allowed origins come from the configured
   (`https://localhost:5173` alongside the plain-HTTP ones); verify the cookie is
   delivered when testing auth locally over HTTP.
 
+## Amendment 2026-11-06: one landing path
+The validated return origin is now joined with `frontend.landingPath`, the same path the
+fallback target uses, instead of a literal `/auth`. Both redirects therefore follow one
+setting (`app.frontend.landing-path`, `APP_FRONTEND_LANDING_PATH`; default `/auth`, the
+SPA's callback route). Where this record says `{validatedOrigin}/auth`, read
+`{validatedOrigin}{landingPath}`.
+
 ## References
 - [§5 Building Block View](../05-building-blocks.md#cross-cutting) — Spring Security,
   OAuth2 success handler, and the cookie-backed authorization-request repository

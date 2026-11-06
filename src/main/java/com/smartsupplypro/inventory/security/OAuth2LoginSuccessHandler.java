@@ -68,7 +68,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     }
 
     private String resolveRedirectTarget(HttpServletRequest request, HttpServletResponse response) {
-        String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();
+        String landingPath = props.getFrontend().getLandingPath();
+        String target = props.getFrontend().getBaseUrl() + landingPath;
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return target;
         for (Cookie c : cookies) {
@@ -77,8 +78,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             if (candidate != null && !candidate.isBlank()) {
                 // Redirect URL construction: validate against allowed origins to prevent open redirect
                 if (props.getCors().getAllowedOrigins().contains(candidate)) {
-                    // TODO(S-10): "/auth" is hard-coded here; the default target uses landingPath
-                    target = candidate + "/auth";
+                    target = candidate + landingPath;
                 } else {
                     log.warn("Rejected non-allowlisted return URL: {}", LogSanitizer.sanitize(candidate));
                 }
