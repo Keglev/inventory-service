@@ -48,17 +48,13 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     long countByActiveTrue();
 
     /**
-     * Checks whether any item linked to the supplier has quantity above {@code minQty}.
-     * Used to block supplier deletion when active stock remains.
+     * Checks whether any item references the supplier, deleted (inactive) items included.
+     * Supplier deletion uses it: a deleted item keeps its supplier and its stock history.
      *
      * @param supplierId supplier ID
-     * @param minQty     quantity threshold (pass 0 to check for any stock)
-     * @return true if any linked item has quantity above the threshold
+     * @return true if at least one item, active or not, references the supplier
      */
-    @Query("select (count(i) > 0) from InventoryItem i left join i.supplier s "
-        + "where (s.id = :supplierId or i.supplierId = :supplierId) and i.quantity > :minQty")
-    boolean existsActiveStockForSupplier(@Param("supplierId") String supplierId,
-                                         @Param("minQty") int minQty);
+    boolean existsBySupplierId(String supplierId);
 
     /**
      * Finds items by exact name, ignoring case. The duplicate checks on create

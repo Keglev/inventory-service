@@ -47,11 +47,11 @@ public interface SupplierService {
     SupplierDTO update(String id, SupplierDTO dto);
 
     /**
-     * Deletes a supplier after verifying that no linked inventory item holds stock.
+     * Deletes a supplier that no inventory item references, deleted items included.
      * @param id supplier ID to delete
      * @throws java.util.NoSuchElementException if supplier not found
-     * @throws com.smartsupplypro.inventory.exception.BusinessRuleViolationException if a linked
-     *         item has a quantity above zero (409)
+     * @throws com.smartsupplypro.inventory.exception.BusinessRuleViolationException if any item,
+     *         active or deleted, still references the supplier (409)
      */
     void delete(String id);
 }

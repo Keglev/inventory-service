@@ -38,7 +38,7 @@
     },
     "delete": {
       "title": "Lieferant löschen",
-      "body": "Entfernen Sie einen Lieferanten aus Ihrem System.\n\nRegeln:\n• Ein Lieferant kann nur gelöscht werden, wenn keine aktiven Bestandsartikel mit ihm verknüpft sind. Bestehen noch aktive Artikel, blockiert das System das Löschen.\n• Nach dem Löschen wird der Lieferantendatensatz dauerhaft entfernt und kann nicht mehr für neue Artikel ausgewählt werden.\n• Historische Bestandsdaten bleiben erhalten.\n\nTipp: Löschen Sie zuerst die verbleibenden Artikel des Lieferanten (ihre Menge muss null sein) und danach den Lieferanten."
+      "body": "Entfernen Sie einen Lieferanten aus Ihrem System.\n\nRegeln:\n• Ein Lieferant kann nur gelöscht werden, wenn kein Bestandsartikel auf ihn verweist. Gelöschte Artikel zählen mit: Sie behalten ihren Lieferanten und ihre Bestandshistorie.\n• Ein Lieferant, der jemals Artikel hatte, bleibt daher bestehen, und seine Historie bleibt vollständig.\n• Nach dem Löschen wird der Lieferantendatensatz dauerhaft entfernt und kann nicht mehr für neue Artikel ausgewählt werden."
     }
   },
   "analytics": {

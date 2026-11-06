@@ -38,7 +38,7 @@
     },
     "delete": {
       "title": "Delete Supplier",
-      "body": "Remove a supplier from your system.\n\nRules:\n• A supplier can only be deleted when no active inventory items are linked to it. If active items exist, the system blocks the deletion.\n• Once deleted, the supplier record is permanently removed and cannot be selected for new items.\n• Historical stock data remains intact.\n\nTip: Delete the supplier's remaining items first (their quantity must be zero), then delete the supplier."
+      "body": "Remove a supplier from your system.\n\nRules:\n• A supplier can only be deleted when no inventory item references it. Deleted items count too: they keep their supplier and their stock history.\n• A supplier that ever had items therefore stays, and its history stays complete.\n• Once deleted, the supplier record is permanently removed and cannot be selected for new items."
     }
   },
   "analytics": {

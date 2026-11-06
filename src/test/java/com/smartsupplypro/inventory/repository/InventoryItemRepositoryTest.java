@@ -170,29 +170,31 @@ class InventoryItemRepositoryTest {
     }
 
     /**
-     * Supplier active-stock existence checks.
+     * Item references that block a supplier deletion.
      */
     @Nested
     class SupplierAssociation {
 
         @Test
-        void should_confirm_active_stock_when_a_supplier_holds_more_than_the_threshold() {
+        void should_find_a_reference_when_a_supplier_has_an_item_in_stock() {
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-5").name("Bolt").sku("SKU-REP-5").price(BigDecimal.valueOf(2))
                     .quantity(30).minimumQuantity(5).supplier(supplier1)
                     .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
 
-            assertTrue(inventoryItemRepository.existsActiveStockForSupplier(supplier1.getId(), 0));
+            assertTrue(inventoryItemRepository.existsBySupplierId(supplier1.getId()));
         }
 
         @Test
-        void should_return_false_when_supplier_has_no_stock_above_threshold() {
+        void should_find_a_reference_when_the_only_item_is_deleted_at_quantity_zero() {
+            // A deleted item keeps its supplier id; the database rejects the supplier delete for it.
             inventoryItemRepository.save(InventoryItem.builder()
                     .id("item-6").name("Nut").sku("SKU-REP-6").price(BigDecimal.valueOf(1))
-                    .quantity(0).minimumQuantity(5).supplier(supplier1)
+                    .quantity(0).minimumQuantity(5).active(false).supplier(supplier1)
                     .supplierId(supplier1.getId()).createdBy("admin").createdAt(CREATED_AT).build());
 
-            assertFalse(inventoryItemRepository.existsActiveStockForSupplier(supplier1.getId(), 0));
+            assertTrue(inventoryItemRepository.existsBySupplierId(supplier1.getId()));
+            assertFalse(inventoryItemRepository.existsBySupplierId(supplier2.getId()));
         }
     }
 

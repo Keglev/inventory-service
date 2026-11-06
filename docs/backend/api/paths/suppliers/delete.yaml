@@ -5,8 +5,8 @@ delete:
   description: |
     Deletes the supplier row (a hard delete). Requires ADMIN role.
 
-    **Business rule:** fails with 409 while any item of this supplier still has
-    stock (quantity > 0).
+    **Business rule:** fails with 409 while any item references this supplier,
+    deleted items included: a deleted item keeps its supplier and its stock history.
   operationId: deleteSupplier
   security:
     - oauth2: [openid]
@@ -22,7 +22,7 @@ delete:
     '404':
       $ref: '../../responses/errors.yaml#/components/responses/NotFound'
     '409':
-      description: Conflict - an item of this supplier still has stock
+      description: Conflict - an item, active or deleted, still references this supplier
       content:
         application/json:
           schema:

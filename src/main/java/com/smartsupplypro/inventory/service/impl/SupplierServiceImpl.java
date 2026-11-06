@@ -98,21 +98,21 @@ public class SupplierServiceImpl implements SupplierService {
     /**
      * {@inheritDoc}
      *
-     * <p>Deletion is blocked when any inventory item with a positive on-hand
-     * quantity references this supplier, to prevent orphaned stock records.</p>
+     * <p>Deletion is blocked while any inventory item references this supplier,
+     * deleted (inactive) items included: they keep their stock history, which
+     * names the supplier.</p>
      */
     @Override
     public void delete(String id) {
         SupplierValidator.assertDeletable(
             id,
-            () -> inventoryItemRepository.existsActiveStockForSupplier(id, 0)
+            () -> inventoryItemRepository.existsBySupplierId(id)
         );
 
         if (!supplierRepository.existsById(id)) {
             throw new NoSuchElementException("Supplier not found: " + id);
         }
 
-        // TODO(S-9): a linked item at quantity 0 still references the supplier; measure the FK answer
         supplierRepository.deleteById(id);
     }
 
