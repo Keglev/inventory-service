@@ -111,7 +111,7 @@
         <h1 id="suppliers-domain">§5.2 Suppliers Domain</h1>
         <p>Supplier master data under
         <code>frontend/src/pages/suppliers/</code>: a paged list with
-        search, and CRUD dialogs with an active-stock delete guard.</p>
+        search, and CRUD dialogs with a linked-items delete guard.</p>
         <h2 id="search-display-modes">Search &amp; Display Modes</h2>
         <p><code>SuppliersSearchPanel</code> offers a type-ahead
         (2-character minimum) through <code>SupplierSearchField</code>,
@@ -153,10 +153,10 @@
         decision, not a backend rule.</li>
         <li><strong>Delete</strong> (<code>DeleteSupplierDialog</code>)
         — search/select → confirm; physical delete behind the backend’s
-        stock guard: blocked while any linked item holds stock
-        (<code>quantity &gt; 0</code>); zero-quantity items never block,
-        regardless of their active flag. Admin-gated, enforced both
-        client-side in the form hook and server-side.</li>
+        linked-items guard: blocked while any item references the
+        supplier, deleted items included (they keep their stock
+        history). Admin-gated, enforced both client-side in the form
+        hook and server-side.</li>
         </ul>
         <h2 id="error-handling-open-items">Error Handling &amp; Open
         Items</h2>
