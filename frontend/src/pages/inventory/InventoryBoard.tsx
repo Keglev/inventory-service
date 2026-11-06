@@ -16,9 +16,8 @@
  * - Without a supplier the grid lists the stock of all suppliers, one
  *   server page at a time: GET /api/inventory/search pages and needs no
  *   supplier.
- * - Demo mode (isDemo from useAuth) flows down to the four dialogs
- *   that support readOnly (create, delete, quantity-adjust,
- *   price-change) via InventoryDialogs.
+ * - Demo mode (isDemo from useAuth) flows down to all five dialogs as
+ *   readOnly via InventoryDialogs (frontend ADR-0013).
  */
 
 import * as React from 'react';

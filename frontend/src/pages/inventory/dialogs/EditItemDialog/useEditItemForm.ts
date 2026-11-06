@@ -18,6 +18,8 @@
  *   field with the freshest known name (details query if present, search
  *   result otherwise) so the user edits an actual value, not an empty
  *   field.
+ * - In demo mode (readOnly) every step works, but the submit stops at the demo
+ *   notice before the request, as in the sibling dialogs (frontend ADR-0013).
  * - Submission delegates only to renameItem. Failures are classified by the
  *   backend status token (errorToken): 'forbidden' -> admin-only, 'conflict'
  *   -> duplicate name, anything else -> a generic message. This keys on the
@@ -63,12 +65,14 @@ export interface UseEditItemFormReturn extends ItemSelectionState, ItemSelection
  * @param isOpen - Whether dialog is currently open (controls query firing)
  * @param onClose - Callback when dialog closes
  * @param onItemRenamed - Callback after successful rename
+ * @param readOnly - Demo mode: the flow runs, the submit shows the demo notice and sends nothing
  * @returns Complete form state and handlers
  */
 export function useEditItemForm(
   isOpen: boolean,
   onClose: () => void,
-  onItemRenamed: () => void
+  onItemRenamed: () => void,
+  readOnly = false
 ): UseEditItemFormReturn {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
@@ -132,6 +136,7 @@ export function useEditItemForm(
       setFormError(t('errors:inventory.selection.noItemSelected'));
       return;
     }
+    if (readOnly) return setFormError(t('common:demoDisabled'));
 
     setFormError('');
 

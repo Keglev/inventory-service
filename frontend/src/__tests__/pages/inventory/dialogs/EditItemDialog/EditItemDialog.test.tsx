@@ -92,6 +92,16 @@ describe('EditItemDialog', () => {
     expect(mockEditItemForm).toHaveBeenCalledTimes(1);
   });
 
+  it('hands readOnly to the hook, false when not given', () => {
+    const onClose = vi.fn();
+    const onItemRenamed = vi.fn();
+    const { rerender } = render(<EditItemDialog open onClose={onClose} onItemRenamed={onItemRenamed} />);
+    expect(useEditItemFormModule.useEditItemForm).toHaveBeenLastCalledWith(true, onClose, onItemRenamed, false);
+
+    rerender(<EditItemDialog open onClose={onClose} onItemRenamed={onItemRenamed} readOnly />);
+    expect(useEditItemFormModule.useEditItemForm).toHaveBeenLastCalledWith(true, onClose, onItemRenamed, true);
+  });
+
   it('delegates close action to hook handleClose', async () => {
     const user = userEvent.setup();
     const handleClose = vi.fn();

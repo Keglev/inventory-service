@@ -3,7 +3,7 @@
  * @module __tests__/pages/inventory/InventoryDialogsWiring
  * @description Contract tests for InventoryDialogs composition:
  * - Renders the expected dialog when its open-flag is set.
- * - Passes isDemo to the create dialog as readOnly.
+ * - Passes isDemo to every dialog as readOnly.
  * - Keeps tests stable by mocking dialog implementations and asserting via testids.
  *
  * Out of scope:
@@ -116,6 +116,22 @@ describe('InventoryDialogs', () => {
 
     expect(vi.mocked(ItemFormDialog).mock.lastCall?.[0]).toEqual(
       expect.objectContaining({ readOnly: true }),
+    );
+  });
+
+  it('passes isDemo to the rename dialog as readOnly', () => {
+    renderDialogs({ openEditName: true, isDemo: true });
+
+    expect(vi.mocked(EditItemDialog).mock.lastCall?.[0]).toEqual(
+      expect.objectContaining({ readOnly: true }),
+    );
+  });
+
+  it('passes readOnly false to the rename dialog outside the demo', () => {
+    renderDialogs({ openEditName: true });
+
+    expect(vi.mocked(EditItemDialog).mock.lastCall?.[0]).toEqual(
+      expect.objectContaining({ readOnly: false }),
     );
   });
 
