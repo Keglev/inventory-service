@@ -49,9 +49,6 @@ spring:
 # SQL, add -Dlogging.level.org.hibernate.SQL=DEBUG to the Maven command (it reaches
 # the forked JVM); show-sql on top would print every statement twice.
 
-server:
-  port: 8081
-
 management:
   endpoints:
     web:
