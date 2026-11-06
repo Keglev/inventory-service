@@ -13,9 +13,6 @@
     "types": ["vite/client"],
 
     "moduleResolution": "bundler",
-    // Permits import paths ending in .ts (possible only with noEmit).
-    // TODO(S-4): no app file imports with a .ts extension; drop with a tsc -b check.
-    "allowImportingTsExtensions": true,
     // Type-only imports must say `import type`, so Vite's per-file transform
     // (Rolldown/Oxc in Vite 8) can drop them without type information.
     "verbatimModuleSyntax": true,
