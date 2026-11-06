@@ -68,17 +68,17 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 <span class="fc" id="L68">    }</span>
 
     private String resolveRedirectTarget(HttpServletRequest request, HttpServletResponse response) {
-<span class="fc" id="L71">        String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();</span>
-<span class="fc" id="L72">        Cookie[] cookies = request.getCookies();</span>
-<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (cookies == null) return target;</span>
-<span class="fc bfc" id="L74" title="All 2 branches covered.">        for (Cookie c : cookies) {</span>
-<span class="fc bfc" id="L75" title="All 2 branches covered.">            if (!OAuthCookies.RETURN_COOKIE.equals(c.getName())) continue;</span>
-<span class="fc" id="L76">            String candidate = c.getValue();</span>
-<span class="pc bpc" id="L77" title="1 of 4 branches missed.">            if (candidate != null &amp;&amp; !candidate.isBlank()) {</span>
+<span class="fc" id="L71">        String landingPath = props.getFrontend().getLandingPath();</span>
+<span class="fc" id="L72">        String target = props.getFrontend().getBaseUrl() + landingPath;</span>
+<span class="fc" id="L73">        Cookie[] cookies = request.getCookies();</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (cookies == null) return target;</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        for (Cookie c : cookies) {</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">            if (!OAuthCookies.RETURN_COOKIE.equals(c.getName())) continue;</span>
+<span class="fc" id="L77">            String candidate = c.getValue();</span>
+<span class="pc bpc" id="L78" title="1 of 4 branches missed.">            if (candidate != null &amp;&amp; !candidate.isBlank()) {</span>
                 // Redirect URL construction: validate against allowed origins to prevent open redirect
-<span class="fc bfc" id="L79" title="All 2 branches covered.">                if (props.getCors().getAllowedOrigins().contains(candidate)) {</span>
-                    // TODO(S-10): &quot;/auth&quot; is hard-coded here; the default target uses landingPath
-<span class="fc" id="L81">                    target = candidate + &quot;/auth&quot;;</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">                if (props.getCors().getAllowedOrigins().contains(candidate)) {</span>
+<span class="fc" id="L81">                    target = candidate + landingPath;</span>
                 } else {
 <span class="fc" id="L83">                    log.warn(&quot;Rejected non-allowlisted return URL: {}&quot;, LogSanitizer.sanitize(candidate));</span>
                 }
