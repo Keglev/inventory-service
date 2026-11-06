@@ -162,9 +162,7 @@
 <a name='L97'></a><a href='#L97'>97</a>
 <a name='L98'></a><a href='#L98'>98</a>
 <a name='L99'></a><a href='#L99'>99</a>
-<a name='L100'></a><a href='#L100'>100</a>
-<a name='L101'></a><a href='#L101'>101</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L100'></a><a href='#L100'>100</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -224,7 +222,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -235,8 +233,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -284,8 +282,7 @@
  *   inventory query directly via the data hook's reload rather than
  *   resetting paginationModel, so refresh works on page 0 as well as
  *   any other page.
- * - isDemo flows through to readOnly on the four dialogs that support
- *   it (create, delete, quantity-adjust, price-change; frontend ADR-0013).
+ * - isDemo flows through to readOnly on all five dialogs (frontend ADR-0013).
  */
 &nbsp;
 import * as React from 'react';
@@ -333,11 +330,11 @@ export const InventoryDialogs: React.FC&lt;InventoryDialogsProps&gt; = ({
         readOnly={isDemo}
       /&gt;
 &nbsp;
-      {/* TODO(S-14): EditItemDialog takes no readOnly yet (frontend ADR-0013) */}
       &lt;EditItemDialog
         open={openEditName}
         onClose={() =&gt; setOpenEditName(false)}
         onItemRenamed={onReload}
+        readOnly={isDemo}
       /&gt;
 &nbsp;
       &lt;DeleteItemDialog

@@ -218,9 +218,7 @@
 <a name='L153'></a><a href='#L153'>153</a>
 <a name='L154'></a><a href='#L154'>154</a>
 <a name='L155'></a><a href='#L155'>155</a>
-<a name='L156'></a><a href='#L156'>156</a>
-<a name='L157'></a><a href='#L157'>157</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L156'></a><a href='#L156'>156</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -393,9 +391,8 @@
  * - Without a supplier the grid lists the stock of all suppliers, one
  *   server page at a time: GET /api/inventory/search pages and needs no
  *   supplier.
- * - Demo mode (isDemo from useAuth) flows down to the four dialogs
- *   that support readOnly (create, delete, quantity-adjust,
- *   price-change) via InventoryDialogs.
+ * - Demo mode (isDemo from useAuth) flows down to all five dialogs as
+ *   readOnly via InventoryDialogs (frontend ADR-0013).
  */
 &nbsp;
 import * as React from 'react';
