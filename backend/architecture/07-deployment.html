@@ -341,6 +341,20 @@
         actionlint over the workflows; a finding fails the caller’s
         required check and blocks the merge</td>
         </tr>
+        <tr class="odd">
+        <td>Shared</td>
+        <td><code>openapi-drift.yml</code></td>
+        <td>Reusable: called as a job by <code>backend-ci.yml</code> and
+        <code>docs-pr-check.yml</code>, and skipped unless the pull
+        request changes the spec under <code>docs/backend/api</code>, a
+        <code>controller/</code> or <code>dto/</code> folder, or the
+        check itself. Runs <code>redocly lint</code> (only the findings
+        in <code>docs/backend/api/.redocly.lint-ignore.yaml</code> are
+        accepted) and compares every <code>/api</code> operation, its
+        query and path parameters and its response schema with the
+        controllers and DTOs; a difference fails the caller’s required
+        check and blocks the merge</td>
+        </tr>
         </tbody>
         </table>
         <p>The backend chain is strictly sequential: the image is built
