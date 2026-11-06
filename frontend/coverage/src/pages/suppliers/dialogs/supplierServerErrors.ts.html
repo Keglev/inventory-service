@@ -255,10 +255,10 @@
  * - Classification keys on the status code and the status token (the `error`
  *   field, which is HttpStatus.name().toLowerCase()), never on message text.
  * - 409 is emitted for two distinct rules — a duplicate supplier name on
- *   create/update, and a supplier whose linked item still holds stock on delete. The
- *   two cannot occur on the same call, so the operation disambiguates them;
- *   that is why the caller passes its operation rather than the classifier
- *   guessing.
+ *   create/update, and a supplier that items still reference (deleted items
+ *   included) on delete. The two cannot occur on the same call, so the
+ *   operation disambiguates them; that is why the caller passes its operation
+ *   rather than the classifier guessing.
  * - fieldErrors is used as a signal (which input is at fault), not as copy:
  *   the server's text is English, and this application's display language is
  *   German. The translated key is rendered instead.
