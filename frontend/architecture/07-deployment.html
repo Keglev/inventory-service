@@ -115,10 +115,10 @@
         <code>dist/</code>. The Vite config groups vendor code into one
         chunk per dependency family (Rolldown <code>codeSplitting</code>
         groups: React, MUI, the MUI data grid, router, forms/validation,
-        charts, i18n, utilities) so growth is attributable. The
-        chunk-size warning limit is set to 800 kB. The router loads
-        pages eagerly — chunking is by vendor, not by route (see <a
-        href="06-runtime.html">§6</a>).</p>
+        charts, i18n, utilities) so growth is attributable. Vite’s
+        default chunk-size warning (500 kB) applies: every chunk fits
+        it. The router loads pages eagerly — chunking is by vendor, not
+        by route (see <a href="06-runtime.html">§6</a>).</p>
         <h2 id="container-delivery">Container &amp; Delivery</h2>
         <p>A multi-stage Docker build (context = repo root, so
         <code>ops/nginx/</code> travels with the frontend source): a
