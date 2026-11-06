@@ -1,0 +1,12 @@
+# Lint findings accepted on purpose (check-openapi-drift.sh fails on every other one).
+# servers/1 is the local backend, so the spec can be tried against a dev instance.
+# The two health operations answer 200 or 503 only; there is no 4xx to document.
+openapi.yaml:
+  no-server-example.com:
+    - '#/servers/1/url'
+paths/system/health.yaml:
+  operation-4xx-response:
+    - '#/get/responses'
+paths/system/health-db.yaml:
+  operation-4xx-response:
+    - '#/get/responses'
