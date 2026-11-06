@@ -156,17 +156,14 @@ import jakarta.persistence.Query;
             FROM StockHistory sh, InventoryItem i
             WHERE i.id = sh.itemId
               AND sh.timestamp &lt;= :end
-              AND (:supplierIdNorm IS NULL OR LOWER(sh.supplierId) = :supplierIdNorm)
+              AND (:supplierId IS NULL OR sh.supplierId = :supplierId)
             ORDER BY sh.itemId ASC, sh.timestamp ASC
         &quot;&quot;&quot;;
 
-<span class="fc bfc" id="L163" title="All 4 branches covered.">        final String supplierIdNorm = (supplierId == null || supplierId.isBlank())</span>
-<span class="fc" id="L164">            ? null : supplierId.trim().toLowerCase();</span>
-
-<span class="fc" id="L166">        return em.createQuery(jpql, StockEventRowDTO.class)</span>
-<span class="fc" id="L167">                .setParameter(&quot;end&quot;, end)</span>
-<span class="fc" id="L168">                .setParameter(&quot;supplierIdNorm&quot;, supplierIdNorm)</span>
-<span class="fc" id="L169">                .getResultList();</span>
+<span class="fc" id="L163">        return em.createQuery(jpql, StockEventRowDTO.class)</span>
+<span class="fc" id="L164">                .setParameter(&quot;end&quot;, end)</span>
+<span class="fc" id="L165">                .setParameter(&quot;supplierId&quot;, OptionalQueryParam.normalize(supplierId))</span>
+<span class="fc" id="L166">                .getResultList();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

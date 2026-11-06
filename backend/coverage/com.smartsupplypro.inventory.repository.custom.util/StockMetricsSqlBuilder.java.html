@@ -38,7 +38,7 @@ public final class StockMetricsSqlBuilder {
             SELECT i.name AS item_name, COUNT(sh.id) AS update_count
             FROM stock_history sh
             JOIN inventory_item i ON sh.item_id = i.id
-            WHERE (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+            WHERE (:supplierId IS NULL OR i.supplier_id = :supplierId)
             GROUP BY i.name
             ORDER BY update_count DESC
         &quot;&quot;&quot;;

@@ -36,7 +36,7 @@ Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig,0,178,0,0,0
 Inventory Service,com.smartsupplypro.inventory.config,SecurityAuthorizationHelper,0,97,0,2,0,11,0,3,0,2
 Inventory Service,com.smartsupplypro.inventory.repository.custom,StockMetricsRepositoryImpl,0,19,0,0,0,5,0,3,0,3
 Inventory Service,com.smartsupplypro.inventory.repository.custom,OptionalQueryParam,0,10,0,4,0,1,0,3,0,1
-Inventory Service,com.smartsupplypro.inventory.repository.custom,StockDetailQueryRepositoryImpl,0,172,0,16,0,32,0,13,0,5
+Inventory Service,com.smartsupplypro.inventory.repository.custom,StockDetailQueryRepositoryImpl,0,162,0,12,0,30,0,11,0,5
 Inventory Service,com.smartsupplypro.inventory.repository.custom,StockTrendAnalyticsRepositoryImpl,1,138,1,7,0,40,1,9,0,6
 Inventory Service,com.smartsupplypro.inventory.enums,StockChangeReason,0,69,0,0,0,12,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.exception,ErrorResponses,0,44,0,2,0,13,0,4,0,3

@@ -24,7 +24,7 @@ public final class StockTrendSqlBuilder {
             FROM stock_history sh
             JOIN inventory_item i ON sh.item_id = i.id
             WHERE sh.created_at BETWEEN :start AND :end
-            AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+            AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
             GROUP BY CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
                             LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'))
             ORDER BY 1
@@ -80,7 +80,7 @@ public final class StockTrendSqlBuilder {
                 FROM stock_history sh
                 JOIN inventory_item i ON i.id = sh.item_id
                 WHERE sh.created_at &lt;= :end
-                  AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+                  AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
             )
             SELECT item_id, day_date, net_change, unit_price
             FROM events
@@ -144,7 +144,7 @@ public final class StockTrendSqlBuilder {
             JOIN inventory_item i ON sh.item_id = i.id
             WHERE sh.created_at BETWEEN :start AND :end
               AND sh.item_id = :itemId
-              AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+              AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
             GROUP BY CONCAT(
                        CAST(YEAR(sh.created_at) AS VARCHAR), '-',
                        LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
