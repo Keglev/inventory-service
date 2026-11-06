@@ -43,7 +43,7 @@ get:
     - $ref: '../../parameters/common.yaml#/components/parameters/sort'
   responses:
     '200':
-      description: Paginated search results (default page size 20, default sort price)
+      description: Paginated search results (default page size 20, default sort name ascending)
       content:
         application/json:
           schema:

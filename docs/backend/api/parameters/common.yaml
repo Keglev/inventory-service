@@ -31,7 +31,7 @@ components:
       description: |
         Sort criteria in format: `property,direction`.
         Multiple sort criteria can be specified. Without one the search sorts
-        by `price` ascending.
+        by `name` ascending.
         
         **Examples:**
         - `name,asc` - Sort by name ascending

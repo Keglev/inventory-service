@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.oneOf;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -18,6 +19,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -205,6 +207,19 @@ class InventoryItemControllerCreateReadTest {
                     .param("sort", "price,desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value("i-2"));
+        }
+
+        @Test
+        @WithMockUser(roles = "USER")
+        void should_sort_by_name_ascending_when_the_search_sends_no_sort() throws Exception {
+            when(inventoryItemService.searchItems(eq("be"), eq(null), eq(false), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(sample("i-4"))));
+
+            mockMvc.perform(get("/api/inventory/search").param("name", "be").param("size", "50"))
+                .andExpect(status().isOk());
+
+            verify(inventoryItemService).searchItems(eq("be"), eq(null), eq(false),
+                argThat(p -> p.getPageSize() == 50 && p.getSort().equals(Sort.by(Sort.Direction.ASC, "name"))));
         }
 
         @Test
