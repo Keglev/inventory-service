@@ -85,8 +85,8 @@ public class InventoryItemController {
             @RequestParam(required = false, defaultValue = &quot;&quot;) String name,
             @RequestParam(required = false) String supplierId,
             @RequestParam(required = false, defaultValue = &quot;false&quot;) boolean belowMinimumOnly,
-            // TODO(S-11): default sort &quot;price&quot; has no recorded reason; the item picker sends none
-            @org.springframework.data.web.PageableDefault(size = 20, sort = &quot;price&quot;) Pageable pageable) {
+            // The item pickers send no sort and list the matches in this order.
+            @org.springframework.data.web.PageableDefault(size = 20, sort = &quot;name&quot;) Pageable pageable) {
 <span class="fc" id="L90">        return inventoryItemService.searchItems(name, supplierId, belowMinimumOnly, pageable);</span>
     }
 
