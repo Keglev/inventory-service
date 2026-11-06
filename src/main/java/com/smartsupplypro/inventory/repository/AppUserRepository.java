@@ -22,8 +22,4 @@ public interface AppUserRepository extends JpaRepository<AppUser, String> {
      * @return the user, or empty if none is stored
      */
     Optional<AppUser> findByEmail(String email);
-
-    // TODO(S-7): this override adds nothing to JpaRepository.count()
-    @Override
-    long count();
 }
