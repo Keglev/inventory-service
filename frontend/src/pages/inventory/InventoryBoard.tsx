@@ -141,8 +141,6 @@ const InventoryBoard: React.FC = () => {
           onPaginationChange={state.setPaginationModel}
           sortModel={state.sortModel}
           onSortChange={state.setSortModel}
-          selectedId={state.selectedId}
-          onRowClick={state.setSelectedId}
           getRowClassName={data.getRowClassName}
           loading={data.loading}
           rowCount={data.server.total}

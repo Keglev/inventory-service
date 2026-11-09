@@ -60,7 +60,6 @@ Files above their band and below their alarm are watched:
 | `pages/analytics/blocks/StockValuePerSupplierPie.tsx` | components | 117 |
 | `pages/analytics/sections/EmployeesActivityChart.tsx` | components | 111 |
 | `app/layout/AppShell.tsx` | components | 102 |
-| `pages/inventory/components/InventoryTable.tsx` | components | 101 |
 | `pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` | dialogs (120 / 160) | 134 |
 | `pages/inventory/dialogs/EditItemDialog/EditItemForm.tsx` | dialogs | 122 |
 | `pages/inventory/dialogs/ItemFormDialog/useItemForm.ts` | hooks (80 / 120) | 120 |
@@ -70,7 +69,6 @@ Files above their band and below their alarm are watched:
 | `pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm.ts` | hooks | 103 |
 | `pages/inventory/hooks/useInventoryColumns.ts` | hooks | 88 |
 | `pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm.ts` | hooks | 88 |
-| `pages/inventory/hooks/useInventoryState.ts` | hooks | 85 |
 | `pages/inventory/hooks/useInventoryPageData.ts` | hooks | 81 |
 
 `useItemForm.ts` sits on its alarm: one more code line makes it a finding. The

@@ -32,7 +32,6 @@ vi.mock('@/features/help/components/HelpIconButton', () => ({
 const setters = vi.hoisted(() => ({
   setPaginationModel: vi.fn(),
   setSortModel: vi.fn(),
-  setSelectedId: vi.fn(),
 }));
 const tableProps = vi.hoisted(() => ({ last: null as Record<string, unknown> | null }));
 
@@ -42,7 +41,6 @@ vi.mock('@/pages/inventory/hooks/useInventoryState', () => ({
     q: '',
     supplierId: '1',
     belowMinOnly: false,
-    selectedId: null,
     pageIndex: 0,
     pageSize: 10,
     sortBy: null,
@@ -148,7 +146,6 @@ describe('InventoryBoard', () => {
     expect(tableProps.last).toMatchObject({
       onPaginationChange: setters.setPaginationModel,
       onSortChange: setters.setSortModel,
-      onRowClick: setters.setSelectedId,
     });
   });
 
@@ -159,7 +156,6 @@ describe('InventoryBoard', () => {
       q: '',
       supplierId: null,
       belowMinOnly: false,
-      selectedId: null,
       pageIndex: 0,
       pageSize: 10,
       sortBy: null,
@@ -179,7 +175,6 @@ describe('InventoryBoard', () => {
       q: '',
       supplierId: null,
       belowMinOnly: true,
-      selectedId: null,
       pageIndex: 0,
       pageSize: 10,
       sortField: 'name',

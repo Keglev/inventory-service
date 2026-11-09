@@ -10,9 +10,10 @@ filter, and mutate items through dialog workflows
 assembles handlers and data, owns dialog visibility, and renders the grid: the
 stock of all suppliers until a supplier is picked. `useInventoryState` is the
 single source of truth for filters (`supplierId`, `q`, `belowMinOnly`), MUI
-DataGrid pagination/sort models, row selection, and per-dialog open flags.
+DataGrid pagination/sort models, and per-dialog open flags; the grid keeps its
+own row selection.
 Handler hooks stay thin and encode the reset invariants: changing supplier clears
-selection and query and resets to page 0; toggling below-minimum resets paging;
+the query and resets to page 0; toggling below-minimum resets paging;
 the refresh handler resets paging and bumps a refetch signal.
 
 ## Data Fetching & Filtering

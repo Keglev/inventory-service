@@ -37,7 +37,6 @@ describe('useFilterHandlers', () => {
   it('updates supplier and resets related state', () => {
     const mockState = makeInventoryState({
       paginationModel: { page: 2, pageSize: 25 },
-      selectedId: '123',
       q: 'existing',
     });
     const { result } = renderHook(() => useFilterHandlers(mockState));
@@ -45,7 +44,6 @@ describe('useFilterHandlers', () => {
     result.current.handleSupplierChange('456');
 
     expect(mockState.setSupplierId).toHaveBeenCalledWith('456');
-    expect(mockState.setSelectedId).toHaveBeenCalledWith(null);
     expect(mockState.setQ).toHaveBeenCalledWith('');
     expect(mockState.setPaginationModel).toHaveBeenCalledWith({ page: 0, pageSize: 25 });
   });
@@ -69,15 +67,4 @@ describe('useFilterHandlers', () => {
     expect(mockState.setPaginationModel).toHaveBeenCalledWith({ page: 0, pageSize: 20 });
   });
 
-  it('keeps the selection when below minimum is turned off, with or without a supplier', () => {
-    const noSupplier = makeInventoryState({ selectedId: 'it-1' });
-    renderHook(() => useFilterHandlers(noSupplier)).result.current.handleBelowMinChange(false);
-    expect(noSupplier.setBelowMinOnly).toHaveBeenCalledWith(false);
-    expect(noSupplier.setSelectedId).not.toHaveBeenCalled();
-
-    const withSupplier = makeInventoryState({ supplierId: 'sup-1', selectedId: 'it-1' });
-    renderHook(() => useFilterHandlers(withSupplier)).result.current.handleBelowMinChange(false);
-    expect(withSupplier.setBelowMinOnly).toHaveBeenCalledWith(false);
-    expect(withSupplier.setSelectedId).not.toHaveBeenCalled();
-  });
 });

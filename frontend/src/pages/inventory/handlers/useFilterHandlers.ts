@@ -8,12 +8,10 @@
  *
  * @enterprise
  * - Three filter handlers with intentional side effects.
- *   handleSupplierChange clears selection, search, and pagination
- *   because the previously selected item and the search text do not
- *   apply to the new supplier. handleBelowMinChange clears pagination
- *   because the filtered row count usually changes; it keeps the
- *   selection, since unticking only widens the list, which still holds
- *   the selected row. handleSearchChange also resets the page index: with server-side pagination a changed
+ *   handleSupplierChange clears search and pagination because the
+ *   search text does not apply to the new supplier. handleBelowMinChange
+ *   clears pagination because the filtered row count usually changes.
+ *   handleSearchChange also resets the page index: with server-side pagination a changed
  *   search term invalidates the current page position. Debounce of the
  *   search term is handled downstream in useInventoryPageData.
  * - Pagination reset preserves the user's pageSize choice and only
@@ -43,7 +41,6 @@ export function useFilterHandlers(state: InventoryStateReturn) {
   const handleSupplierChange = useCallback(
     (newSupplierId: string | number | null) => {
       state.setSupplierId(newSupplierId);
-      state.setSelectedId(null);
       state.setQ('');
       state.setPaginationModel({ page: 0, pageSize: state.paginationModel.pageSize });
     },
