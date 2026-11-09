@@ -3,8 +3,8 @@
  * @module pages/inventory/hooks/useInventoryState
  *
  * @summary
- * Centralized state bag for the inventory page: filters, DataGrid models,
- * row selection, and five dialog open/close flags, plus their setters.
+ * Centralized state bag for the inventory page: filters, DataGrid models
+ * and five dialog open/close flags, plus their setters.
  *
  * @enterprise
  * - Single useState-bag lets handler hooks receive one state object
@@ -19,8 +19,8 @@
  * - ?belowMinimum=1 (the notification bell's link) starts the page with the
  *   below-minimum filter across all suppliers.
  * - Five independent dialog flags rather than one discriminated union.
- *   Dialogs may overlap (selection survives across open/close cycles)
- *   and an exclusive-open invariant would not match the UX.
+ *   Each dialog picks its own supplier and item, so an exclusive-open
+ *   invariant would buy nothing.
  */
 
 import * as React from 'react';
@@ -43,9 +43,6 @@ export interface InventoryState {
   paginationModel: GridPaginationModel;
   sortModel: GridSortModel;
 
-  // Selection
-  selectedId: string | null;
-
   // Dialog toggles
   openNew: boolean;
   openEditName: boolean;
@@ -63,7 +60,6 @@ export interface InventoryStateSetters {
   setBelowMinOnly: (below: boolean) => void;
   setPaginationModel: (model: GridPaginationModel) => void;
   setSortModel: (model: GridSortModel) => void;
-  setSelectedId: (id: string | null) => void;
   setOpenNew: (open: boolean) => void;
   setOpenEditName: (open: boolean) => void;
   setOpenDelete: (open: boolean) => void;
@@ -92,7 +88,6 @@ export const useInventoryState = (): InventoryState & InventoryStateSetters => {
   const [sortModel, setSortModel] = React.useState<GridSortModel>([
     { field: 'name', sort: 'asc' },
   ]);
-  const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [openNew, setOpenNew] = React.useState(false);
   const [openEditName, setOpenEditName] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
@@ -108,7 +103,6 @@ export const useInventoryState = (): InventoryState & InventoryStateSetters => {
     if (linkedBelowMinimum) {
       setBelowMinOnly(true);
       setSupplierId(null);
-      setSelectedId(null);
       setPaginationModel((m) => ({ ...m, page: 0 }));
     }
   }
@@ -119,7 +113,6 @@ export const useInventoryState = (): InventoryState & InventoryStateSetters => {
     belowMinOnly,
     paginationModel,
     sortModel,
-    selectedId,
     openNew,
     openEditName,
     openDelete,
@@ -130,7 +123,6 @@ export const useInventoryState = (): InventoryState & InventoryStateSetters => {
     setBelowMinOnly,
     setPaginationModel,
     setSortModel,
-    setSelectedId,
     setOpenNew,
     setOpenEditName,
     setOpenDelete,

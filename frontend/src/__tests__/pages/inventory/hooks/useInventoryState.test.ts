@@ -38,8 +38,6 @@ describe('useInventoryState', () => {
     expect(result.current.paginationModel).toEqual({ page: 0, pageSize: 10 });
     expect(result.current.sortModel).toEqual([{ field: 'name', sort: 'asc' }]);
 
-    expect(result.current.selectedId).toBeNull();
-
     expect(result.current.openNew).toBe(false);
     expect(result.current.openEditName).toBe(false);
     expect(result.current.openDelete).toBe(false);
@@ -100,16 +98,6 @@ describe('useInventoryState', () => {
     expect(result.current.sortModel).toEqual([{ field: 'onHand', sort: 'desc' }]);
   });
 
-  it('updates selectedId via setSelectedId', () => {
-    const { result } = setup();
-
-    act(() => result.current.setSelectedId('ITEM123'));
-    expect(result.current.selectedId).toBe('ITEM123');
-
-    act(() => result.current.setSelectedId(null));
-    expect(result.current.selectedId).toBeNull();
-  });
-
   it('toggles each dialog flag independently', () => {
     const { result } = setup();
 
@@ -161,7 +149,6 @@ describe('useInventoryState', () => {
       result.current.setBelowMinOnly(true);
       result.current.setPaginationModel({ page: 1, pageSize: 20 });
       result.current.setSortModel([{ field: 'minQty', sort: 'desc' }]);
-      result.current.setSelectedId('ITEM999');
       result.current.setOpenNew(true);
     });
 
@@ -172,7 +159,6 @@ describe('useInventoryState', () => {
     expect(result.current.paginationModel).toEqual({ page: 1, pageSize: 20 });
     expect(result.current.sortModel).toEqual([{ field: 'minQty', sort: 'desc' }]);
 
-    expect(result.current.selectedId).toBe('ITEM999');
     expect(result.current.openNew).toBe(true);
   });
 
@@ -198,13 +184,11 @@ describe('useInventoryState', () => {
     act(() => {
       result.current.setSupplierId('sup-1');
       result.current.setBelowMinOnly(false);
-      result.current.setSelectedId('it-1');
     });
 
     act(() => go('/inventory?belowMinimum=1'));
 
     expect(result.current.belowMinOnly).toBe(true);
     expect(result.current.supplierId).toBeNull();
-    expect(result.current.selectedId).toBeNull();
   });
 });

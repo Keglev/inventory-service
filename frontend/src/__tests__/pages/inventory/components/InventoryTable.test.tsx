@@ -1,16 +1,15 @@
 /**
  * @file InventoryTable.test.tsx
  * @module __tests__/pages/inventory/components/InventoryTable
- * @description DataGrid wrapper with server pagination/sorting, row-click
- * selection, stock-level row classing, and the loading overlay.
+ * @description DataGrid wrapper with server pagination/sorting, stock-level
+ * row classing, and the loading overlay.
  *
  * Contract under test:
  * - Forwards rows, columns, rowCount, pagination and sort models to the grid.
  * - getRowClassName derives numeric onHand/minQty per row (nullish -> 0).
- * - onRowClick forwards the clicked row id.
  * - Loading renders the absolute overlay spinner; hidden otherwise.
- * - Row-state sx callbacks resolve theme palette colors for selected /
- *   warning / critical classes.
+ * - Row-state sx callbacks resolve theme palette colors for the warning /
+ *   critical classes.
  *
  * The local DataGrid mock invokes the callback props (unlike the shared
  * inert stub) so the wrapper's own lambdas execute under test.
@@ -32,7 +31,6 @@ type GridMockProps = {
   onPaginationModelChange?: (model: unknown) => void;
   onSortModelChange?: (model: unknown) => void;
   getRowClassName?: (params: { row: Record<string, unknown> }) => string;
-  onRowClick?: (params: { row: Record<string, unknown> }) => void;
   sx?: Record<string, Record<string, unknown>>;
   children?: ReactNode;
 };
@@ -57,7 +55,6 @@ vi.mock('@mui/x-data-grid', () => ({
             key={String(row.id)}
             data-testid={`row-${String(row.id)}`}
             data-class={props.getRowClassName?.({ row })}
-            onClick={() => props.onRowClick?.({ row })}
           >
             {String(row.name)}
           </button>
@@ -85,7 +82,6 @@ const rows = [
 function setup(overrides: Partial<React.ComponentProps<typeof InventoryTable>> = {}) {
   const onPaginationChange = vi.fn();
   const onSortChange = vi.fn();
-  const onRowClick = vi.fn();
   const getRowClassName = vi.fn(() => 'row-warning');
 
   render(
@@ -97,8 +93,6 @@ function setup(overrides: Partial<React.ComponentProps<typeof InventoryTable>> =
         onPaginationChange={onPaginationChange}
         sortModel={[]}
         onSortChange={onSortChange}
-        selectedId={null}
-        onRowClick={onRowClick}
         getRowClassName={getRowClassName}
         loading={false}
         rowCount={2}
@@ -107,7 +101,7 @@ function setup(overrides: Partial<React.ComponentProps<typeof InventoryTable>> =
     </ThemeProvider>
   );
 
-  return { onPaginationChange, onSortChange, onRowClick, getRowClassName };
+  return { onPaginationChange, onSortChange, getRowClassName };
 }
 
 describe('InventoryTable', () => {
@@ -132,14 +126,6 @@ describe('InventoryTable', () => {
     expect(getRowClassName).toHaveBeenCalledWith(10, 2);
     // Beta row: null/undefined coerced to 0 before delegation.
     expect(getRowClassName).toHaveBeenCalledWith(0, 0);
-  });
-
-  it('forwards the clicked row id', () => {
-    const { onRowClick } = setup();
-
-    fireEvent.click(screen.getByTestId('row-b'));
-
-    expect(onRowClick).toHaveBeenCalledWith('b');
   });
 
   it('forwards pagination and sort model changes', () => {
@@ -171,7 +157,6 @@ describe('InventoryTable', () => {
     expect(lastSx).toBeDefined();
     const sx = lastSx as NonNullable<GridMockProps['sx']>;
     for (const [cls, palette] of [
-      ['& .row-selected', theme.palette.info.main],
       ['& .row-warning', theme.palette.warning.main],
       ['& .row-critical', theme.palette.error.main],
     ] as const) {

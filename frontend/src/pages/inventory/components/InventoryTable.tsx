@@ -39,8 +39,6 @@ export interface InventoryTableProps {
   onPaginationChange: (model: GridPaginationModel) => void;
   sortModel: GridSortModel;
   onSortChange: (model: GridSortModel) => void;
-  selectedId: string | null;
-  onRowClick: (id: string) => void;
   getRowClassName: (onHand: number, minQty: number) => string;
   loading: boolean;
   rowCount: number;
@@ -53,7 +51,6 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
   onPaginationChange,
   sortModel,
   onSortChange,
-  onRowClick,
   getRowClassName,
   loading,
   rowCount,
@@ -98,15 +95,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
           const minQty = Number(row.minQty ?? 0);
           return getRowClassName(onHand, minQty);
         }}
-        onRowClick={(params) => onRowClick(params.row.id)}
         sx={{
-          '& .row-selected': {
-            backgroundColor: (theme) => `${alpha(theme.palette.info.main, 0.24)} !important`,
-            boxShadow: (theme) => `inset 4px 0 0 ${theme.palette.info.main}`,
-            '&:hover': {
-              backgroundColor: (theme) => `${alpha(theme.palette.info.main, 0.36)} !important`,
-            },
-          },
           '& .row-warning': {
             backgroundColor: (theme) => `${alpha(theme.palette.warning.main, 0.24)} !important`,
             boxShadow: (theme) => `inset 4px 0 0 ${theme.palette.warning.main}`,
