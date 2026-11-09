@@ -69,13 +69,15 @@ describe('useFilterHandlers', () => {
     expect(mockState.setPaginationModel).toHaveBeenCalledWith({ page: 0, pageSize: 20 });
   });
 
-  it('clears the selection when below minimum is turned off without a supplier', () => {
+  it('keeps the selection when below minimum is turned off, with or without a supplier', () => {
     const noSupplier = makeInventoryState({ selectedId: 'it-1' });
     renderHook(() => useFilterHandlers(noSupplier)).result.current.handleBelowMinChange(false);
-    expect(noSupplier.setSelectedId).toHaveBeenCalledWith(null);
+    expect(noSupplier.setBelowMinOnly).toHaveBeenCalledWith(false);
+    expect(noSupplier.setSelectedId).not.toHaveBeenCalled();
 
     const withSupplier = makeInventoryState({ supplierId: 'sup-1', selectedId: 'it-1' });
     renderHook(() => useFilterHandlers(withSupplier)).result.current.handleBelowMinChange(false);
+    expect(withSupplier.setBelowMinOnly).toHaveBeenCalledWith(false);
     expect(withSupplier.setSelectedId).not.toHaveBeenCalled();
   });
 });
