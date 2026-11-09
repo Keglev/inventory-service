@@ -125,9 +125,10 @@ describe('itemSearch fetchers', () => {
       expect((await listItemsForSupplier('S-1')).complete).toBe(false);
     });
 
-    it('reads a flat totalElements as well', async () => {
+    it('ignores a top-level totalElements and judges by the page size', async () => {
+      // PagedModel nests the total under `page`; a top-level 5000 would read as incomplete.
       httpMock.get.mockResolvedValue({
-        data: { content: [{ id: 'I-1', name: 'Bolt' }], totalElements: 1 },
+        data: { content: [{ id: 'I-1', name: 'Bolt' }], totalElements: 5000 },
       });
 
       expect((await listItemsForSupplier('S-1')).complete).toBe(true);
