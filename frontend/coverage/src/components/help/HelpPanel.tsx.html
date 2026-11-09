@@ -225,7 +225,12 @@
 <a name='L160'></a><a href='#L160'>160</a>
 <a name='L161'></a><a href='#L161'>161</a>
 <a name='L162'></a><a href='#L162'>162</a>
-<a name='L163'></a><a href='#L163'>163</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -387,6 +392,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file HelpPanel.tsx
  * @module components/help/HelpPanel
@@ -439,7 +449,7 @@ export interface HelpPanelProps {
 &nbsp;
 const HelpPanel: React.FC&lt;HelpPanelProps&gt; = ({ width = 420, position = 'right' }) =&gt; {
   const { currentTopicId, isOpen, closeHelp } = useHelp();
-  const { t } = useTranslation('help');
+  const { t } = useTranslation(['help', 'common']);
 &nbsp;
   // WHY: topic keys are runtime strings from help/topics.ts and cannot satisfy i18next's typed key
   // union (CustomTypeOptions in resources.d.ts) — double-cast preserves return type while bypassing
@@ -487,7 +497,12 @@ const HelpPanel: React.FC&lt;HelpPanelProps&gt; = ({ width = 420, position = 'ri
         &lt;Typography variant="h6" sx={{ fontWeight: 700, flex: 1 }}&gt;
           {translate(topic.titleKey)}
         &lt;/Typography&gt;
-        &lt;IconButton onClick={closeHelp} size="small" sx={{ ml: 1 }}&gt;
+        &lt;IconButton
+          onClick={closeHelp}
+          size="small"
+          aria-label={t('common:actions.close')}
+          sx={{ ml: 1 }}
+        &gt;
           &lt;CloseIcon /&gt;
         &lt;/IconButton&gt;
       &lt;/Box&gt;
