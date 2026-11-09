@@ -186,9 +186,7 @@
 <a name='L121'></a><a href='#L121'>121</a>
 <a name='L122'></a><a href='#L122'>122</a>
 <a name='L123'></a><a href='#L123'>123</a>
-<a name='L124'></a><a href='#L124'>124</a>
-<a name='L125'></a><a href='#L125'>125</a>
-<a name='L126'></a><a href='#L126'>126</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L124'></a><a href='#L124'>124</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -268,8 +266,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -277,8 +274,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -326,8 +322,8 @@
  *   locale and format changes re-render columns. Field identifiers stay
  *   constant across renders so DataGrid's internal column-key cache is
  *   stable.
- * - Value getters fall back from onHand to quantity and from minQty to
- *   minimumQuantity; rows arrive normalized, so the fallbacks are defensive.
+ * - Value getters read the normalized row (onHand, minQty); the backend names
+ *   are mapped once in toInventoryRow.
  * - The date column shows the backend's createdAt (InventoryItemDTO); the
  *   backend has no update timestamp, so the column is labeled "Created".
  * - Placeholder glyph is rendered for missing or unparseable values so
@@ -393,8 +389,7 @@ export const useInventoryColumns = (showSupplier = false): GridColDef[] =&gt; {
         headerName: t('inventory:table.onHand'),
         type: 'number',
         width: 110,
-        valueGetter: (_value: unknown, row: (InventoryRow &amp; { quantity?: number | null }) | null) =&gt;
-          resolveOnHand(row),
+        valueGetter: (_value: unknown, row: InventoryRow | null) =&gt; resolveOnHand(row),
         valueFormatter: (value: unknown) =&gt; formatCount(value, userPreferences.numberFormat),
       },
       {
@@ -402,8 +397,7 @@ export const useInventoryColumns = (showSupplier = false): GridColDef[] =&gt; {
         headerName: t('inventory:table.minQty'),
         type: 'number',
         width: 120,
-        valueGetter: (_value: unknown, row: (InventoryRow &amp; { minimumQuantity?: number | string | null }) | null) =&gt;
-          resolveMinQty(row),
+        valueGetter: (_value: unknown, row: InventoryRow | null) =&gt; resolveMinQty(row),
         valueFormatter: (value: unknown) =&gt; formatCount(value, userPreferences.numberFormat),
       },
       {
