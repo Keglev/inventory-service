@@ -13,8 +13,6 @@
 
 import * as React from 'react';
 import { Dialog } from '@mui/material';
-import { useToast } from '../../../../context/toast/ToastContext';
-import { useTranslation } from 'react-i18next';
 import { useDeleteSupplierForm } from './useDeleteSupplierForm';
 import { DeleteSupplierSearch } from './DeleteSupplierSearch';
 import { DeleteSupplierConfirmation } from './DeleteSupplierConfirmation';
@@ -51,11 +49,7 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
   onClose,
   onSupplierDeleted,
 }) => {
-  const { t } = useTranslation(['suppliers']);
-  const toast = useToast();
-
   const form = useDeleteSupplierForm(() => {
-    toast(t('suppliers:actions.deleteSuccess'), 'success');
     onSupplierDeleted();
     onClose();
   });

@@ -24,8 +24,7 @@
     "create": "Add Supplier",
     "edit": "Edit",
     "delete": "Delete",
-    "clear": "Clear",
-    "deleteSuccess": "Supplier removed from database"
+    "clear": "Clear"
   },
   "buttons": {
     "reviewChanges": "Review Changes"

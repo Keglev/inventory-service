@@ -24,8 +24,7 @@
     "create": "Lieferant hinzufügen",
     "edit": "Bearbeiten",
     "delete": "Löschen",
-    "clear": "Auswahl aufheben",
-    "deleteSuccess": "Lieferant aus der Datenbank entfernt"
+    "clear": "Auswahl aufheben"
   },
   "buttons": {
     "reviewChanges": "Änderungen überprüfen"

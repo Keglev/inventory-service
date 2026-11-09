@@ -27,7 +27,6 @@ import {
   Stack,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useToast } from '../../../../context/toast/ToastContext';
 import { HelpIconButton } from '../../../../features/help/components/HelpIconButton';
 import { useEditSupplierForm } from './useEditSupplierForm';
 import { EditSupplierSearchStep } from './EditSupplierSearchStep';
@@ -67,12 +66,10 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   onSupplierUpdated,
 }) => {
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
-  const toast = useToast();
 
   // Form logic hook. The hook resets the form before it calls back, so the
   // success path only closes; it cannot call handleClose, declared below.
   const form = useEditSupplierForm(() => {
-    toast(t('suppliers:status.updated'), 'success');
     onSupplierUpdated();
     onClose();
   });

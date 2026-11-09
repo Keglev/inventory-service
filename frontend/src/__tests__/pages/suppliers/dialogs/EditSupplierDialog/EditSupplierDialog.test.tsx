@@ -10,9 +10,8 @@
  * - Implements review action: uses `handleSubmit` callback to populate pending changes and open confirmation.
  * - Shows/clears error alert via `formError` + `setFormError('')`.
  * - When `useEditSupplierForm` invokes the provided success callback:
- *   - shows success toast,
- *   - calls `onSupplierUpdated()`,
- *   - and closes/reset the dialog.
+ *   - calls `onSupplierUpdated()` (the parent shows the success toast),
+ *   - and closes the dialog.
  *
  * Out of scope:
  * - `useEditSupplierForm` internal logic (covered by hook tests).
@@ -303,7 +302,7 @@ describe('EditSupplierDialog', () => {
     expect(form.resetForm).not.toHaveBeenCalled();
   });
 
-  it('invokes success callback returned to form hook', () => {
+  it('notifies the parent and closes without a toast of its own when the update succeeds', () => {
     const onClose = vi.fn();
     const onSupplierUpdated = vi.fn();
     const form = createEditSupplierDialogForm();
@@ -314,7 +313,8 @@ describe('EditSupplierDialog', () => {
       successCallback();
     });
 
-    expect(mocks.toast).toHaveBeenCalledWith('Supplier information updated successfully!', 'success');
+    // The board handler toasts; the shell's single Snackbar would show only the later call.
+    expect(mocks.toast).not.toHaveBeenCalled();
     expect(onSupplierUpdated).toHaveBeenCalledTimes(1);
     // The form hook resets itself before this callback runs (its own spec).
     expect(form.resetForm).not.toHaveBeenCalled();
