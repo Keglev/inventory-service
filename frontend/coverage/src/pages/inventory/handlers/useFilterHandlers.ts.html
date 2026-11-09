@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -129,8 +129,8 @@
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -182,6 +182,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
@@ -208,9 +210,8 @@
  *   handleSupplierChange clears selection, search, and pagination
  *   because the previously selected item and the search text do not
  *   apply to the new supplier. handleBelowMinChange clears pagination
- *   because the filtered row count usually changes; it keeps the
- *   selection, since unticking only widens the list, which still holds
- *   the selected row. handleSearchChange also resets the page index: with server-side pagination a changed
+ *   because the filtered row count usually changes. handleSearchChange
+ *   also resets the page index: with server-side pagination a changed
  *   search term invalidates the current page position. Debounce of the
  *   search term is handled downstream in useInventoryPageData.
  * - Pagination reset preserves the user's pageSize choice and only
@@ -250,6 +251,8 @@ export function useFilterHandlers(state: InventoryStateReturn) {
   const handleBelowMinChange = useCallback(
     (value: boolean) =&gt; {
       state.setBelowMinOnly(value);
+      // Unticking without a supplier also clears the selected row.
+      if (!value &amp;&amp; !state.supplierId) state.setSelectedId(null);
       state.setPaginationModel({ page: 0, pageSize: state.paginationModel.pageSize });
     },
     [state]
