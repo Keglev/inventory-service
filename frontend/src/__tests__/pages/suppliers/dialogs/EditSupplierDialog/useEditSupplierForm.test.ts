@@ -22,7 +22,7 @@
  *   - resets search, confirmation state, and form state
  *
  * Out of scope:
- * - UI rendering and toast wiring (validated by `EditSupplierDialog` component tests).
+ * - UI rendering (`EditSupplierDialog` tests) and the success toast (`useDialogHandlers` tests).
  * - i18n key correctness (assertions read the English copy via tEn).
  *
  * Test strategy:

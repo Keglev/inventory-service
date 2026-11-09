@@ -10,6 +10,7 @@
  * - Dialog close (via search cancel) resets the workflow unless deletion is in progress.
  * - Confirmation cancel resets selection/confirmation/error state.
  * - Confirmation confirm delegates to `handleConfirmDelete`.
+ * - On success it notifies the parent and closes; the success toast is the parent's.
  *
  * Out of scope:
  * - `useDeleteSupplierForm` internal deletion logic (covered by hook-level tests).
@@ -231,7 +232,7 @@ describe('DeleteSupplierDialog', () => {
     expect(formState.handleConfirmDelete).toHaveBeenCalledTimes(1);
   });
 
-  it('toasts, notifies the parent and closes when the deletion succeeds', () => {
+  it('notifies the parent and closes without a toast of its own when the deletion succeeds', () => {
     const onClose = vi.fn();
     const onSupplierDeleted = vi.fn();
     renderDialog({ onClose, onSupplierDeleted });
@@ -241,7 +242,8 @@ describe('DeleteSupplierDialog', () => {
     const onDeleted = mocks.useDeleteSupplierForm.mock.calls[0]?.[0] as () => void;
     onDeleted();
 
-    expect(mocks.toast).toHaveBeenCalledWith('Supplier removed from database', 'success');
+    // The board handler toasts; the shell's single Snackbar would show only the later call.
+    expect(mocks.toast).not.toHaveBeenCalled();
     expect(onSupplierDeleted).toHaveBeenCalledTimes(1);
     expect(onClose).toHaveBeenCalledTimes(1);
   });

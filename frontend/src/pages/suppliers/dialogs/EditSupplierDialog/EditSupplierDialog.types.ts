@@ -7,7 +7,7 @@
  *
  * @enterprise
  * - Types live in a sibling file so the component file stays free of large interface blocks
- * - onSupplierUpdated is fired AFTER the backend returns 200 (the dialog has shown its own toast); the parent refreshes the list
+ * - onSupplierUpdated is fired AFTER the backend returns 200; the parent shows the success toast and refreshes the list
  */
 
 /**
