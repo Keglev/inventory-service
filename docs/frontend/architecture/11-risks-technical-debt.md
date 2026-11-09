@@ -68,7 +68,7 @@ Files above their band and below their alarm are watched:
 | `pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm.ts` | hooks | 107 |
 | `pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm.ts` | hooks | 103 |
 | `pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm.ts` | hooks | 103 |
-| `pages/inventory/hooks/useInventoryColumns.ts` | hooks | 90 |
+| `pages/inventory/hooks/useInventoryColumns.ts` | hooks | 88 |
 | `pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm.ts` | hooks | 88 |
 | `pages/inventory/hooks/useInventoryState.ts` | hooks | 85 |
 | `pages/inventory/hooks/useInventoryPageData.ts` | hooks | 81 |

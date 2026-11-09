@@ -11,8 +11,8 @@
  *   locale and format changes re-render columns. Field identifiers stay
  *   constant across renders so DataGrid's internal column-key cache is
  *   stable.
- * - Value getters fall back from onHand to quantity and from minQty to
- *   minimumQuantity; rows arrive normalized, so the fallbacks are defensive.
+ * - Value getters read the normalized row (onHand, minQty); the backend names
+ *   are mapped once in toInventoryRow.
  * - The date column shows the backend's createdAt (InventoryItemDTO); the
  *   backend has no update timestamp, so the column is labeled "Created".
  * - Placeholder glyph is rendered for missing or unparseable values so
@@ -78,8 +78,7 @@ export const useInventoryColumns = (showSupplier = false): GridColDef[] => {
         headerName: t('inventory:table.onHand'),
         type: 'number',
         width: 110,
-        valueGetter: (_value: unknown, row: (InventoryRow & { quantity?: number | null }) | null) =>
-          resolveOnHand(row),
+        valueGetter: (_value: unknown, row: InventoryRow | null) => resolveOnHand(row),
         valueFormatter: (value: unknown) => formatCount(value, userPreferences.numberFormat),
       },
       {
@@ -87,8 +86,7 @@ export const useInventoryColumns = (showSupplier = false): GridColDef[] => {
         headerName: t('inventory:table.minQty'),
         type: 'number',
         width: 120,
-        valueGetter: (_value: unknown, row: (InventoryRow & { minimumQuantity?: number | string | null }) | null) =>
-          resolveMinQty(row),
+        valueGetter: (_value: unknown, row: InventoryRow | null) => resolveMinQty(row),
         valueFormatter: (value: unknown) => formatCount(value, userPreferences.numberFormat),
       },
       {

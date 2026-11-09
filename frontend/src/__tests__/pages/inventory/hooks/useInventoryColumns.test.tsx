@@ -6,7 +6,7 @@
  *
  * Scope:
  * - Ensures required columns exist and key sizing defaults are stable.
- * - Verifies valueGetter fallbacks (e.g., backend compatibility fields).
+ * - Verifies valueGetter results and their placeholders for missing values.
  * - Verifies formatter behavior for empty values.
  * - Verifies referential stability across re-renders (memoization intent).
  *
@@ -124,13 +124,13 @@ describe('useInventoryColumns', () => {
     expect(codeCol?.valueGetter?.(undefined, rowWithoutCode)).toBe('—');
   });
 
-  it('normalizes the onHand column from onHand → quantity → 0', () => {
+  it('reads the onHand column value', () => {
     const { result } = setup();
 
     const onHandCol = getColumnByField(result.current, 'onHand') as
       | {
           type?: string;
-          valueGetter?: ValueGetter<InventoryRow & { quantity?: number }>;
+          valueGetter?: ValueGetter<InventoryRow>;
         }
       | undefined;
 
@@ -141,22 +141,17 @@ describe('useInventoryColumns', () => {
     const rowWithOnHand: InventoryRow = { id: '1', name: 'Test', onHand: 100, minQty: 5 };
     expect(onHandCol?.valueGetter?.(undefined, rowWithOnHand)).toBe(100);
 
-    const rowWithQuantity = { id: '2', name: 'Test', quantity: 50, minQty: 5 } as InventoryRow & {
-      quantity: number;
-    };
-    expect(onHandCol?.valueGetter?.(undefined, rowWithQuantity)).toBe(50);
-
     const rowDefaultZero: InventoryRow = { id: '3', name: 'Test', minQty: 5, onHand: 0 };
     expect(onHandCol?.valueGetter?.(undefined, rowDefaultZero)).toBe(0);
   });
 
-  it('normalizes the minQty column from minQty → minimumQuantity(string) → 0', () => {
+  it('reads the minQty column value', () => {
     const { result } = setup();
 
     const minQtyCol = getColumnByField(result.current, 'minQty') as
       | {
           type?: string;
-          valueGetter?: ValueGetter<InventoryRow & { minimumQuantity?: string }>;
+          valueGetter?: ValueGetter<InventoryRow>;
         }
       | undefined;
 
@@ -166,14 +161,6 @@ describe('useInventoryColumns', () => {
 
     const rowWithMinQty: InventoryRow = { id: '1', name: 'Test', onHand: 10, minQty: 15 };
     expect(minQtyCol?.valueGetter?.(undefined, rowWithMinQty)).toBe(15);
-
-    const rowWithMinimumQuantity = {
-      id: '2',
-      name: 'Test',
-      onHand: 10,
-      minimumQuantity: '20',
-    } as InventoryRow & { minimumQuantity: string };
-    expect(minQtyCol?.valueGetter?.(undefined, rowWithMinimumQuantity)).toBe(20);
 
     const rowDefaultZero: InventoryRow = { id: '3', name: 'Test', onHand: 10, minQty: 0 };
     expect(minQtyCol?.valueGetter?.(undefined, rowDefaultZero)).toBe(0);
