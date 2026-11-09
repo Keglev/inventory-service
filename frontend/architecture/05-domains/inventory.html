@@ -121,11 +121,11 @@
         <code>useInventoryState</code> is the single source of truth for
         filters (<code>supplierId</code>, <code>q</code>,
         <code>belowMinOnly</code>), MUI DataGrid pagination/sort models,
-        row selection, and per-dialog open flags. Handler hooks stay
-        thin and encode the reset invariants: changing supplier clears
-        selection and query and resets to page 0; toggling below-minimum
-        resets paging; the refresh handler resets paging and bumps a
-        refetch signal.</p>
+        and per-dialog open flags; the grid keeps its own row selection.
+        Handler hooks stay thin and encode the reset invariants:
+        changing supplier clears the query and resets to page 0;
+        toggling below-minimum resets paging; the refresh handler resets
+        paging and bumps a refetch signal.</p>
         <h2 id="data-fetching-filtering">Data Fetching &amp;
         Filtering</h2>
         <p><code>handlers/useDataFetchingLogic.ts</code> adapts UI state
