@@ -55,7 +55,7 @@ Files above their band and below their alarm are watched:
 | `app/settings/sections/LanguageRegionSettingsSection.tsx` | components | 130 |
 | `pages/analytics/blocks/LowStockTable.tsx` | components | 128 |
 | `pages/dashboard/blocks/LowStockMini.tsx` | components | 125 |
-| `components/help/HelpPanel.tsx` | components | 120 |
+| `components/help/HelpPanel.tsx` | components | 125 |
 | `components/search/ListSearchField.tsx` | components | 119 |
 | `pages/analytics/blocks/StockValuePerSupplierPie.tsx` | components | 117 |
 | `pages/analytics/sections/EmployeesActivityChart.tsx` | components | 111 |
