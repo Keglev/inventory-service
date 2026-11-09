@@ -5,9 +5,8 @@
  * grid columns.
  *
  * Contract under test:
- * - Row-shape tolerance: normalized fields (onHand, minQty) win, backend
- *   fields (quantity, minimumQuantity incl. numeric strings) are accepted,
- *   absent/malformed values degrade to 0 or null instead of crashing.
+ * - Counts read the normalized fields (onHand, minQty); absent or malformed
+ *   values degrade to 0 or null instead of crashing.
  * - totalValue prefers the server-computed figure and falls back to
  *   price x onHand.
  * - Count/money formatters honor the user's number-format token and render an em-dash for
@@ -37,18 +36,14 @@ describe('resolveOnHand', () => {
     expect(resolveOnHand(null)).toBe(0);
   });
 
-  it('prefers the normalized onHand count', () => {
-    expect(resolveOnHand(row({ onHand: 5, quantity: 9 }))).toBe(5);
+  it('returns the onHand count', () => {
+    expect(resolveOnHand(row({ onHand: 5 }))).toBe(5);
   });
 
-  it('falls back to the backend quantity when onHand is absent or malformed', () => {
-    expect(resolveOnHand(row({ quantity: 9 }))).toBe(9);
-    expect(resolveOnHand(row({ onHand: Number.NaN, quantity: 9 }))).toBe(9);
-  });
-
-  it('returns 0 when both fields are absent or malformed', () => {
+  it('returns 0 when onHand is absent or not finite', () => {
     expect(resolveOnHand(row({}))).toBe(0);
-    expect(resolveOnHand(row({ onHand: Infinity, quantity: null }))).toBe(0);
+    expect(resolveOnHand(row({ onHand: Number.NaN }))).toBe(0);
+    expect(resolveOnHand(row({ onHand: Infinity }))).toBe(0);
   });
 });
 
@@ -57,20 +52,14 @@ describe('resolveMinQty', () => {
     expect(resolveMinQty(null)).toBe(0);
   });
 
-  it('prefers the normalized numeric minQty', () => {
-    expect(resolveMinQty(row({ minQty: 3, minimumQuantity: 8 }))).toBe(3);
+  it('returns the minQty value', () => {
+    expect(resolveMinQty(row({ minQty: 3 }))).toBe(3);
   });
 
-  it('accepts the backend minimumQuantity, including numeric strings', () => {
-    expect(resolveMinQty(row({ minimumQuantity: 8 }))).toBe(8);
-    expect(resolveMinQty(row({ minimumQuantity: '12' }))).toBe(12);
-  });
-
-  it('degrades malformed values to 0', () => {
-    expect(resolveMinQty(row({ minimumQuantity: 'abc' }))).toBe(0);
-    expect(resolveMinQty(row({ minimumQuantity: '   ' }))).toBe(0);
-    expect(resolveMinQty(row({ minQty: Number.NaN }))).toBe(0);
+  it('returns 0 when minQty is absent, null or not finite', () => {
     expect(resolveMinQty(row({}))).toBe(0);
+    expect(resolveMinQty(row({ minQty: null }))).toBe(0);
+    expect(resolveMinQty(row({ minQty: Number.NaN }))).toBe(0);
   });
 });
 

@@ -4,9 +4,9 @@
  * @summary Pure value resolvers and formatters for the inventory grid columns.
  * @enterprise
  * Kept apart from useInventoryColumns so value resolution lives apart from the
- * column layout. Rows reach the grid normalized (getInventoryPage -> toInventoryRow:
- * onHand, minQty); the fallbacks to raw backend names (quantity, minimumQuantity,
- * string numerics) are defensive. All functions are pure and defensive: absent or malformed values render as 0,
+ * column layout. Rows reach the grid normalized (getInventoryPage -> toInventoryRow maps
+ * quantity -> onHand and minimumQuantity -> minQty, parsing numeric strings), so the
+ * resolvers read only the normalized names. All functions are pure and defensive: absent or malformed values render as 0,
  * null, or an em-dash instead of crashing a cell. Formatters take the user's number-format
  * preference as an argument so the module stays state-free. Date cells are rendered by the
  * shared formatDateCell in utils/formatters, which the supplier grid uses too.
@@ -15,30 +15,16 @@ import type { InventoryRow } from '../../../api/inventory/types';
 import { formatNumber } from '../../../utils/formatters';
 import type { NumberFormat } from '../../../context/settings/SettingsContext.types';
 
-/** Prefer the normalized onHand count; fall back to the backend quantity field. */
-export function resolveOnHand(
-  row: (InventoryRow & { quantity?: number | null }) | null
-): number {
+/** On-hand count; 0 for a missing row or a non-finite value. */
+export function resolveOnHand(row: InventoryRow | null): number {
   if (!row) return 0;
-  const fromNormalized =
-    typeof row.onHand === 'number' && Number.isFinite(row.onHand) ? row.onHand : undefined;
-  const fromBackend =
-    typeof row.quantity === 'number' && Number.isFinite(row.quantity) ? row.quantity : undefined;
-  return fromNormalized ?? fromBackend ?? 0;
+  return Number.isFinite(row.onHand) ? row.onHand : 0;
 }
 
-/** Accept minQty or backend minimumQuantity, tolerating numeric strings. */
-export function resolveMinQty(
-  row: (InventoryRow & { minimumQuantity?: number | string | null }) | null
-): number {
+/** Minimum quantity; 0 when absent (null) or non-finite. */
+export function resolveMinQty(row: InventoryRow | null): number {
   if (!row) return 0;
-  const raw = row.minQty ?? row.minimumQuantity ?? 0;
-  if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
-  if (typeof raw === 'string' && raw.trim() !== '') {
-    const parsed = Number(raw);
-    return Number.isFinite(parsed) ? parsed : 0;
-  }
-  return 0;
+  return typeof row.minQty === 'number' && Number.isFinite(row.minQty) ? row.minQty : 0;
 }
 
 /** Unit price or null when absent/malformed (null renders as an em-dash). */
