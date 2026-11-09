@@ -25,6 +25,7 @@
 
 import http from '../httpClient';
 import { INVENTORY_BASE } from './constants';
+import { extractPageTotal } from './responseExtraction';
 import type { ItemRef } from './types';
 
 /** Maps /api/inventory/search rows (InventoryItemDTO: id, name, sku, supplierId) to ItemRef[]; rows without id or name are dropped. */
@@ -45,14 +46,6 @@ function extractPageContent(data: unknown): unknown[] {
     if (typeof data !== 'object' || data === null) return [];
     const content = (data as Record<string, unknown>).content;
     return Array.isArray(content) ? content : [];
-}
-
-/** Total row count of a Spring Page envelope ({ page: { totalElements } } or a flat totalElements); undefined when absent. */
-function extractPageTotal(data: unknown): number | undefined {
-    if (typeof data !== 'object' || data === null) return undefined;
-    const envelope = data as { totalElements?: unknown; page?: { totalElements?: unknown } };
-    const total = envelope.page?.totalElements ?? envelope.totalElements;
-    return typeof total === 'number' ? total : undefined;
 }
 
 /**
