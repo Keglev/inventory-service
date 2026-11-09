@@ -13,7 +13,7 @@
  * - We mock i18n to return keys, making assertions stable and language-agnostic.
  */
 
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -107,16 +107,7 @@ describe('HelpPanel', () => {
     setup({ isOpen: true, currentTopicId: 'test.topic' });
     const user = userEvent.setup();
 
-    // We scope to the dialog so we don't accidentally click unrelated buttons.
-    const dialog = screen.getByRole('dialog');
-
-    // If the component doesn't provide an accessible name for the close button,
-    // we fall back to selecting the first button in the dialog header area.
-    const header = within(dialog).getByText('help:test.title').closest('div');
-    expect(header).not.toBeNull();
-
-    const [closeButton] = within(header as HTMLElement).getAllByRole('button');
-    await user.click(closeButton);
+    await user.click(screen.getByRole('button', { name: 'common:actions.close' }));
 
     expect(mockCloseHelp).toHaveBeenCalledTimes(1);
   });

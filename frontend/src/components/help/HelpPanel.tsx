@@ -50,7 +50,7 @@ export interface HelpPanelProps {
 
 const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }) => {
   const { currentTopicId, isOpen, closeHelp } = useHelp();
-  const { t } = useTranslation('help');
+  const { t } = useTranslation(['help', 'common']);
 
   // WHY: topic keys are runtime strings from help/topics.ts and cannot satisfy i18next's typed key
   // union (CustomTypeOptions in resources.d.ts) — double-cast preserves return type while bypassing
@@ -98,7 +98,12 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
         <Typography variant="h6" sx={{ fontWeight: 700, flex: 1 }}>
           {translate(topic.titleKey)}
         </Typography>
-        <IconButton onClick={closeHelp} size="small" sx={{ ml: 1 }}>
+        <IconButton
+          onClick={closeHelp}
+          size="small"
+          aria-label={t('common:actions.close')}
+          sx={{ ml: 1 }}
+        >
           <CloseIcon />
         </IconButton>
       </Box>
