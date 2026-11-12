@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -180,7 +180,14 @@
 <a name='L115'></a><a href='#L115'>115</a>
 <a name='L116'></a><a href='#L116'>116</a>
 <a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -237,7 +244,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -272,10 +281,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -303,7 +315,7 @@
  *
  * @summary
  * DataGrid wrapper for the inventory list with server-side pagination
- * and sorting, row selection by click, and stock-level row coloring.
+ * and sorting, the user's table density, and stock-level row coloring.
  *
  * @enterprise
  * - Server-side pagination and sorting (paginationMode/sortingMode
@@ -330,6 +342,7 @@ import type { GridColDef, GridPaginationModel, GridSortModel } from '@mui/x-data
 import { Box, CircularProgress, Stack } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import type { InventoryRow } from '../../../api/inventory/types';
+import { useSettings } from '../../../hooks/useSettings';
 &nbsp;
 export interface InventoryTableProps {
   rows: InventoryRow[];
@@ -354,6 +367,8 @@ export const InventoryTable: React.FC&lt;InventoryTableProps&gt; = ({
   loading,
   rowCount,
 }) =&gt; {
+  const { userPreferences } = useSettings();
+&nbsp;
   return (
     &lt;Box sx={{ width: '100%', position: 'relative' }}&gt;
       {/* No fixed height: the data grid sizes to its rows when the parent is
@@ -388,6 +403,9 @@ export const InventoryTable: React.FC&lt;InventoryTableProps&gt; = ({
         rowCount={rowCount}
         pageSizeOptions={[10, 25, 50]}
         loading={loading}
+        // The theme makes every grid compact by default; the preference picks
+        // compact (36 px rows) or MUI's standard density (52 px) here.
+        density={userPreferences.tableDensity === 'compact' ? 'compact' : 'standard'}
         getRowClassName={(params) =&gt; {
           const row = params.row as InventoryRow;
           const onHand = Number(row.onHand ?? 0);
