@@ -182,8 +182,17 @@
         <tbody>
         <tr class="odd">
         <td>OAuth2 state cookie</td>
-        <td><code>OAUTH2_AUTH_REQUEST</code>, HTTP-only, TTL 180 s</td>
-        <td>Configurable via <code>AppProperties.Cookie</code></td>
+        <td><code>OAUTH2_AUTH_REQUEST</code>, <code>HttpOnly</code>,
+        <code>Secure</code>, <code>SameSite=Lax</code>, 180 s
+        (<code>AppProperties.Cookie</code>), cleared by the
+        callback</td>
+        <td>No server session exists before sign-in, and a redeploy
+        between the redirect to Google and the callback does not lose
+        the request. Not signed: <code>state</code>, the ID token nonce,
+        the redirect URI and the allow-list make a changed cookie fail
+        only its own login (<a
+        href="09-decisions/adr-0007-cross-origin-auth-cookie.html">ADR-0007</a>,
+        amendment 2026-11-12)</td>
         </tr>
         <tr class="even">
         <td>Session cookie</td>

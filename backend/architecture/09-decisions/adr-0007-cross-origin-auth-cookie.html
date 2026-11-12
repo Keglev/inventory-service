@@ -328,6 +328,47 @@
         <code>/auth</code>, the SPA’s callback route). Where this record
         says <code>{validatedOrigin}/auth</code>, read
         <code>{validatedOrigin}{landingPath}</code>.</p>
+        <h2
+        id="amendment-2026-11-12-why-the-authorization-request-still-lives-in-a-cookie">Amendment
+        2026-11-12: why the authorization request still lives in a
+        cookie</h2>
+        <p>The cookie-backed authorization-request repository was chosen
+        for a split, two-provider deployment with no sticky session.
+        That reason no longer applies: one backend container serves
+        every request (ADR-0012), and the login session itself is a
+        server session (<code>JSESSIONID</code>, in the container’s
+        memory). The repository stays, for two reasons that hold on one
+        container:</p>
+        <ul>
+        <li><strong>No server session before sign-in.</strong> The
+        default repository stores the request in the HTTP session, so
+        every click on “Sign in”, finished or abandoned, would create
+        one. With the cookie, a session exists only after a successful
+        login.</li>
+        <li><strong>A redeploy cannot break a login in
+        progress.</strong> Sessions live in memory, and the backend is
+        redeployed automatically on every release. A request stored in
+        the session is lost when the container is replaced between the
+        redirect to Google and the callback; the cookie survives it for
+        its 180 seconds.</li>
+        </ul>
+        <p>The cookie is HttpOnly, Secure, <code>SameSite=Lax</code>
+        (the callback from Google is a top-level GET navigation, which
+        <code>Lax</code> admits) and is cleared when the callback reads
+        it. It is not signed or encrypted, on purpose. Changing it can
+        only break the login of the browser that holds it: Spring
+        Security compares the callback’s <code>state</code> with the
+        stored one, checks the ID token’s nonce against the stored nonce
+        (<code>OidcAuthorizationCodeAuthenticationProvider</code>,
+        Spring Security 7.1), the redirect URI goes back to Google with
+        the code and must match the one the code was issued for, and
+        only an allow-listed e-mail address can complete a sign-in
+        (ADR-0011). Signing it would add a key to manage and rotate on
+        the host and protect nothing these checks do not already
+        protect.</p>
+        <p>Where this record still says <code>SameSite=None</code> for
+        these cookies, read <code>SameSite=Lax</code> (currency note of
+        2026-08-28).</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a href="../05-building-blocks.html#cross-cutting">§5
@@ -366,6 +407,11 @@
       <li><a href="#amendment-2026-11-06-one-landing-path"
       id="toc-amendment-2026-11-06-one-landing-path">Amendment
       2026-11-06: one landing path</a></li>
+      <li><a
+      href="#amendment-2026-11-12-why-the-authorization-request-still-lives-in-a-cookie"
+      id="toc-amendment-2026-11-12-why-the-authorization-request-still-lives-in-a-cookie">Amendment
+      2026-11-12: why the authorization request still lives in a
+      cookie</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
