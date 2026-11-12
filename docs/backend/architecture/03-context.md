@@ -71,8 +71,9 @@ graph TB
   [ADR 0007](09-decisions/adr-0007-cross-origin-auth-cookie.md); that ADR predates
   the serve-time rewrite and describes the direct cross-origin path, not the active
   proxied topology.
-- **Local development**: Vite's dev server proxies `/api` to `localhost:8080`; Spring
-  Security CORS is enabled for `localhost:3000` only in the default profile.
+- **Local development**: Vite's dev server proxies `/api` to the backend on
+  `localhost:8081` (`DEV_PROXY_TARGET` overrides it); the default profile's CORS list
+  admits the Vite origins on port 5173.
 - **Demo mode**: `AppProperties.demoReadonly` allows unauthenticated read-only access
   without removing `@PreAuthorize` from any endpoint — the flag is evaluated inside
   the SpEL expression, not by bypassing the security filter chain.

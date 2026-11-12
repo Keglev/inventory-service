@@ -2,9 +2,8 @@
 
 ## Controller Layer
 
-Eleven `@RestController` classes form the HTTP boundary, grouped by domain path; a
-twelfth class, `RootRedirectController`, is a plain `@Controller` that redirects the
-site root.
+Ten `@RestController` classes form the HTTP boundary, grouped by domain path;
+`RootRedirectController`, a plain `@Controller`, redirects the site root.
 
 | Controller | Base path | Responsibility |
 |---|---|---|
@@ -13,17 +12,17 @@ site root.
 | `InventoryItemPatchController` | `/api/inventory` | Price and quantity patch operations (kept separate to keep each class focused) |
 | `AnalyticsController` | `/api/analytics` | Dashboard and financial summaries |
 | `StockAnalyticsController` | `/api/analytics` | Stock-per-supplier, low-stock, movement |
-| `StockUpdateAnalyticsController` | `/api/analytics` | Stock update query and post |
+| `StockUpdateAnalyticsController` | `/api/analytics` | Stock update queries, as a list and paged (`/stock-updates`, `/stock-updates/page`) |
 | `StockReasonAnalyticsController` | `/api/analytics` | Update-reason breakdown |
 | `EmployeeAnalyticsController` | `/api/analytics` | Per-employee update analytics |
 | `HealthCheckController` | `/api/health` | Application and database health |
-| `AuthController` | `/api` | `/auth/me` and logout |
+| `AuthController` | `/api` | `GET /api/me`, the signed-in user's profile; sign-out is Spring Security's `POST /logout` |
 | `RootRedirectController` | `/` | Site-root redirect (plain `@Controller`) |
 
 The health endpoint runs the database ping live on every request (503 when it fails,
 designed for Oracle Free Tier auto-pausing); only the JDBC product name is cached
-after the first successful ping. Every `/api` endpoint except health, `/api/me` and
-the API logout carries `@PreAuthorize`, which a contract test enforces;
+after the first successful ping. Every `/api` endpoint except health and `/api/me`
+carries `@PreAuthorize`, which a contract test enforces;
 inbound DTOs are validated with JSR-380 (`@Valid`) before reaching the service layer.
 Controllers perform DTO conversion and response building — no business logic lives
 here.
@@ -55,7 +54,7 @@ login without the `openid` scope is rejected by `OidcOnlyUserService`.
 | `SupplierRepository` | Spring Data JPA | Core domain |
 | `InventoryItemRepository` | Spring Data JPA | `@EntityGraph(attributePaths = {"supplier"})` on `findAll()` and `searchActiveItems()` eager-loads the supplier in one JOIN, preventing N+1 on the two hot list paths |
 | `StockHistoryRepository` | Spring Data JPA | Core domain |
-| `AppUserRepository` | Spring Data JPA | Written only by `UserProvisioningService`; read by `AuthController` (`/auth/me`) and `EmployeeAnalyticsService` (display names); outside the domain mutation flow |
+| `AppUserRepository` | Spring Data JPA | Written only by `UserProvisioningService`; read by `AuthController` (`/api/me`) and `EmployeeAnalyticsService` (display names); outside the domain mutation flow |
 | `StockDetailQueryRepository` + `Impl` | Custom analytics | One SQL for H2 and Oracle; static `StockDetailSqlBuilder` |
 | `StockMetricsRepository` + `Impl` | Custom analytics | One SQL for H2 and Oracle; static `StockMetricsSqlBuilder` |
 | `StockTrendAnalyticsRepository` + `Impl` | Custom analytics | Dialect-specific SQL |
@@ -104,7 +103,7 @@ graph TB
     subgraph Controllers
         SC["SupplierController"]:::controller
         IC["InventoryItemController\nInventoryItemPatchController"]:::controller
-        AC["AnalyticsController\nStockAnalyticsController\nStockUpdateAnalyticsController"]:::controller
+        AC["AnalyticsController\nStock, StockUpdate, StockReason\nand Employee analytics controllers"]:::controller
         AuC["AuthController"]:::controller
     end
 
@@ -125,10 +124,8 @@ graph TB
     subgraph Model
         SUP["Supplier"]:::entity
         INV["InventoryItem"]:::entity
-        SH["StockHistory"]:::entity
-        AU["AppUser"]:::entity
-        SCR["StockChangeReason\n(11 values)"]:::enumNode
-        RL["Role\nADMIN / USER"]:::enumNode
+        SH["StockHistory\nreason: StockChangeReason"]:::entity
+        AU["AppUser\nrole: ADMIN / USER"]:::entity
     end
 
     subgraph CrossCutting["Cross-cutting"]
@@ -141,7 +138,8 @@ graph TB
     IC --> IS
     IS --> SHS
     AC --> AS
-    AuC --> UPS
+    SEC --> UPS
+    AuC -. reads .-> AU
 
     SS --> SR
     IS --> IR
@@ -153,14 +151,11 @@ graph TB
     SR --> SUP
     IR --> INV
     SHR --> SH
-    SH -. reason .-> SCR
-    AU -. role .-> RL
 
     classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
     classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
     classDef repository fill:#d97706,color:#fff,stroke:#b45309;
     classDef entity     fill:#374151,color:#fff,stroke:#1f2937;
-    classDef enumNode   fill:#6b7280,color:#fff,stroke:#4b5563;
     classDef crosscut   fill:#7c3aed,color:#fff,stroke:#5b21b6;
 ```
 

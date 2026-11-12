@@ -139,7 +139,7 @@ sequenceDiagram
     Google-->>Browser: 302 Redirect to /login/oauth2/code/google?code=...&state=...
     Browser->>Backend: GET /login/oauth2/code/google?code=...&state=...
     Backend->>CR: removeAuthorizationRequest(request, response)
-    CR-->>Backend: AuthorizationRequest (state verified)
+    CR-->>Backend: AuthorizationRequest (read from the cookie; state compared next)
     Backend->>Google: POST /token — exchange code (server-to-server)
     Google-->>Backend: access_token + user info (email, name)
     Note over Backend,UPS: token load — CustomOidcUserService.loadUser
@@ -159,7 +159,7 @@ sequenceDiagram
 
     UPS-->>Backend: AppUser
     Backend->>SH: onAuthenticationSuccess(request, response, authentication)
-    SH-->>Browser: Set-Cookie SESSION HTTP-only SameSite=None Secure, 302 to /auth
+    SH-->>Browser: Set-Cookie JSESSIONID HttpOnly Secure SameSite=Lax, 302 to the landing path (/auth)
 ```
 
 Before provisioning, the user service applies an access gate: an email that is

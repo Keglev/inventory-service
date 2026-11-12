@@ -47,10 +47,13 @@ classes (framework and domain exceptions) building the same `ErrorResponse` reco
 so the contract cannot drift per endpoint.
 See [ADR 0004](09-decisions/adr-0004-http-status-as-envelope.md).
 
-## Stateless Services and Horizontal Scaling
+## State and Scaling
 
-No business state is held in memory between requests. Spring Security tracks the
-authenticated principal via an HTTP-only cookie, but the backend itself treats every
-request as self-contained. Additional instances can be added behind a load balancer
-without sticky sessions or a shared cache — a property the single-container
-deployment on the shared host relies on, satisfied at zero extra cost.
+No business state is held in memory between requests: items, suppliers and the stock
+history live in the database. The login session is the one exception. Spring Security
+keeps the signed-in principal in a server session (`JSESSIONID`), held in the container's
+memory; there is no shared session store. One container serves every request on the
+shared host, so this needs no sticky routing. The cost is named: a redeploy ends every
+session, so signed-in users sign in again after a release, and a second instance would
+need sticky sessions or a shared session store first. The demo and the OAuth2 login
+round trip hold no server state.
