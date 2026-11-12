@@ -8,14 +8,14 @@ design detail.
 
 ## Stack
 
-- React 19.1 + TypeScript 6
-- Vite 7 (build and dev server)
-- MUI 7 (component library and theming)
+- React 19 + TypeScript 6
+- Vite 8 (build and dev server)
+- MUI 9 and MUI X Data Grid 9 (component library, theming, grids)
 - TanStack Query 5 (server state)
 - React Router 7 (routing)
 - Axios (HTTP client)
 - react-i18next (English and German; German is the default display language)
-- Vitest 4 + Testing Library (unit and component tests)
+- Vitest 5 + Testing Library (unit and component tests); Playwright (browser suite in CI)
 
 Requires Node >= 24.
 
@@ -26,8 +26,9 @@ Install dependencies and start the dev server:
     npm install
     npm run dev
 
-The dev server proxies API calls to the backend; set `VITE_API_BASE` to point
-at a running backend instance.
+The dev server proxies `/api`, `/oauth2` and `/logout` to a local backend on
+`http://localhost:8081`; set `DEV_PROXY_TARGET` (shell or `.env` file) to point it
+at another backend instance.
 
 ## Scripts
 

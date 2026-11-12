@@ -1,6 +1,6 @@
 # SmartSupplyPro
 
-**Enterprise Inventory Management — Java 21 / Spring Boot 4.1 backend, React 19 / TypeScript frontend**
+**Enterprise Inventory Management — Java 21 / Spring Boot 4 backend, React 19 / TypeScript frontend**
 
 ![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/backend-ci.yml/badge.svg)
 ![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/frontend-ci.yml/badge.svg)
@@ -30,24 +30,24 @@ Manual inventory tracking in small manufacturing companies leads to stock discre
 
 ## Technical Highlights
 
-- **Spring Boot 4.1 on Java 21** — migrated from Boot 3.5 / Java 17 (OpenRewrite-assisted), including the Jackson 3 port and JSpecify nullability annotations. The H2 test database is deliberately pinned to 2.3.232: Boot 4's managed 2.4.240 mis-validates Hibernate 7 converter CHECK constraints (h2database #4323) — the pin is documented and reversible.
+- **Spring Boot 4 on Java 21** — migrated from Boot 3.5 / Java 17 (OpenRewrite-assisted), including the Jackson 3 port and JSpecify nullability annotations. The H2 test database is deliberately pinned to 2.5.252: the H2 version Boot manages mis-validates Hibernate 7 converter CHECK constraints (h2database #4323) — the pin is documented in `pom.xml` with its drop condition.
 - **Weighted Average Cost (WAC) financial analytics** — stock valuation and financial summaries are computed with WAC rather than FIFO, matching how small manufacturers actually report inventory value.
 - **SAP-style soft delete with a zero-quantity gate** — inventory items are deactivated, never physically deleted; deletion is blocked (HTTP 409) until stock is zero, and the full stock history is retained as an append-only audit log.
 - **Single-path OAuth2 provisioning** — Google login (OAuth2/OIDC) provisions users through one authoritative service: find-or-create plus role-healing on every token load, with an admin allow-list. No duplicated provisioning logic across the OAuth2 and OIDC flows.
 - **Structured error contract** — all API errors return a consistent `{error, message, timestamp, fieldErrors?}` envelope from a layered `@ControllerAdvice` design (business handler ordered before the global handler, no type overlap).
 - **Flyway-versioned Oracle schema** — Flyway owns the Oracle Autonomous Database schema end to end. Production runs `ddl-auto: validate`: Hibernate checks its mappings against the migrated schema and is never allowed to alter it. The database wallet is delivered to the container at runtime as an encrypted secret and unpacked by the start script, so no credential material exists in the image or the repository.
-- **Bilingual UI with strict i18n discipline** — full English/German localization with no in-code fallback strings; missing keys fail visibly instead of silently rendering English.
-- **Client-side demo mode** — a read-only demo path that requires no backend account, so reviewers can evaluate the UI in one click.
+- **Bilingual UI with strict i18n discipline** — full English/German localization with no in-code fallback strings; keys are typed from the English JSON, so a missing static key fails the type check, and German is the fallback language at runtime.
+- **Demo mode without an account** — a client-side session whose reads the backend admits anonymously, with every identity masked; reviewers can walk every dialog in one click, and each write stops with a demo notice before any request.
 
 ---
 
 ## Security
 
 - Google OAuth2 login with role-based access control (`ADMIN`, `USER`), enforced at method level via `@PreAuthorize` — not just at the route level.
-- Session-based authentication, deliberately not JWT: the backend is an OAuth2 login client, not a resource server, so no token is ever handed to the browser. In production the frontend proxies `/api`, `/oauth2` and `/logout` server-side, which makes browser traffic same-origin; the `SameSite=None; Secure` cookie policy is retained for the direct backend host.
+- Session-based authentication, deliberately not JWT: the backend is an OAuth2 login client, not a resource server, so no token is ever handed to the browser. In production the frontend proxies `/api`, the OAuth2 paths and `/logout` server-side, which makes browser traffic same-origin; the session and login cookies are `HttpOnly; Secure; SameSite=Lax`, since the frontend and the API share a registrable domain.
 - Container images are scanned with Trivy in the CI pipeline before deployment.
 
-Provisioning design and the structured error contract are covered under [Technical Highlights](#technical-highlights); the full login flow is documented in the [Security Concepts (arc42 §8)](https://keglev.github.io/inventory-service/backend/architecture/08-concepts.html) and [ADR-0007: Cross-Origin Auth Cookie](https://keglev.github.io/inventory-service/backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.html).
+Provisioning design and the structured error contract are covered under [Technical Highlights](#technical-highlights); the full login flow is documented in the [Security Concepts (arc42 §8)](https://keglev.github.io/inventory-service/backend/architecture/08-concepts.html) and [backend ADR-0007: Cross-Origin Auth Cookie](https://keglev.github.io/inventory-service/backend/architecture/09-decisions/adr-0007-cross-origin-auth-cookie.html).
 
 ---
 
@@ -73,7 +73,7 @@ Provisioning design and the structured error contract are covered under [Technic
 ## Tech Stack
 
 **Backend**
-- Java 21, Spring Boot 4.1 (Spring Security, Spring Session, Spring Data JPA)
+- Java 21, Spring Boot 4 (Spring Security with the OAuth2 client, Spring Data JPA)
 - Oracle Autonomous Database (Always Free tier, wallet authentication)
 - Flyway migrations, Jackson 3, Lombok
 - JUnit 6 (Jupiter), Mockito, JaCoCo
@@ -119,8 +119,9 @@ npx vitest run     # test suite
 
 ## Testing & Code Quality
 
-- **Backend:** 613 tests — JUnit 6 + Mockito unit tests, `@WebMvcTest` controller slices with Spring Security integration, `@DataJpaTest` persistence tests on H2 in Oracle compatibility mode.
-- **Frontend:** 1,608 tests across 251 files — Vitest + React Testing Library, covering components, hooks, API fetchers, and i18n key resolution in both locales. Coverage: 99% statements, 97% branches, 99% lines.
+- **Backend:** JUnit 6 + Mockito unit tests, `@WebMvcTest` controller slices with Spring Security integration, `@DataJpaTest` persistence tests on H2 in Oracle compatibility mode; the build fails below the JaCoCo branch-coverage floor.
+- **Frontend:** Vitest + React Testing Library, covering components, hooks, API fetchers and i18n key resolution in both locales; the build fails below the coverage thresholds in `vitest.config.ts`.
+- **Browser suite:** Playwright runs the frontend against a backend built from the same commit in every CI run that touches either tier.
 - **Coverage** is generated on every CI build and published:
   - [Backend coverage (JaCoCo)](https://keglev.github.io/inventory-service/backend/coverage/index.html)
   - [Frontend coverage (Vitest)](https://keglev.github.io/inventory-service/frontend/coverage/index.html)
@@ -134,7 +135,7 @@ This project is developed with AI assistance, and the division of labour is wort
 
 Two tools are used. A chat-based model acts as architect and reviewer: designs are argued there, alternatives rejected, standards written, and change specifications drafted. An editor-integrated agent executes those specifications against the repository and reports what it did and where it deviated.
 
-Every architecture, domain, and security decision is mine. I write the standards the code is held to (per-layer size budgets, comment rules, i18n key parity, test naming), review every diff, and decide what is merged. The agent implements to a written specification and does not decide scope; where the specification turns out to be wrong about the code, it stops and says so rather than forcing the change. Several decisions in the [ADR log](https://keglev.github.io/inventory-service/backend/architecture/09-decisions/) were reversed by exactly that mechanism, including the removal of Kafka once source verification showed there was no service boundary for it to serve.
+Every architecture, domain, and security decision is mine. I write the standards the code is held to (per-layer size budgets, comment rules, i18n key parity, test naming), review every diff, and decide what is merged. The agent implements to a written specification and does not decide scope; where the specification turns out to be wrong about the code, it stops and says so rather than forcing the change. A decision that changes keeps its [record](https://keglev.github.io/inventory-service/decisions/index.html), with a dated amendment. Kafka was removed for a plainer reason: event streaming is more than a small inventory-control application needs; it belongs in a larger system with several services.
 
 Controls make this verifiable rather than a claim. Every claim in a specification is checked against source before it is acted on. Both tiers run the full test suite in CI and publish coverage. The commit history is public; from this point on, changes arrive as reviewed pull requests, and each pull request states what was verified and what was left undone.
 
