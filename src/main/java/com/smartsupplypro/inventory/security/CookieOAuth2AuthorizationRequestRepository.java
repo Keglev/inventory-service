@@ -15,14 +15,17 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-// TODO(S2-F1): cite the docs page that says why the request lives in an unsigned HttpOnly cookie
 /**
  * Persists OAuth2 authorization requests in HTTP cookies across the provider redirect.
  *
  * <p>Replaces the default session-based
  * {@link org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository},
  * so starting a sign-in creates no server session; the session begins after a successful
- * login.</p>
+ * login, and a redeploy during the provider redirect does not lose the request.</p>
+ *
+ * <p>The cookie is not signed: the state and nonce checks, the redirect URI the provider
+ * verifies and the sign-in allow-list make a changed cookie fail only its own login
+ * (backend ADR-0007, amendment 2026-11-12).</p>
  *
  * @see com.smartsupplypro.inventory.config.SecurityConfig
  * @see OAuth2LoginSuccessHandler
