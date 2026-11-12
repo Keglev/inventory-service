@@ -42,6 +42,7 @@ Source: [Backend architecture, section 9](../backend/architecture/09-decisions/i
 | 0018 | [Endpoints without callers are removed after a measured access-log window](../backend/architecture/09-decisions/adr-0018-endpoints-removed-after-measured-usage.md) |
 | 0019 | [Each CI claimant reports its own required check](../backend/architecture/09-decisions/adr-0019-each-claimant-reports-its-own-check.md) |
 | 0020 | [Employee analytics are shown to administrators and the demo, not to users](../backend/architecture/09-decisions/adr-0020-employee-analytics-for-admin-and-demo.md) |
+| 0021 | [Request text is neutralised where it enters a log line](../backend/architecture/09-decisions/adr-0021-request-text-neutralised-at-the-log-call.md) |
 
 Backend ADR-0009 supersedes the wallet delivery and password model of backend
 ADR-0001; the auto-login mechanism ADR-0001 chose still stands.
