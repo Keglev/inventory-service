@@ -5,7 +5,7 @@
 #        as the step of openapi-drift.yml; needs node and the pinned redocly on
 #        PATH (docs-toolchain with redoc: 'true'). Runs locally the same way.
 #
-# Two checks, both from Standards OPENAPI (FY-1 A):
+# Two checks, both from Standards OPENAPI:
 #   1. redocly lint with docs/backend/api/redocly.yaml. Findings accepted on
 #      purpose live in docs/backend/api/.redocly.lint-ignore.yaml; every other
 #      error or warning fails, so a new warning cannot pile up unnoticed.
