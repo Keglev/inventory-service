@@ -1,0 +1,284 @@
+<!-- ===========================================================================
+     Smart Supply Pro Docs — Architecture page template
+     Pandoc template for the architecture pages; build-architecture-docs.sh
+     renders the Markdown tree through it.
+
+     Pandoc copies this comment into every page the template produces, so it
+     is written for anyone reading a published page source. A dollar sign
+     here would be read as template syntax and substituted, so the comment
+     carries none.
+     ======================================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend ·
+09-decisions/adr-0021-request-text-neutralised-at-the-log-call · Smart Supply Pro Docs</title>
+
+  <!-- Set the theme before the stylesheet paints, otherwise the page flashes
+       the default theme for one frame before the saved choice applies. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ssp-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/inventory-service/assets/docs.css?v=5291186623" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="menu-btn" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <a href="/inventory-service/" class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+        </svg>
+        Smart Supply Pro Docs
+      </a>
+
+      <div class="topbar-tools">
+        <span class="lang-switch">
+          <a href="/inventory-service/" aria-current="true">EN</a>
+          <a href="/inventory-service/index-de.html">DE</a>
+        </span>
+        <button class="theme-toggle" aria-label="Toggle light or dark theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Backend sidebar navigation, included by the doc templates as a Pandoc
+     partial. Backend pages show only backend links; the landing page is the
+     hub between the backend and frontend doc areas. The active link is
+     marked at runtime by docs.js. Do not put template syntax in this
+     comment - a partial is itself a template. -->
+<aside class="sidebar">
+  <p class="nav-title">Docs</p>
+  <ul>
+    <li><a href="/inventory-service/">Docs home</a></li>
+    <li><a href="/inventory-service/frontend/architecture/overview.html">Frontend docs &rarr;</a></li>
+    <li><a href="/inventory-service/decisions/index.html">All decisions</a></li>
+  </ul>
+
+  <p class="nav-title">Backend</p>
+  <ul>
+    <li><a href="/inventory-service/backend/architecture/overview.html">Architecture overview</a></li>
+    <li><a href="/inventory-service/backend/architecture/overview-de.html">Architektur-Überblick (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/index.html">Introduction &amp; Goals</a></li>
+    <li><a href="/inventory-service/backend/architecture/index-de.html">Einf&uuml;hrung &amp; Ziele (DE)</a></li>
+    <li><a href="/inventory-service/backend/architecture/02-constraints.html">Constraints</a></li>
+    <li><a href="/inventory-service/backend/architecture/03-context.html">Context</a></li>
+    <li><a href="/inventory-service/backend/architecture/04-solution-strategy.html">Solution Strategy</a></li>
+    <li><a href="/inventory-service/backend/architecture/05-building-blocks.html">Building Blocks</a></li>
+    <li><a href="/inventory-service/backend/architecture/06-runtime.html">Runtime View</a></li>
+    <li><a href="/inventory-service/backend/architecture/07-deployment.html">Deployment</a></li>
+    <li><a href="/inventory-service/backend/architecture/08-concepts.html">Concepts</a></li>
+    <li><a href="/inventory-service/backend/architecture/08b-concepts-infra.html">Concepts: Infrastructure</a></li>
+    <li><a href="/inventory-service/backend/architecture/08c-concepts-testing.html">Concepts: Testing</a></li>
+    <li><a href="/inventory-service/backend/architecture/09-decisions/index.html">Decisions (ADRs)</a></li>
+    <li><a href="/inventory-service/backend/architecture/10-quality-requirements.html">Quality Requirements</a></li>
+    <li><a href="/inventory-service/backend/architecture/11-risks-technical-debt.html">Risks &amp; Technical Debt</a></li>
+    <li><a href="/inventory-service/backend/architecture/12-glossary.html">Glossary</a></li>
+  </ul>
+
+  <p class="nav-title">Quality</p>
+  <ul>
+    <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+    <li><a href="/inventory-service/backend/coverage/index.html">Backend coverage</a></li>
+  </ul>
+</aside>
+
+    <main class="content" id="main">
+      <article class="doc-body">
+        <h1
+        id="adr-0021-request-text-is-neutralised-where-it-enters-a-log-line">ADR-0021:
+        Request text is neutralised where it enters a log line</h1>
+        <p><a href="index.html">Back to Decisions Index (ADRs)</a></p>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-11-12</p>
+        <h2 id="context">Context</h2>
+        <p>A value an attacker controls and the application writes into
+        a log can carry a line break. The next log reader then sees a
+        line the application never wrote, or a real line split in two
+        (log injection, CWE-117).</p>
+        <p>The backend writes plain-text Logback lines to standard
+        output. On the Hetzner host Docker keeps them in its
+        <code>json-file</code> driver (10 MB, three files), and they are
+        read with <code>docker logs</code>; nothing ships them to a log
+        store or parses them (ADR-0012). The application itself logs
+        little: seven classes hold a logger, with eleven log calls
+        between them (measured on <code>main</code> 2026-11-12). Three
+        of those calls carry text from the request:</p>
+        <ul>
+        <li>the OAuth2 failure handler (<code>OAuth2Config</code>) logs
+        the failure, whose error code and description can come from the
+        callback’s query string;</li>
+        <li>the authorization-request repository logs a rejected
+        <code>return</code> origin from the query string;</li>
+        <li>the login success handler logs a rejected return URL from
+        the return cookie.</li>
+        </ul>
+        <p>A fourth call, the database health check, logs the driver’s
+        exception message.</p>
+        <p>Each of these passes its value through
+        <code>LogSanitizer</code>, a helper written for this purpose:
+        control characters, NEL and the Unicode line and paragraph
+        separators become <code>_</code>, and the value is cut at 500
+        characters with a marker. The decision recorded here is whether
+        that per-call helper stays the mechanism, or whether
+        neutralisation moves into the log format, where it would cover
+        every line.</p>
+        <h2 id="decision">Decision</h2>
+        <p>Request-derived text is neutralised at the call that logs it,
+        with <code>LogSanitizer</code>. The log format stays plain
+        text.</p>
+        <p>Rules for every log call in the backend:</p>
+        <ul>
+        <li>A value that can come from a request (parameter, header,
+        cookie, body, or an exception message built from one) goes
+        through <code>LogSanitizer.sanitize</code> before it reaches the
+        logger.</li>
+        <li>Accounts are named by their id, never by e-mail address or
+        name: the privacy page lists no personal data in application
+        logs.</li>
+        <li>Cookies, tokens, the OAuth2 authorization request and
+        credentials are never logged, sanitized or not.</li>
+        <li>A failure is logged as its exception type and a sanitized
+        message; the request that caused it is not echoed.</li>
+        </ul>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ul>
+        <li><strong>Structured (JSON) logging</strong>
+        (<code>logging.structured.format.console</code>). The JSON
+        encoder escapes control characters in every field, so framework
+        lines and stack traces would be covered too, and
+        <code>LogSanitizer</code> would keep only the length cap.
+        Rejected for now: nothing reads the logs as JSON, the only
+        reader is a person running <code>docker logs</code>, for whom
+        one JSON object per line is harder to read, and a stack trace
+        becomes one escaped string. It is the right move once the logs
+        feed a tool that parses them.</li>
+        <li><strong>A Logback pattern that rewrites the message</strong>
+        (<code>%replace(%msg){...}</code>). One regular expression over
+        every line, with no change to the format. Rejected: it covers
+        the message but not the exception text Logback prints after it,
+        it cannot bound the length, and a pattern buried in
+        configuration is easy to lose when the pattern is next
+        changed.</li>
+        <li><strong>Neither: rely on Tomcat rejecting CR and LF in the
+        request line.</strong> That holds for the path, not for decoded
+        parameters, cookies or a provider’s error text, which is exactly
+        what the three calls log.</li>
+        </ul>
+        <h2 id="consequences">Consequences</h2>
+        <ul>
+        <li>Every line the application writes from request text stays
+        one line, at most 500 characters of value plus the marker.</li>
+        <li>The rule is enforced by review, not by a tool: a new log
+        call that carries request text and skips
+        <code>LogSanitizer</code> writes it raw. The rules above are
+        what a reviewer checks.</li>
+        <li>Lines written by the framework are not neutralised, and
+        neither is the stack trace <code>GlobalExceptionHandler</code>
+        logs for an unhandled exception. A forged line there needs an
+        exception message built from request text that reaches the
+        generic handler; the framework rejections the handler knows are
+        answered without logging. This gap is accepted while the only
+        reader is a person, and is the reason to revisit this record
+        (structured logging) when a log pipeline is added.</li>
+        <li><code>LogSanitizer</code> lives in the <code>security</code>
+        package beside its callers and has its own unit tests; the cap
+        and the replacement character are part of its contract.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Helper:
+        <code>src/main/java/com/smartsupplypro/inventory/security/LogSanitizer.java</code>
+        (<code>sanitize</code>, <code>MAX_LENGTH</code>,
+        <code>TRUNCATED</code>), tests in
+        <code>LogSanitizerTest</code>.</li>
+        <li>Callers: <code>OAuth2Config</code> (failure handler),
+        <code>CookieOAuth2AuthorizationRequestRepository</code>
+        (rejected return origin), <code>OAuth2LoginSuccessHandler</code>
+        (rejected return URL), <code>HealthCheckController</code>
+        (driver message).</li>
+        <li>Account ids instead of e-mail addresses:
+        <code>UserProvisioningService</code>.</li>
+        <li>Log levels and profiles: section 8, infrastructure concepts
+        (Logging).</li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li><a
+        href="adr-0012-backend-hosting-on-shared-hetzner-host.html">ADR-0012:
+        Backend hosting on the shared Hetzner host</a></li>
+        <li><a href="adr-0005-error-message-sanitization.html">ADR-0005:
+        Error message sanitization in GlobalExceptionHandler</a>: the
+        same concern for response bodies</li>
+        <li>Section 8, infrastructure concepts
+        (<code>../08b-concepts-infra.md</code>)</li>
+        <li>CWE-117, Improper Output Neutralization for Logs:
+        https://cwe.mitre.org/data/definitions/117.html</li>
+        <li>System-wide decisions index
+        (<code>../../../decisions/index.md</code>)</li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">Back to Architecture Index</a></p>
+      </article>
+    </main>
+
+        <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ul>
+      <li><a
+      href="#adr-0021-request-text-is-neutralised-where-it-enters-a-log-line"
+      id="toc-adr-0021-request-text-is-neutralised-where-it-enters-a-log-line">ADR-0021:
+      Request text is neutralised where it enters a log line</a>
+      <ul>
+      <li><a href="#status" id="toc-status">Status</a></li>
+      <li><a href="#date" id="toc-date">Date</a></li>
+      <li><a href="#context" id="toc-context">Context</a></li>
+      <li><a href="#decision" id="toc-decision">Decision</a></li>
+      <li><a href="#alternatives-considered"
+      id="toc-alternatives-considered">Alternatives Considered</a></li>
+      <li><a href="#consequences"
+      id="toc-consequences">Consequences</a></li>
+      <li><a href="#implementation-notes"
+      id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#references" id="toc-references">References</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+      </div>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- From this site, not a CDN (no visitor address to a third party). Version and
+       integrity are the pin vendor-mermaid.sh checks: update both together. Only
+       pages flagged has-mermaid load it; check-mermaid-pages.sh enforces that. -->
+  <script src="/inventory-service/assets/docs.js?v=dadbbaf8f4"></script>
+</body>
+</html>
