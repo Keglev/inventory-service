@@ -116,7 +116,10 @@ public class GlobalExceptionHandler {
         // No body — standard 404 for static assets
     }
 
-    /** Sanitizes SQL details before returning a conflict message. */
+    /**
+     * Answers a database constraint violation with a fixed 409 message: the driver's text
+     * names tables and columns, so none of it reaches the client (backend ADR-0005).
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex) {
         return respond(HttpStatus.CONFLICT, "Data conflict - constraint violation");

@@ -19,7 +19,6 @@ the code or decision it concerns.
 | ID | Item | Impact | Resolution |
 |------|------|--------|------------|
 | TD-01 | `createdAt` is set four different ways across entities: the service before the first save (InventoryItem), `@PrePersist` (StockHistory), `@CreationTimestamp` (Supplier), field initializer (AppUser). | Low — inconsistent audit semantics, harder to reason about | Standardise on one mechanism |
-| TD-02 | `handleDataIntegrity` Javadoc states it sanitizes SQL detail, but it returns a hardcoded conflict message and never calls `sanitize()`. | Trivial — misleading documentation | Correct the comment to match behaviour |
 | TD-03 | No optimistic locking (`@Version`) anywhere; concurrent updates to the same row last-write-wins. | Low — acceptable for current single-writer workload | Accepted; revisit if concurrent edit volume grows |
 | TD-05 | Docs UI: double scrollbars on documentation pages. | Low — cosmetic | Fix in the docs cleanup pass |
 | TD-07 | `DatabaseDialectDetector` selects SQL dialect from the active Spring profile, not from the real datasource. An H2 datasource without a `test` or `h2` profile active silently produces Oracle SQL that fails at query execution rather than at startup. | Low — misconfiguration surfaces as a runtime query error, not a clear startup failure | Consider validating dialect against actual connection metadata, or failing fast on a profile/datasource mismatch |
