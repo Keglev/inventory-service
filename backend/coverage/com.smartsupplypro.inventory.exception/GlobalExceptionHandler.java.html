@@ -116,10 +116,13 @@ import jakarta.validation.ConstraintViolationException;
         // No body — standard 404 for static assets
 <span class="fc" id="L117">    }</span>
 
-    /** Sanitizes SQL details before returning a conflict message. */
+    /**
+     * Answers a database constraint violation with a fixed 409 message: the driver's text
+     * names tables and columns, so none of it reaches the client (backend ADR-0005).
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleDataIntegrity(DataIntegrityViolationException ex) {
-<span class="fc" id="L122">        return respond(HttpStatus.CONFLICT, &quot;Data conflict - constraint violation&quot;);</span>
+<span class="fc" id="L125">        return respond(HttpStatus.CONFLICT, &quot;Data conflict - constraint violation&quot;);</span>
     }
 
     /**
@@ -131,19 +134,19 @@ import jakarta.validation.ConstraintViolationException;
      */
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
-<span class="fc" id="L134">        return respond(HttpStatus.CONFLICT, &quot;Concurrent update detected - please refresh and retry&quot;);</span>
+<span class="fc" id="L137">        return respond(HttpStatus.CONFLICT, &quot;Concurrent update detected - please refresh and retry&quot;);</span>
     }
 
     /** Handles explicit {@link ResponseStatusException}; preserves the original status. */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleResponseStatus(ResponseStatusException ex,
                                                                HttpServletRequest request) {
-<span class="fc" id="L141">        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());</span>
-<span class="fc" id="L142">        String reason = ex.getReason();</span>
-<span class="fc bfc" id="L143" title="All 4 branches covered.">        String message = (reason != null &amp;&amp; !reason.isBlank())</span>
-<span class="fc" id="L144">            ? reason</span>
-<span class="fc bfc" id="L145" title="All 2 branches covered.">            : (status != null ? status.getReasonPhrase() : &quot;Request failed&quot;);</span>
-<span class="fc bfc" id="L146" title="All 2 branches covered.">        return respond(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, sanitize(message));</span>
+<span class="fc" id="L144">        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());</span>
+<span class="fc" id="L145">        String reason = ex.getReason();</span>
+<span class="fc bfc" id="L146" title="All 4 branches covered.">        String message = (reason != null &amp;&amp; !reason.isBlank())</span>
+<span class="fc" id="L147">            ? reason</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">            : (status != null ? status.getReasonPhrase() : &quot;Request failed&quot;);</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        return respond(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR, sanitize(message));</span>
     }
 
     /**
@@ -153,21 +156,21 @@ import jakarta.validation.ConstraintViolationException;
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleUnexpected(Exception ex) {
-<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (ex instanceof org.springframework.web.ErrorResponse rejection</span>
-<span class="fc bfc" id="L157" title="All 2 branches covered.">                &amp;&amp; rejection.getStatusCode().is4xxClientError()) {</span>
-<span class="fc" id="L158">            return respondToRejection(rejection);</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        if (ex instanceof org.springframework.web.ErrorResponse rejection</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">                &amp;&amp; rejection.getStatusCode().is4xxClientError()) {</span>
+<span class="fc" id="L161">            return respondToRejection(rejection);</span>
         }
         // The client gets a generic envelope; operators get the full stack trace.
-<span class="fc" id="L161">        log.error(&quot;Unhandled exception while processing request&quot;, ex);</span>
-<span class="fc" id="L162">        return respond(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected server error&quot;);</span>
+<span class="fc" id="L164">        log.error(&quot;Unhandled exception while processing request&quot;, ex);</span>
+<span class="fc" id="L165">        return respond(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected server error&quot;);</span>
     }
 
     // A client mistake, not a server fault: no stack trace in the log.
     private static ResponseEntity&lt;ErrorResponse&gt; respondToRejection(org.springframework.web.ErrorResponse rejection) {
-<span class="fc" id="L167">        HttpStatus status = HttpStatus.valueOf(rejection.getStatusCode().value());</span>
-<span class="fc" id="L168">        return ResponseEntity.status(status)</span>
-<span class="fc" id="L169">            .headers(rejection.getHeaders())</span>
-<span class="fc" id="L170">            .body(respond(status, status.getReasonPhrase()).getBody());</span>
+<span class="fc" id="L170">        HttpStatus status = HttpStatus.valueOf(rejection.getStatusCode().value());</span>
+<span class="fc" id="L171">        return ResponseEntity.status(status)</span>
+<span class="fc" id="L172">            .headers(rejection.getHeaders())</span>
+<span class="fc" id="L173">            .body(respond(status, status.getReasonPhrase()).getBody());</span>
     }
 
 }
