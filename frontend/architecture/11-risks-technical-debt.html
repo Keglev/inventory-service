@@ -113,8 +113,7 @@
         Debt</h1>
         <p>Known risks (external or time-driven) and deliberately
         accepted debt, each traceable to the code or decision it
-        concerns. Internal tracking IDs match the BUCKET markers in
-        source.</p>
+        concerns.</p>
         <h2 id="risks">11.1 Risks</h2>
         <table>
         <colgroup>
@@ -160,61 +159,25 @@
         </tr>
         </tbody>
         </table>
-        <h2 id="technical-debt-tracked">11.2 Technical Debt
-        (tracked)</h2>
-        <table>
-        <colgroup>
-        <col style="width: 33%" />
-        <col style="width: 33%" />
-        <col style="width: 33%" />
-        </colgroup>
-        <thead>
-        <tr class="header">
-        <th>ID</th>
-        <th>Item</th>
-        <th>Where</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="odd">
-        <td>CB-APP33/34</td>
-        <td>Settings language-sync can overwrite explicit format
-        choices; parts of the preference set lack persistence</td>
-        <td><a href="08-concepts.html">§8</a></td>
-        </tr>
-        <tr class="even">
-        <td>CB-APP15 / CM-APP2</td>
-        <td>Scrollbar rules duplicated between global.css and
-        CssBaseline; print <code>!important</code> overrides
-        unaudited</td>
-        <td><a href="08b-concepts-i18n-theming.html">§8b</a></td>
-        </tr>
-        </tbody>
-        </table>
-        <p>The remaining open registry entries are UI-level items of the
-        same character and live as BUCKET markers at their source
-        sites.</p>
+        <h2 id="technical-debt">11.2 Technical Debt</h2>
+        <p>No technical debt is open in the frontend. Format preferences
+        survive a language change and are persisted with the rest of the
+        preference set
+        (<code>context/settings/SettingsContext.tsx</code>); scrollbar
+        styling has one home, <code>styles/global.css</code>, whose
+        print rules state why they need <code>!important</code>.</p>
         <h2 id="size-budget-waivers">Size-Budget Waivers</h2>
         <p>Measured over code lines against the budgets in <a
         href="02-constraints.html">§2</a>; function lengths follow its
-        counting rule, which leaves both brace lines out (2026-10-29). A
-        file’s layer follows its place in the tree: files under a
+        counting rule, which leaves both brace lines out. A file’s layer
+        follows its place in the tree: files under a
         <code>dialogs/</code> folder are dialogs, <code>use*</code>
         files and <code>handlers/</code> are hooks and handlers, a
         page’s top-level file under <code>pages/&lt;area&gt;/</code> is
         a page orchestrator, and the remaining UI files are
         components.</p>
-        <p>No file carries a waiver. The waiver for
-        <code>pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx</code>
-        (164 code lines against the dialogs alarm of 160) is withdrawn:
-        the file measures 134.</p>
-        <p>No file and no function exceeds its layer’s alarm.
-        <code>pages/analytics/sections/EmployeesActivityChart.tsx</code>
-        was at 155 against the components alarm of 150 until its series
-        colours, time axis and formatters moved into the sibling hook
-        <code>useEmployeeChartFormatting.ts</code> (2026-10-29): they
-        decide what the chart shows and how it reads, a different level
-        from the card that lays it out.</p>
+        <p>No file carries a waiver, and no file and no function exceeds
+        its layer’s alarm.</p>
         <p>Three functions sit above their band and below their alarm:
         <code>DateRangeFilter</code> 122 and
         <code>MovementsSection</code> 120 (components, band 100), and
@@ -360,9 +323,8 @@
       id="toc-risks-technical-debt">§11 Risks &amp; Technical Debt</a>
       <ul>
       <li><a href="#risks" id="toc-risks">11.1 Risks</a></li>
-      <li><a href="#technical-debt-tracked"
-      id="toc-technical-debt-tracked">11.2 Technical Debt
-      (tracked)</a></li>
+      <li><a href="#technical-debt" id="toc-technical-debt">11.2
+      Technical Debt</a></li>
       <li><a href="#size-budget-waivers"
       id="toc-size-budget-waivers">Size-Budget Waivers</a></li>
       </ul></li>

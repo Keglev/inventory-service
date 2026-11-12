@@ -155,8 +155,10 @@
         <tr class="odd">
         <td>3</td>
         <td>Testbarkeit</td>
-        <td>1.319 Tests in 225 Dateien (~86 % Zeilenabdeckung); jede
-        Schicht isoliert testbar</td>
+        <td>Jede Schicht isoliert testbar; die Testsuite läuft bei jedem
+        CI-Build und schlägt unterhalb der Abdeckungsschwellen in
+        <code>vitest.config.ts</code> fehl (<a
+        href="https://keglev.github.io/inventory-service/frontend/coverage/index.html">Frontend-Abdeckungsbericht</a>)</td>
         </tr>
         <tr class="even">
         <td>4</td>
@@ -167,11 +169,100 @@
         </tbody>
         </table>
         <h2 id="kapitel">Kapitel</h2>
-        <p>Die Kapitelübersicht mit aktuellem Status ist in der <a
-        href="index.html">englischen Fassung</a> gepflegt; die Kapitel
-        selbst sind auf Englisch dokumentiert. Die Architecture Decision
-        Records finden sich unter <a href="09-decisions/index.html">§9
-        Entscheidungen (ADRs)</a>.</p>
+        <p>Die Kapitel selbst sind auf Englisch dokumentiert.</p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Kapitel</th>
+        <th>Inhalt</th>
+        <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>§1 Einführung &amp; Ziele</td>
+        <td>Diese Seite</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="even">
+        <td><a href="02-constraints.html">§2 Randbedingungen</a></td>
+        <td>Technologie, organisatorische Randbedingungen,
+        Konventionen</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="03-context.html">§3 Kontext &amp;
+        Abgrenzung</a></td>
+        <td>Systemgrenze, externe Systeme, Integrationsfakten</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="even">
+        <td><a href="04-solution-strategy.html">§4
+        Lösungsstrategie</a></td>
+        <td>Zentrale Architekturansätze im Überblick</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="05-building-blocks.html">§5 Bausteine</a></td>
+        <td>App-Shell, Domänenseiten, API-Schicht, gemeinsame UI</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="even">
+        <td><a href="06-runtime.html">§6 Laufzeit</a></td>
+        <td>Routing, Guards, zentrale Benutzerabläufe</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="07-deployment.html">§7 Verteilung</a></td>
+        <td>Build, Auslieferung über Koyeb/Nginx, Frontend-CI</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="even">
+        <td><a href="08-concepts.html">§8 Konzepte</a></td>
+        <td>Zustand und Datenzugriff</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="08b-concepts-i18n-theming.html">§8b
+        Konzepte</a></td>
+        <td>Internationalisierung und Theming</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="even">
+        <td><a href="08c-concepts-testing.html">§8c Konzepte</a></td>
+        <td>Teststrategie und Konventionen</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="09-decisions/index.html">§9 Entscheidungen
+        (ADRs)</a></td>
+        <td>Architekturentscheidungen</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="even">
+        <td><a href="10-quality-requirements.html">§10
+        Qualitätsanforderungen</a></td>
+        <td>Durchgesetzte Qualitätsszenarien und Nicht-Ziele</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="11-risks-technical-debt.html">§11 Risiken &amp;
+        technische Schulden</a></td>
+        <td>Bekannte Risiken und technische Schulden</td>
+        <td>Aktuell</td>
+        </tr>
+        <tr class="even">
+        <td><a href="12-glossary.html">§12 Glossar</a></td>
+        <td>Fach- und Technikbegriffe</td>
+        <td>Aktuell</td>
+        </tr>
+        </tbody>
+        </table>
       </article>
     </main>
 

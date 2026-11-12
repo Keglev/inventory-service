@@ -135,57 +135,57 @@
         <tr class="odd">
         <td>Framework</td>
         <td>React</td>
-        <td>19.1</td>
+        <td>19</td>
         </tr>
         <tr class="even">
         <td>Language</td>
         <td>TypeScript</td>
-        <td>6.x</td>
+        <td>6</td>
         </tr>
         <tr class="odd">
         <td>Build tool</td>
         <td>Vite</td>
-        <td>7.x</td>
+        <td>8</td>
         </tr>
         <tr class="even">
         <td>UI library</td>
-        <td>MUI (Material UI) + X DataGrid</td>
-        <td>7.x / 8.x</td>
+        <td>MUI (Material UI) + X Data Grid</td>
+        <td>9 / 9</td>
         </tr>
         <tr class="odd">
         <td>Server state</td>
         <td>TanStack React Query</td>
-        <td>5.x</td>
+        <td>5</td>
         </tr>
         <tr class="even">
         <td>Routing</td>
         <td>React Router</td>
-        <td>7.x</td>
+        <td>7</td>
         </tr>
         <tr class="odd">
         <td>Forms</td>
         <td>React Hook Form + Zod</td>
-        <td>7.x / 4.x</td>
+        <td>7 / 4</td>
         </tr>
         <tr class="even">
         <td>i18n</td>
         <td>i18next + react-i18next</td>
-        <td>25.x / 15.x</td>
+        <td>26 / 17</td>
         </tr>
         <tr class="odd">
         <td>Charts</td>
         <td>Recharts</td>
-        <td>3.x</td>
+        <td>3</td>
         </tr>
         <tr class="even">
         <td>HTTP client</td>
         <td>Axios</td>
-        <td>1.x</td>
+        <td>1</td>
         </tr>
         <tr class="odd">
         <td>Testing</td>
-        <td>Vitest + Testing Library</td>
-        <td>4.x</td>
+        <td>Vitest + Testing Library; Playwright</td>
+        <td>5 / 16; 1</td>
         </tr>
         <tr class="even">
         <td>Runtime</td>
@@ -216,9 +216,10 @@
         <li><strong>Dialog-driven mutations</strong> —
         create/edit/delete flows are isolated dialog containers per
         domain</li>
-        <li><strong>Testability</strong> — ~1,600 Vitest tests across
-        251 files (~99% line coverage) spanning unit, component, and
-        routing-contract layers</li>
+        <li><strong>Testability</strong> — Vitest suites across unit,
+        component and routing-contract layers, plus a Playwright suite
+        in CI; coverage thresholds gate every build (<a
+        href="https://keglev.github.io/inventory-service/frontend/coverage/index.html">report</a>)</li>
         </ol>
         <h2 id="system-architecture">System architecture</h2>
         <div class="mermaid">
@@ -266,13 +267,13 @@
         </tr>
         <tr class="even">
         <td>Suppliers</td>
-        <td>Supplier CRUD, search/display modes, linked-items delete
-        guard</td>
+        <td>Supplier CRUD, search by typing, paged list; delete refused
+        while any item references the supplier</td>
         </tr>
         <tr class="odd">
         <td>Analytics</td>
-        <td>Chart/table blocks, filters with URL sync, supplier-gated
-        queries</td>
+        <td>Chart/table blocks, filters with URL sync; an empty supplier
+        filter means all suppliers</td>
         </tr>
         <tr class="even">
         <td>Dashboard</td>
@@ -293,18 +294,22 @@
         session model</h2>
         <p>Session-based OAuth2 (Google) handled by the backend — the
         SPA holds no tokens. The auth context hydrates from
-        <code>GET /api/me</code>; a read-only <strong>demo mode</strong>
-        exists entirely in the frontend via localStorage, with write
-        operations blocked in the UI. Unauthorized responses are handled
-        centrally by the Axios interceptor, with three exemptions
-        (public pages, the <code>/api/me</code> probe, demo
-        sessions).</p>
+        <code>GET /api/me</code>. <strong>Demo mode</strong> is a
+        client-side session (kept in localStorage) with no backend
+        account: its reads reach the backend anonymously and are
+        admitted by <code>app.demo-readonly</code>, and every dialog
+        stops a write before the request (<a
+        href="09-decisions/adr-0013-demo-mode-blocks-only-the-write.html">ADR-0013</a>).
+        Unauthorized responses are handled centrally by the Axios
+        interceptor, with three exemptions (public pages, the
+        <code>/api/me</code> probe, demo sessions).</p>
         <h2 id="internationalization">Internationalization</h2>
         <p>Full English/German localization with runtime-loaded JSON
         namespaces, compile-time typed keys
-        (<code>resources.d.ts</code>), and a strict no-fallback-strings
-        policy: every key exists in both locale files. First visit
-        renders German by design.</p>
+        (<code>resources.d.ts</code>, from the English JSON) and no
+        fallback strings in code; every key exists in both locale files.
+        First visit renders German by design, and a key missing at
+        runtime falls back to German.</p>
         <h2 id="deployment">Deployment</h2>
         <p>The production build is served by <strong>Nginx on
         Koyeb</strong>. Browser traffic is <strong>same-origin</strong>:
@@ -312,9 +317,11 @@
         time and reverse-proxies <code>/api/*</code> and the OAuth paths
         to the backend at <code>api.smartsupplypro.de</code> (canonical
         record: backend ADR-0008).</p>
-        <pre><code>Source push
-  → frontend-ci.yml       type-check, lint, Vitest suite
-  → frontend-deploy.yml   Docker build (Nginx), deploy to Koyeb</code></pre>
+        <pre><code>Merge to main
+  → frontend-ci.yml       audit, lint, Vitest suite, Playwright suite; image build,
+                          SBOM and CVE gate, push to Docker Hub
+  → frontend-deploy.yml   deploy that image to Koyeb by digest, verify the served
+                          bundle carries the commit</code></pre>
         <h2 id="testing">Testing</h2>
         <ul>
         <li><strong>Unit tests</strong> — hooks, utilities, API

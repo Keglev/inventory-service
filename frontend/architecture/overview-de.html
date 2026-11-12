@@ -137,57 +137,57 @@
         <tr class="odd">
         <td>Framework</td>
         <td>React</td>
-        <td>19.1</td>
+        <td>19</td>
         </tr>
         <tr class="even">
         <td>Sprache</td>
         <td>TypeScript</td>
-        <td>6.x</td>
+        <td>6</td>
         </tr>
         <tr class="odd">
         <td>Build-Tool</td>
         <td>Vite</td>
-        <td>7.x</td>
+        <td>8</td>
         </tr>
         <tr class="even">
         <td>UI-Bibliothek</td>
-        <td>MUI (Material UI) + X DataGrid</td>
-        <td>7.x / 8.x</td>
+        <td>MUI (Material UI) + X Data Grid</td>
+        <td>9 / 9</td>
         </tr>
         <tr class="odd">
         <td>Server-State</td>
         <td>TanStack React Query</td>
-        <td>5.x</td>
+        <td>5</td>
         </tr>
         <tr class="even">
         <td>Routing</td>
         <td>React Router</td>
-        <td>7.x</td>
+        <td>7</td>
         </tr>
         <tr class="odd">
         <td>Forms</td>
         <td>React Hook Form + Zod</td>
-        <td>7.x / 4.x</td>
+        <td>7 / 4</td>
         </tr>
         <tr class="even">
         <td>i18n</td>
         <td>i18next + react-i18next</td>
-        <td>25.x / 15.x</td>
+        <td>26 / 17</td>
         </tr>
         <tr class="odd">
         <td>Diagramme</td>
         <td>Recharts</td>
-        <td>3.x</td>
+        <td>3</td>
         </tr>
         <tr class="even">
         <td>HTTP-Client</td>
         <td>Axios</td>
-        <td>1.x</td>
+        <td>1</td>
         </tr>
         <tr class="odd">
         <td>Tests</td>
-        <td>Vitest + Testing Library</td>
-        <td>4.x</td>
+        <td>Vitest + Testing Library; Playwright</td>
+        <td>5 / 16; 1</td>
         </tr>
         <tr class="even">
         <td>Laufzeit</td>
@@ -218,9 +218,11 @@
         <li><strong>Dialoggetriebene Mutationen</strong> —
         Create-/Edit-/Delete-Flows sind isolierte Dialog-Container je
         Domäne</li>
-        <li><strong>Testbarkeit</strong> — ~1.600 Vitest-Tests in 251
-        Dateien (~99 % Zeilenabdeckung) über Unit-, Komponenten- und
-        Routing-Contract-Ebenen</li>
+        <li><strong>Testbarkeit</strong> — Vitest-Suiten über Unit-,
+        Komponenten- und Routing-Contract-Ebenen, dazu eine
+        Playwright-Suite in der CI; Abdeckungsschwellen sichern jeden
+        Build ab (<a
+        href="https://keglev.github.io/inventory-service/frontend/coverage/index.html">Bericht</a>)</li>
         </ol>
         <h2 id="systemarchitektur">Systemarchitektur</h2>
         <div class="mermaid">
@@ -268,13 +270,14 @@
         </tr>
         <tr class="even">
         <td>Suppliers</td>
-        <td>Lieferanten-CRUD, Such-/Anzeigemodi, Löschsperre bei aktivem
-        Bestand</td>
+        <td>Lieferanten-CRUD, Suche per Eingabe, seitenweise Liste;
+        Löschen abgelehnt, solange ein Artikel auf den Lieferanten
+        verweist</td>
         </tr>
         <tr class="odd">
         <td>Analytics</td>
-        <td>Chart-/Tabellenblöcke, Filter mit URL-Sync,
-        lieferantenabhängige Abfragen</td>
+        <td>Chart-/Tabellenblöcke, Filter mit URL-Sync; ein leerer
+        Lieferantenfilter bedeutet alle Lieferanten</td>
         </tr>
         <tr class="even">
         <td>Dashboard</td>
@@ -295,19 +298,23 @@
         und Session-Modell</h2>
         <p>Sessionbasiertes OAuth2 (Google), vollständig im Backend —
         die SPA hält keine Tokens. Der Auth-Context hydratisiert über
-        <code>GET /api/me</code>; ein schreibgeschützter
-        <strong>Demo-Modus</strong> existiert ausschließlich im Frontend
-        über localStorage, Schreiboperationen sind in der UI blockiert.
+        <code>GET /api/me</code>. Der <strong>Demo-Modus</strong> ist
+        eine clientseitige Session (in localStorage) ohne Backend-Konto:
+        Seine Lesezugriffe erreichen das Backend anonym und werden über
+        <code>app.demo-readonly</code> zugelassen, und jeder Dialog
+        stoppt einen Schreibzugriff vor der Anfrage (<a
+        href="09-decisions/adr-0013-demo-mode-blocks-only-the-write.html">ADR-0013</a>).
         Unautorisierte Antworten behandelt der Axios-Interceptor
         zentral, mit drei Ausnahmen (öffentliche Seiten, der
         <code>/api/me</code>-Probe-Aufruf, Demo-Sessions).</p>
         <h2 id="internationalisierung">Internationalisierung</h2>
         <p>Vollständige Lokalisierung Englisch/Deutsch mit zur Laufzeit
         geladenen JSON-Namespaces, zur Compile-Zeit typisierten
-        Schlüsseln (<code>resources.d.ts</code>) und einer strikten
-        Richtlinie ohne Fallback-Strings: Jeder Schlüssel existiert in
-        beiden Sprachdateien. Der Erstbesuch rendert bewusst auf
-        Deutsch.</p>
+        Schlüsseln (<code>resources.d.ts</code>, aus der englischen
+        JSON) und ohne Fallback-Strings im Code; jeder Schlüssel
+        existiert in beiden Sprachdateien. Der Erstbesuch rendert
+        bewusst auf Deutsch, und ein zur Laufzeit fehlender Schlüssel
+        fällt auf Deutsch zurück.</p>
         <h2 id="deployment">Deployment</h2>
         <p>Der Produktions-Build wird von <strong>Nginx auf
         Koyeb</strong> ausgeliefert. Der Browser-Traffic ist
@@ -316,9 +323,11 @@
         reverse-proxyt <code>/api/*</code> sowie die OAuth-Pfade zum
         Backend auf <code>api.smartsupplypro.de</code> (kanonische
         Aufzeichnung: Backend-ADR-0008).</p>
-        <pre><code>Source push
-  → frontend-ci.yml       type-check, lint, Vitest suite
-  → frontend-deploy.yml   Docker build (Nginx), deploy to Koyeb</code></pre>
+        <pre><code>Merge nach main
+  → frontend-ci.yml       Audit, Lint, Vitest-Suite, Playwright-Suite; Image-Build,
+                          SBOM- und CVE-Prüfung, Push nach Docker Hub
+  → frontend-deploy.yml   dieses Image per Digest auf Koyeb ausrollen, prüfen, dass das
+                          ausgelieferte Bundle den Commit trägt</code></pre>
         <h2 id="tests">Tests</h2>
         <ul>
         <li><strong>Unit-Tests</strong> — Hooks, Utilities, API-Fetcher

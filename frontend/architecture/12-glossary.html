@@ -134,8 +134,10 @@
         </tr>
         <tr class="odd">
         <td>Demo mode</td>
-        <td>Client-only read-only session persisted in localStorage; no
-        backend account (<a href="05-domains/auth.html">§5.5</a>)</td>
+        <td>Client-side read-only session persisted in localStorage,
+        with no backend account; its reads are admitted anonymously by
+        the backend’s <code>app.demo-readonly</code> (<a
+        href="05-domains/auth.html">§5.5</a>)</td>
         </tr>
         <tr class="even">
         <td>Domain</td>
@@ -176,11 +178,6 @@
         <td><code>GET /api/me</code> used for hydration and validity
         checks, exempt from 401 redirects (<a
         href="08-concepts.html">§8</a>)</td>
-        </tr>
-        <tr class="odd">
-        <td>BUCKET marker</td>
-        <td>In-source comment recording a tracked observation with its
-        internal ID</td>
         </tr>
         </tbody>
         </table>

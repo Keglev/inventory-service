@@ -124,8 +124,9 @@
         message. “Continue in Demo Mode” calls
         <code>useAuth().loginAsDemo()</code>, persists the demo user
         under <code>localStorage['ssp.demo.session']</code>, and
-        navigates to the dashboard — a client-only, read-only session
-        with no backend account.</p>
+        navigates to the dashboard — a client-side, read-only session
+        with no backend account; its reads reach the backend anonymously
+        and are admitted by <code>app.demo-readonly</code>.</p>
         <h2 id="callback-session-hydration">Callback &amp; Session
         Hydration</h2>
         <p>The backend lands the browser on <code>/auth</code>;

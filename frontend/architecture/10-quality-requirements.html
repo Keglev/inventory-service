@@ -145,14 +145,18 @@
         <tbody>
         <tr class="odd">
         <td>Every push builds and passes the full suite</td>
-        <td><code>vitest --run --coverage</code> in workflow 5;
-        type-check via <code>tsc -b</code> in the same workflow’s image
-        build</td>
+        <td><code>vitest --run --coverage</code> in
+        <code>frontend-ci.yml</code>; type-check via <code>tsc -b</code>
+        in the same workflow’s image build</td>
         <td><a href="07-deployment.html">§7</a></td>
         </tr>
         <tr class="even">
-        <td>~1,600 tests / ~99% line coverage, published per build</td>
-        <td>Vitest coverage to GitHub Pages</td>
+        <td>Coverage stays above the thresholds in
+        <code>vitest.config.ts</code>; the report is published per
+        build</td>
+        <td>Vitest coverage gate; report on GitHub Pages (<a
+        href="https://keglev.github.io/inventory-service/frontend/coverage/index.html">frontend
+        coverage report</a>)</td>
         <td><a href="08c-concepts-testing.html">§8c</a></td>
         </tr>
         <tr class="odd">
@@ -161,8 +165,12 @@
         <td><a href="08b-concepts-i18n-theming.html">§8b</a></td>
         </tr>
         <tr class="even">
-        <td>Missing i18n keys are visible bugs</td>
-        <td>No-fallback policy; keys added to both locales</td>
+        <td>A missing translation is caught or falls back
+        predictably</td>
+        <td>A static key missing from the EN JSON fails <code>tsc</code>
+        (<code>resources.d.ts</code>); no in-code fallback strings; a
+        key missing at runtime falls back to German
+        (<code>fallbackLng: 'de'</code>), the default language</td>
         <td><a href="08b-concepts-i18n-theming.html">§8b</a></td>
         </tr>
         <tr class="odd">
@@ -179,7 +187,9 @@
         </tr>
         <tr class="odd">
         <td>File and method size stay reviewable</td>
-        <td>Per-layer code-line caps; waivers documented in headers</td>
+        <td>Per-layer code-line caps; watched items and waivers in the
+        published register (<a
+        href="11-risks-technical-debt.html">§11</a>)</td>
         <td><a href="02-constraints.html">§2</a></td>
         </tr>
         </tbody>
@@ -189,10 +199,13 @@
         validation/normalization logic; tiny presentational wrappers are
         deliberately not chased.</p>
         <h2 id="known-non-goals">10.3 Known Non-Goals</h2>
-        <p>No end-to-end browser tests against a live backend (all
-        suites are deterministic with mocked boundaries), and no
-        automated accessibility audit yet — RTL’s role/name queries
-        enforce a baseline in component tests.</p>
+        <p>No browser tests against the production backend: the
+        Playwright suite runs in CI against a backend built from the
+        same commit on H2, in demo mode only (<a
+        href="09-decisions/adr-0009-end-to-end-testing-with-playwright.html">frontend
+        ADR-0009</a>), so signed-in flows stay covered by component
+        tests. No automated accessibility audit yet — RTL’s role/name
+        queries enforce a baseline in component tests.</p>
       </article>
     </main>
 

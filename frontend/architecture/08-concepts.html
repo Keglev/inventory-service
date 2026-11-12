@@ -129,10 +129,9 @@
         href="05-domains/auth.html">§5.5</a>).</li>
         <li><strong>Settings</strong> — user preferences (date/number
         formatting, density) persisted to browser storage; system facts
-        come from the shared health query. Known tracked limitations:
-        language changes can overwrite explicitly chosen formats, and
-        parts of the preference set lack persistence (open items
-        CB-APP33/34).</li>
+        come from the shared health query. The language sets the initial
+        formats only: once chosen, a date or number format stays when
+        the language changes.</li>
         <li><strong>Toast</strong> —
         <code>toast(message, severity?)</code>, hosted by the shells so
         leaf components stay shell-agnostic.</li>

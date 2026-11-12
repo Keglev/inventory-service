@@ -132,11 +132,12 @@
         <code>frontend/src/api/analytics/*</code>, and handles its own
         loading/empty/error states. Key conventions: keys are
         feature-scoped
-        (<code>['analytics','lowStock', supplierId, from, to]</code>-style),
-        and supplier-gated blocks compute
-        <code>enabled = Boolean(supplierId)</code> so the query never
-        fires without its required input — rendering a select-a-supplier
-        helper instead.</p>
+        (<code>['analytics','lowStock', supplierId]</code>-style). The
+        blocks whose endpoint needs a supplier (low stock, most-updated
+        items) compute <code>enabled = Boolean(supplierId)</code>, so
+        the query never fires without it and a select-a-supplier helper
+        shows instead; for the other blocks an empty supplier filter
+        means all suppliers.</p>
         <h2 id="shared-extracted-building-blocks">Shared &amp; Extracted
         Building Blocks</h2>
         <ul>

@@ -114,21 +114,27 @@
         <code>src/__tests__/</code> mirroring the source tree (<a
         href="09-decisions/adr-0008-testing-structure-and-taxonomy.html">ADR-0008</a>):</p>
         <ol type="1">
-        <li><strong>Unit</strong> (<code>__tests__/unit/</code>) — pure
-        contracts: utilities, mappers/normalizers, API-client
-        invariants, i18n constants.</li>
-        <li><strong>Component</strong>
-        (<code>__tests__/components/</code>,
-        <code>__tests__/app/</code>) — RTL rendering with
+        <li><strong>Unit</strong> — pure contracts: utilities,
+        mappers/normalizers, API-client invariants, i18n constants.</li>
+        <li><strong>Component</strong> — RTL rendering with
         accessibility-first queries; observable behavior and callback
         wiring, not implementation details.</li>
-        <li><strong>Contract</strong> (<code>__tests__/routes/</code>,
-        <code>__tests__/app/</code>) — boundary wiring: route grouping
-        via MemoryRouter, shell orchestration props and side
-        effects.</li>
+        <li><strong>Contract</strong> — boundary wiring: route grouping
+        via MemoryRouter, shell orchestration props and side effects,
+        and the chart standards every chart file must follow.</li>
         <li><strong>Integration-ish workflow</strong> (few) — page
         workflows with mocked boundaries, strictly deterministic.</li>
         </ol>
+        <p>The layers are kinds of test, not folders: a spec sits at the
+        path of the source file it tests
+        (<code>src/&lt;path&gt;/X.tsx</code> -&gt;
+        <code>src/__tests__/&lt;path&gt;/X.test.tsx</code>), and
+        <code>src/__tests__/test/</code> and
+        <code>src/__tests__/stubs/</code> hold the shared harness and
+        stubs. The browser suite (Playwright,
+        <code>frontend/e2e/</code>) runs in CI against a backend built
+        from the same commit (<a
+        href="09-decisions/adr-0009-end-to-end-testing-with-playwright.html">ADR-0009</a>).</p>
         <h2 id="mocking-policy">Mocking Policy</h2>
         <p>Mock at boundaries, never internals: the network
         (httpClient/fetch), the i18n runtime (react-i18next mocked onto
@@ -143,10 +149,11 @@
         plus contract/out-of-scope prose). Shared rendering helpers
         provide provider wrappers; locale-sensitive assertions resolve
         through the English JSON rather than hardcoding strings. The
-        suite currently stands at ~1,600 tests across 251 files (~99%
-        line coverage), runs on every CI push, and publishes its
-        coverage report to GitHub Pages (linked from the README and the
-        documentation hub).</p>
+        suite runs on every CI push, fails below the coverage thresholds
+        set in <code>vitest.config.ts</code>, and publishes its coverage
+        report to GitHub Pages (<a
+        href="https://keglev.github.io/inventory-service/frontend/coverage/index.html">frontend
+        coverage report</a>).</p>
       </article>
     </main>
 
