@@ -60,7 +60,7 @@ describe('HeroPreview', () => {
     const image = screen.getByAltText(ALT);
     expect(image).toHaveAttribute('src', '/images/hero-en-dark.webp');
     expect(image).toHaveAttribute('width', '1116');
-    expect(image).toHaveAttribute('height', '641');
+    expect(image).toHaveAttribute('height', '424');
     expect(screen.getAllByRole('img')).toHaveLength(1);
   });
 
