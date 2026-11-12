@@ -99,7 +99,7 @@ SUMMARY	parsed	1	unparsed	0
 
 An endpoint counts as unused only after this check comes back empty across
 code, tests, docs, scripts, workflows and operations as well (removal rule,
-ADR-0018).
+backend ADR-0018).
 
 ## 4. Calibrate before trusting a run
 

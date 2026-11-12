@@ -2,7 +2,7 @@
 
 Operational notes for the SmartSupplyPro backend on the shared Hetzner host. The
 decision and its alternatives are recorded in
-[ADR-0012](../docs/backend/architecture/09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.md).
+[backend ADR-0012](../docs/backend/architecture/09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.md).
 
 ## Directory layout
 
