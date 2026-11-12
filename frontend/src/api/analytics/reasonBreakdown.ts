@@ -62,12 +62,12 @@ export async function getReasonBreakdown(filter?: ReasonBreakdownFilter): Promis
 
         return (data as Rec[])
             .map<ReasonBreakdownRow | null>((rec) => {
-                const reason = firstStringOrEmpty(rec, ['reason']);
+                const reason = firstStringOrEmpty(rec, 'reason');
                 if (!reason) return null;
                 return {
                     reason,
-                    increase: firstNumberOrZero(rec, ['increase']),
-                    decrease: firstNumberOrZero(rec, ['decrease']),
+                    increase: firstNumberOrZero(rec, 'increase'),
+                    decrease: firstNumberOrZero(rec, 'decrease'),
                 };
             })
             .filter((x): x is ReasonBreakdownRow => x !== null);

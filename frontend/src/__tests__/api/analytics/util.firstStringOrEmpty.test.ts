@@ -4,8 +4,8 @@
  * @description Contract tests for firstStringOrEmpty (api/analytics/util).
  *
  * Contract under test:
- * - Guarantees string field selection respects key order and returns the
- *   first usable value
+ * - Guarantees the key's string value is returned, '' when the key is
+ *   missing or holds neither a string nor a number
  * - Guarantees tolerant coercion of numbers to strings for stable
  *   downstream usage
  *
@@ -20,27 +20,27 @@ import { describe, it, expect } from 'vitest';
 import { firstStringOrEmpty } from '@/api/analytics/util';
 
 describe('firstStringOrEmpty', () => {
-  it('returns the first matching string', () => {
+  it('returns the string value of the key', () => {
     const obj = { name: 'test', title: 'other' };
 
-    expect(firstStringOrEmpty(obj, ['name', 'title'])).toBe('test');
+    expect(firstStringOrEmpty(obj, 'name')).toBe('test');
   });
 
   it('coerces numbers to strings', () => {
     const obj = { id: 123 };
 
-    expect(firstStringOrEmpty(obj, ['id'])).toBe('123');
+    expect(firstStringOrEmpty(obj, 'id')).toBe('123');
   });
 
-  it('returns empty string when no matching keys exist', () => {
+  it('returns empty string when the key is missing', () => {
     const obj = { foo: 'bar' };
 
-    expect(firstStringOrEmpty(obj, ['missing', 'nothere'])).toBe('');
+    expect(firstStringOrEmpty(obj, 'missing')).toBe('');
   });
 
-  it('tries keys in order', () => {
-    const obj = { alt: 'second' };
+  it('returns empty string when the value is neither a string nor a number', () => {
+    const obj = { flag: true };
 
-    expect(firstStringOrEmpty(obj, ['primary', 'alt'])).toBe('second');
+    expect(firstStringOrEmpty(obj, 'flag')).toBe('');
   });
 });

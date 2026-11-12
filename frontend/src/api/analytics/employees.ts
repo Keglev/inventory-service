@@ -66,14 +66,14 @@ export async function getEmployeeActivity(filter?: EmployeeActivityFilter): Prom
 
         return (data as Rec[])
             .map<EmployeeActivityRow | null>((rec) => {
-                const period = firstStringOrEmpty(rec, ['period']);
-                const createdBy = firstStringOrEmpty(rec, ['createdBy']);
+                const period = firstStringOrEmpty(rec, 'period');
+                const createdBy = firstStringOrEmpty(rec, 'createdBy');
                 if (!period || !createdBy) return null;
                 return {
                     period,
                     createdBy,
-                    displayName: firstStringOrEmpty(rec, ['displayName']) || createdBy,
-                    changeCount: firstNumberOrZero(rec, ['changeCount']),
+                    displayName: firstStringOrEmpty(rec, 'displayName') || createdBy,
+                    changeCount: firstNumberOrZero(rec, 'changeCount'),
                 };
             })
             .filter((x): x is EmployeeActivityRow => x !== null);
@@ -139,16 +139,16 @@ export async function getEmployeeChanges(filter?: EmployeeChangesFilter): Promis
 
         const rows = (content as Rec[])
             .map<EmployeeChangeRow | null>((rec) => {
-                const timestamp = firstStringOrEmpty(rec, ['timestamp']);
-                const itemName = firstStringOrEmpty(rec, ['itemName']);
+                const timestamp = firstStringOrEmpty(rec, 'timestamp');
+                const itemName = firstStringOrEmpty(rec, 'itemName');
                 if (!timestamp || !itemName) return null;
                 return {
                     timestamp,
                     itemName,
-                    supplierName: firstStringOrEmpty(rec, ['supplierName']),
-                    change: firstNumberOrZero(rec, ['change']),
-                    reason: firstStringOrEmpty(rec, ['reason']),
-                    createdBy: firstStringOrEmpty(rec, ['createdBy']),
+                    supplierName: firstStringOrEmpty(rec, 'supplierName'),
+                    change: firstNumberOrZero(rec, 'change'),
+                    reason: firstStringOrEmpty(rec, 'reason'),
+                    createdBy: firstStringOrEmpty(rec, 'createdBy'),
                 };
             })
             .filter((x): x is EmployeeChangeRow => x !== null);

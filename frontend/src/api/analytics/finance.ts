@@ -76,13 +76,13 @@ export async function getFinancialSummary(
 
     return {
         // FinancialSummaryDTO field names; the backend sends no other spelling.
-        purchases:    firstNumberOrZero(body, ['purchasesCost']),
-        cogs:         firstNumberOrZero(body, ['cogsCost']),
-        writeOffs:    firstNumberOrZero(body, ['writeOffCost']),
-        returns:      firstNumberOrZero(body, ['returnsInCost']),
-        openingValue: firstNumberOrZero(body, ['openingValue']),
-        endingValue:  firstNumberOrZero(body, ['endingValue']),
-        method:       firstStringOrEmpty(body, ['method']),
+        purchases:    firstNumberOrZero(body, 'purchasesCost'),
+        cogs:         firstNumberOrZero(body, 'cogsCost'),
+        writeOffs:    firstNumberOrZero(body, 'writeOffCost'),
+        returns:      firstNumberOrZero(body, 'returnsInCost'),
+        openingValue: firstNumberOrZero(body, 'openingValue'),
+        endingValue:  firstNumberOrZero(body, 'endingValue'),
+        method:       firstStringOrEmpty(body, 'method'),
     };
 
   } catch {

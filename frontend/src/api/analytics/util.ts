@@ -8,12 +8,11 @@
  * /api/analytics endpoints.
  *
  * @enterprise
- * - firstStringOrEmpty / firstNumberOrZero are a multi-key, default-returning
- *   family (try a list of keys, return ''/0 on miss), distinct by design from
- *   the single-key, undefined-returning pickString / pickNumber in
- *   api/shared/fieldPickers. Kept separate intentionally -- do not
- *   consolidate; the contracts differ. The names differ so that a reader
- *   never mistakes one contract for the other.
+ * - firstStringOrEmpty / firstNumberOrZero read one key and return a default
+ *   (''/0) on a miss, so chart rows never hold undefined; pickString /
+ *   pickNumber in api/shared/fieldPickers return undefined instead and leave
+ *   the default to the caller. The contracts differ (number-to-string
+ *   coercion, numeric strings read as numbers): do not consolidate.
  */
 import type { AnalyticsParams } from './validation';
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
@@ -37,22 +36,17 @@ export function isArrayOfRecords(x: unknown): x is Rec[] {
     return Array.isArray(x) && x.every(isRecord);
 }
 
-/** Returns the value of the first key that holds a string (a number is stringified), or `''` when none does. */
-export function firstStringOrEmpty(r: Rec, keys: string[]): string {
-    for (const k of keys) {
-        const v = r[k];
-        if (typeof v === 'string') return v;
-        if (typeof v === 'number') return String(v);
-    }
+/** Returns the key's value when it is a string (a number is stringified), otherwise `''`. */
+export function firstStringOrEmpty(r: Rec, key: string): string {
+    const v = r[key];
+    if (typeof v === 'string') return v;
+    if (typeof v === 'number') return String(v);
     return '';
 }
 
-/** Returns the first present key's value coerced to a number, or 0 when no key is present, so NaN never reaches callers. */
-export function firstNumberOrZero(r: Rec, keys: string[]): number {
-    for (const k of keys) {
-        if (k in r) return asNumber(r[k]);
-    }
-    return 0;
+/** Returns the key's value coerced to a number, or 0 when the key is absent, so NaN never reaches callers. */
+export function firstNumberOrZero(r: Rec, key: string): number {
+    return key in r ? asNumber(r[key]) : 0;
 }
 
 /**
