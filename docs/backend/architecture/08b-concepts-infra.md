@@ -6,14 +6,17 @@
 
 ## Configuration / Profiles
 
-`application.yml` holds shared defaults (server port 8081, OAuth2 provider URLs,
-global logging). Two profile overlays specialise it:
+`application.yml` holds shared defaults (server port 8081, the Oracle datasource from the
+environment, OAuth2 provider settings, the session cookie). Three profile overlays
+specialise it, and a fourth lives with the tests:
 
 | Profile | Activation | Database | SQL logging |
 |---|---|---|---|
-| (none) | No `SPRING_PROFILES_ACTIVE` | Oracle via `DB_URL` env var (H2 if unset) | DEBUG — JDBC + Hibernate SQL |
-| `test` | `SPRING_PROFILES_ACTIVE=test` | H2 `MODE=Oracle` in-memory; `ddl-auto=create-drop` | off (`logback-test.xml`, root WARN); on demand `-Dlogging.level.org.hibernate.SQL=DEBUG` |
-| `prod` | `SPRING_PROFILES_ACTIVE=prod` | Oracle Autonomous DB via wallet; Flyway-managed schema, `ddl-auto=validate` | off (`show-sql=false`, root INFO) |
+| (none) | No `SPRING_PROFILES_ACTIVE` | Oracle from `DB_URL`, `DB_USER`, `DB_PASS`; startup fails without them. Flyway off, `ddl-auto=none` | off |
+| `test` | `SPRING_PROFILES_ACTIVE=test` (the Maven test run) | H2 `MODE=Oracle` in memory; `ddl-auto=create-drop` | off (`logback-test.xml`, root WARN); on demand `-Dlogging.level.org.hibernate.SQL=DEBUG` |
+| `e2e` | added to `test` for the browser suite (`test,e2e`) | H2 as in `test`, loaded with `db/e2e/e2e-seed.sql`; demo mode on | as in `test` |
+| `prod` | `SPRING_PROFILES_ACTIVE=prod` | Oracle Autonomous DB via the wallet; Flyway-managed schema, `ddl-auto=validate` | off |
+| `oracle-it` | test-only (`src/test/resources/application-oracle-it.yml`), run by hand | a real Oracle ADB from a developer machine ([runbook](oracle-it-smoke-test.md)) | off |
 
 `AppProperties` (`@ConfigurationProperties(prefix="app")`) centralises all
 environment-specific knobs: demo-readonly flag, frontend base URL and landing path,
@@ -69,16 +72,18 @@ See [§5 Repository Layer](05-building-blocks.md#repository-layer).
 
 ## Logging
 
-SLF4J with Logback (Spring Boot default). Log levels per profile:
+SLF4J with Logback (Spring Boot default), plain text on standard output:
 
-| Profile | Application (`com.smartsupplypro`) | Framework / Hibernate SQL |
+| Profile | Root level | SQL |
 |---|---|---|
-| default / test | DEBUG | DEBUG (JDBC + Hibernate SQL + parameter values) |
-| prod | INFO | INFO (framework noise suppressed) |
+| (none) / `prod` | INFO (Boot's default) | not logged (`show-sql` keeps its default, false) |
+| `test` / `e2e` | WARN (`src/test/resources/logback-test.xml`, console only) | not logged unless `-Dlogging.level.org.hibernate.SQL=DEBUG` is passed |
 
-In production: `show-sql=false`, health endpoint `show-details: never`. In test:
-`show-details: always` to support CI assertions. Test output also writes to
-`logs/test-application.log`. No MDC context or correlation ID is added to log entries.
+In production the health endpoint keeps `show-details: never` (Boot's default); the
+`test` profile sets `always` for the assertions in CI. No MDC
+context or correlation ID is added to log entries. What may be logged, and how request
+text is kept from forging a line, is recorded in
+[ADR-0021](09-decisions/adr-0021-request-text-neutralised-at-the-log-call.md).
 
 ---
 

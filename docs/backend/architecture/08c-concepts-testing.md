@@ -9,16 +9,17 @@ classes.
 Tests follow a layered shape: a base of isolated unit tests, a broad middle of
 single-layer slice tests, and a thin cap of full-context tests.
 
-| Layer | Annotation | Test files | Scope |
-|-------|-----------|-----------|-------|
-| Unit | `@ExtendWith(MockitoExtension.class)` / `@Mock` | 28 | Services, OAuth2 handlers, `DatabaseDialectDetector`, and dialect-selection logic — no Spring context |
-| Web slice | `@WebMvcTest` | 24 | Controllers, security endpoints, and the exception handler, with the service layer mocked |
-| Persistence slice | `@DataJpaTest` | 13 | All repositories — including the three custom analytics `*Impl` classes — against H2 |
-| Full context | `@SpringBootTest` | 2 | Application boot and wiring smoke tests |
+| Layer | Annotation | Scope |
+|-------|-----------|-------|
+| Unit | `@ExtendWith(MockitoExtension.class)` / `@Mock` | Services, validators, OAuth2 handlers, `DatabaseDialectDetector` and the dialect selection — no Spring context |
+| Web slice | `@WebMvcTest` | Controllers, the security rules in front of them and the global exception handler, with the service layer mocked |
+| Persistence slice | `@DataJpaTest` | All repositories, the custom analytics `*Impl` classes included, against H2 |
+| Full context | `@SpringBootTest` | Application boot, the actuator build information, and item reads outside a transaction (open-in-view is off) |
 
 Security paths are tested as an overlay rather than a separate layer: `@WithMockUser`,
-`@WithUserDetails`, and security-context tests (11 files) cover authentication and
-authorization at the controller slice and in dedicated security-config tests.
+`@WithAnonymousUser` and security-context tests cover authentication and authorization at
+the controller slice and in dedicated security-config tests. `ApiAuthorizationContractTest`
+fails when an `/api` handler carries no authorization rule.
 
 ## Database strategy: H2 for tests, Oracle for production
 
@@ -54,12 +55,19 @@ This gap is recorded as a standing risk — see [§11, R-04](./11-risks-technica
 ## Coverage
 
 Coverage is measured by the JaCoCo Maven plugin, bound to the `verify` phase, with the
-report written to `target/site/jacoco`.
+report written to `target/site/jacoco`. A `check` execution fails the build when the
+bundle's branch coverage falls below the floor set in `pom.xml`; the comment there says
+why branch coverage on the whole bundle is the measure. The report of the latest build on
+`main` is published with the docs:
+[backend coverage report](https://keglev.github.io/inventory-service/backend/coverage/index.html).
 
 ## Test data
 
-There is no shared fixture or test-data builder framework. Entities and DTOs are
-constructed directly within each test, keeping test setup local and explicit.
+Most tests build their entities and DTOs directly, so a test's setup stays next to its
+assertions. Where several test classes need the same objects, a fixtures class beside
+them holds the builders (`InventoryItemServiceImplFixtures`,
+`InventoryItemControllerTestFixtures`); the `testsupport` package holds `LogCapture`,
+which tests use to assert on what one class logs.
 
 ---
 

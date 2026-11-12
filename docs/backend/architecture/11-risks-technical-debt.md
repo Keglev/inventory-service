@@ -10,7 +10,7 @@ the code or decision it concerns.
 | ID | Risk | Impact | Likelihood | Mitigation / plan |
 |------|------|--------|------------|-------------------|
 | R-01 | The test suite pins H2 to 2.5.252 because the Boot-4.1-managed H2 2.4.240 rejects Hibernate 7 converter-generated CHECK constraints (h2database issue #4323; measured 2026-10-15: 38 errors across the 14 `@DataJpaTest` classes on 2.4.240, 0 on 2.5.252). The pin diverges from the Boot-managed version. | Low — test-only dependency; production runs Oracle | Low | Remove the pin once the Boot BOM manages H2 2.5 or later |
-| R-02 | The wallet is held as a base64 value in the host environment file and exists extracted on the running container's filesystem; the trust boundary is the host's file protections and the live machine rather than the image. | Low–Medium — requires host or live-machine compromise; the encrypted wallet additionally needs `ORACLE_WALLET_PASSWORD`, and ADB still enforces network/credential checks | Low | Accepted; see [ADR-0009](./09-decisions/adr-0009-runtime-wallet-delivery.md) (the former image-extraction risk is retired — the image carries no wallet) |
+| R-02 | The wallet is held as a base64 value in the host environment file and exists extracted on the running container's filesystem; the trust boundary is the host's file protections and the live machine rather than the image. | Low–Medium — requires host or live-machine compromise; the encrypted wallet additionally needs `ORACLE_WALLET_PASSWORD`, and ADB still enforces network/credential checks | Low | Accepted; see [ADR-0009](./09-decisions/adr-0009-runtime-wallet-delivery.md) (the image carries no wallet, so extracting it yields none) |
 | R-03 | `sanitize()` is regex- and order-based; a novel internal detail matching no pattern can pass through into an error body. | Low–Medium — information disclosure | Low | Known gap documented in [ADR-0005](./09-decisions/adr-0005-error-message-sanitization.md); extend patterns as new leak shapes appear |
 | R-04 | Oracle Free Tier ADB restricts access by IP allowlist; dev and CI environments have dynamic IPs and cannot reach it. All automated tests therefore run against H2 (Oracle-compatibility mode); no integration test exercises Oracle before deployment. | An Oracle-specific defect (SQL dialect divergence in the analytics queries) can surface only in production. | Low–Medium | Keep H2 and Oracle SQL variants paired in StockMetricsSqlBuilder (ADR-0006); smoke-test analytics endpoints post-deploy; consider a manual Oracle-reachable test run before major releases ([runbook](oracle-it-smoke-test.md)). |
 
@@ -32,16 +32,13 @@ reaches the 300 hard cap.
 
 | Waived | Measured | Alarm | Reason |
 |------|------|--------|------------|
-| `SecurityConfig::securityFilterChain` | 31 | 30 | One fluent `HttpSecurity` statement. The parts that can be extracted already are, into the entry-point, filter and authorization helpers. The logout block dropped a `permitAll()` that decided nothing (2026-11-02); the login page line (2026-10-28) keeps the body one above the alarm. |
+| `SecurityConfig::securityFilterChain` | 31 | 30 | One fluent `HttpSecurity` statement. The parts that can be extracted already are, into the entry-point, filter and authorization helpers. |
 
 Three files sit above their target and below their alarm and are watched rather
 than waived, all against the repository target of 80:
 `StockHistoryRepository.java` at 85,
 `repository/custom/StockDetailQueryRepositoryImpl.java` at 100 and
-`repository/custom/util/StockTrendSqlBuilder.java` at 145. The repository was at
-115 until the stock-history read API and its three queries were removed
-(2026-10-28). The builder was waived at 153 until its unused all-suppliers
-monthly variant was removed (2026-10-16).
+`repository/custom/util/StockTrendSqlBuilder.java` at 145.
 
 Seven methods sit between the target of 20 and the alarm of 30:
 `EmployeeAnalyticsService::getEmployeeActivity` at 27, the two daily-movement
@@ -49,7 +46,4 @@ builders in `StockTrendSqlBuilder` at 23 each, `UserProvisioningService::provisi
 at 22, and `StockValueSeries::build`, `StockHistoryValidator::validate` and
 `StockDetailQueryRepositoryImpl::streamEventsForWAC` at 21 each. These figures
 follow the counting rule in [§2](02-constraints.md), which leaves both brace
-lines out (2026-10-29); the earlier count of thirteen included them. The two
-daily-movement builders joined the band when they replaced the daily-valuation
-builders, which had been waived above. The band is guidance, the alarm is the
-gate.
+lines out. The band is guidance, the alarm is the gate.

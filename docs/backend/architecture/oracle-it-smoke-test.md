@@ -10,7 +10,7 @@ against the real Oracle Autonomous Database before a significant release. This i
 
 ## What it does
 
-Runs a single Spring Boot context-load test (`InventoryServiceApplicationTest.contextLoads()`)
+Runs a single Spring Boot context-load test (`InventoryServiceApplicationTest.should_load_the_context_when_the_application_starts()`)
 under the `oracle-it` profile. If the application context assembles and the datasource
 connects, the test passes — confirming the wallet, credentials, and Oracle dialect work
 end to end against a live ADB. It does **not** exercise the analytics SQL or business
@@ -69,7 +69,7 @@ either is sufficient. Both are shown for clarity.
 
 ## Interpreting the result
 
-- **`contextLoads()` passes** → the app boots, the wallet/mTLS connection succeeds, and
+- **`should_load_the_context_when_the_application_starts()` passes** → the app boots, the wallet/mTLS connection succeeds, and
   the Oracle dialect initialises. Connection path verified.
 - **`IllegalStateException` before tests run** → a required env var is unset. Re-check the
   four variables above.

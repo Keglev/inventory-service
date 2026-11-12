@@ -29,8 +29,7 @@ static IPv4 address, so the database is reachable only from that machine.
 Architecture and API documentation are published to **GitHub Pages** via a separate
 docs pipeline.
 
-**Previous hosting.** The backend previously ran on a single-tenant 1 GB VM at a
-managed platform provider. The migration to the shared host, its cost and the
+Why the backend shares a host with another project, what that costs and the
 shared-fate trade-off it accepts are recorded in
 [ADR 0012](09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.md).
 
@@ -68,8 +67,8 @@ graph TB
 
 ## CI/CD Pipeline
 
-Twelve GitHub Actions workflows make up the pipeline. They are grouped by the
-chain they belong to and listed in execution order within it; the shared ones
+The pipeline is made of the GitHub Actions workflows and the two composite actions
+below. They are grouped by the chain they belong to and listed in execution order within it; the shared ones
 serve more than one chain or none ([ADR 0017](09-decisions/adr-0017-workflows-named-by-chain.md)).
 
 | Chain | Workflow | Purpose |
@@ -103,7 +102,7 @@ in order (`queue: max`). `backend-deploy` releases the commit `backend-docker` b
 which hands it over as the one-day artifact `built-commit`: a `workflow_run` run's own
 `head_sha` is `main`'s HEAD when the run was created and can name a later merge.
 
-Every action reference across all eleven workflows is pinned to a commit SHA rather
+Every action reference across all workflows is pinned to a commit SHA rather
 than a mutable tag; `dependabot.yml` opens one grouped pull request a month to
 move those pins, which is the only way they get updated at all.
 
@@ -155,8 +154,9 @@ pipeline scanned. This means:
 
 | Environment | Spring Profile | Database | Secret Source |
 |---|---|---|---|
-| Local dev | (none) | H2 in-memory | `.env` file or IDE run config |
-| CI / test | `test` | H2 (Oracle-compatibility mode) | `application-test.yml` |
+| Local dev | (none) | Oracle, from `DB_URL`, `DB_USER`, `DB_PASS` (startup fails without them) | `.env` file (template `.env.example`) or IDE run config |
+| CI / test | `test` | H2 in memory (Oracle-compatibility mode) | `application-test.yml` |
+| Browser suite (CI) | `test,e2e` | H2 as in `test`, plus the e2e seed and demo mode on | `application-e2e.yml` |
 | Production | `prod` | Oracle Autonomous DB 23ai | `/opt/smartsupplypro/.env.prod` on the host |
 
 `SPRING_PROFILES_ACTIVE=prod` and the non-sensitive runtime flags
