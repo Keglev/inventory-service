@@ -45,7 +45,7 @@ independently and does not trust the client's claimed role.
 
 | Setting | Value | Why |
 |---|---|---|
-| OAuth2 state cookie | `OAUTH2_AUTH_REQUEST`, HTTP-only, TTL 180 s | Configurable via `AppProperties.Cookie` |
+| OAuth2 state cookie | `OAUTH2_AUTH_REQUEST`, `HttpOnly`, `Secure`, `SameSite=Lax`, 180 s (`AppProperties.Cookie`), cleared by the callback | No server session exists before sign-in, and a redeploy between the redirect to Google and the callback does not lose the request. Not signed: `state`, the ID token nonce, the redirect URI and the allow-list make a changed cookie fail only its own login ([ADR-0007](09-decisions/adr-0007-cross-origin-auth-cookie.md), amendment 2026-11-12) |
 | Session cookie | `HttpOnly`, `Secure=true`, `SameSite=Lax` | Same-origin behind the serve-time rewrite proxy; `Lax` since the API and the frontend share a registrable domain ([ADR-0012](09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.md)) |
 | CSRF | Off for `/api/**` and `/logout` (`SecurityConfig`) | The session cookie is `SameSite=Lax`, so a browser does not send it with a cross-site POST, and the frontend reaches the API same-origin through the serving proxy ([ADR-0008](09-decisions/adr-0008-serve-time-api-base-rewrite.md)): a cross-site form cannot carry the session. Actuator is not in the list: its exposed endpoints are GET, and CSRF does not apply to safe methods |
 | CORS allowed origins | dev `http://localhost:5173`; prod `https://www.smartsupplypro.de` | Per profile in `AppProperties.cors.allowedOrigins`; the platform-generated Koyeb hostname is deliberately not allow-listed ([ADR-0010](09-decisions/adr-0010-custom-domain-and-canonical-host.md)) |

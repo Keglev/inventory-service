@@ -151,6 +151,35 @@ setting (`app.frontend.landing-path`, `APP_FRONTEND_LANDING_PATH`; default `/aut
 SPA's callback route). Where this record says `{validatedOrigin}/auth`, read
 `{validatedOrigin}{landingPath}`.
 
+## Amendment 2026-11-12: why the authorization request still lives in a cookie
+The cookie-backed authorization-request repository was chosen for a split,
+two-provider deployment with no sticky session. That reason no longer applies: one
+backend container serves every request (ADR-0012), and the login session itself is a
+server session (`JSESSIONID`, in the container's memory). The repository stays, for
+two reasons that hold on one container:
+
+- **No server session before sign-in.** The default repository stores the request in
+  the HTTP session, so every click on "Sign in", finished or abandoned, would create
+  one. With the cookie, a session exists only after a successful login.
+- **A redeploy cannot break a login in progress.** Sessions live in memory, and the
+  backend is redeployed automatically on every release. A request stored in the
+  session is lost when the container is replaced between the redirect to Google and
+  the callback; the cookie survives it for its 180 seconds.
+
+The cookie is HttpOnly, Secure, `SameSite=Lax` (the callback from Google is a
+top-level GET navigation, which `Lax` admits) and is cleared when the callback reads
+it. It is not signed or encrypted, on purpose. Changing it can only break the login
+of the browser that holds it: Spring Security compares the callback's `state` with
+the stored one, checks the ID token's nonce against the stored nonce
+(`OidcAuthorizationCodeAuthenticationProvider`, Spring Security 7.1), the redirect URI
+goes back to Google with the code and must match the one the code was issued for,
+and only an allow-listed e-mail address can complete a sign-in (ADR-0011). Signing it
+would add a key to manage and rotate on the host and protect nothing these checks do
+not already protect.
+
+Where this record still says `SameSite=None` for these cookies, read `SameSite=Lax`
+(currency note of 2026-08-28).
+
 ## References
 - [§5 Building Block View](../05-building-blocks.md#cross-cutting) — Spring Security,
   OAuth2 success handler, and the cookie-backed authorization-request repository
