@@ -16,6 +16,10 @@ own row selection.
 Handler hooks stay thin and encode the reset invariants: changing supplier clears
 the query and resets to page 0; toggling below-minimum resets paging;
 the refresh handler resets paging and bumps a refetch signal.
+The grid follows the table-density setting: compact uses MUI's compact density
+(36 px rows), comfortable uses MUI's standard density (52 px rows). The theme makes
+every data grid compact unless a table sets its own density; the suppliers table
+maps comfortable to MUI's comfortable density instead.
 
 ## Data Fetching & Filtering
 
