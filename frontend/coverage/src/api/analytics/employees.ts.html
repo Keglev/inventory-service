@@ -451,14 +451,14 @@ export async function getEmployeeActivity(filter?: EmployeeActivityFilter): Prom
 &nbsp;
         return (data as Rec[])
             .map&lt;EmployeeActivityRow | null&gt;((rec) =&gt; {
-                const period = firstStringOrEmpty(rec, ['period']);
-                const createdBy = firstStringOrEmpty(rec, ['createdBy']);
+                const period = firstStringOrEmpty(rec, 'period');
+                const createdBy = firstStringOrEmpty(rec, 'createdBy');
                 <span class="missing-if-branch" title="if path not taken" >I</span>if (!period || !createdBy) <span class="cstat-no" title="statement not covered" >return null;</span>
                 return {
                     period,
                     createdBy,
-                    displayName: firstStringOrEmpty(rec, ['displayName']) || createdBy,
-                    changeCount: firstNumberOrZero(rec, ['changeCount']),
+                    displayName: firstStringOrEmpty(rec, 'displayName') || createdBy,
+                    changeCount: firstNumberOrZero(rec, 'changeCount'),
                 };
             })
             .filter((x): x is EmployeeActivityRow =&gt; x !== null);
@@ -524,16 +524,16 @@ export async function getEmployeeChanges(filter?: EmployeeChangesFilter): Promis
 &nbsp;
         const rows = (content as Rec[])
             .map&lt;EmployeeChangeRow | null&gt;((rec) =&gt; {
-                const timestamp = firstStringOrEmpty(rec, ['timestamp']);
-                const itemName = firstStringOrEmpty(rec, ['itemName']);
+                const timestamp = firstStringOrEmpty(rec, 'timestamp');
+                const itemName = firstStringOrEmpty(rec, 'itemName');
                 <span class="missing-if-branch" title="if path not taken" >I</span>if (!timestamp || !itemName) <span class="cstat-no" title="statement not covered" >return null;</span>
                 return {
                     timestamp,
                     itemName,
-                    supplierName: firstStringOrEmpty(rec, ['supplierName']),
-                    change: firstNumberOrZero(rec, ['change']),
-                    reason: firstStringOrEmpty(rec, ['reason']),
-                    createdBy: firstStringOrEmpty(rec, ['createdBy']),
+                    supplierName: firstStringOrEmpty(rec, 'supplierName'),
+                    change: firstNumberOrZero(rec, 'change'),
+                    reason: firstStringOrEmpty(rec, 'reason'),
+                    createdBy: firstStringOrEmpty(rec, 'createdBy'),
                 };
             })
             .filter((x): x is EmployeeChangeRow =&gt; x !== null);

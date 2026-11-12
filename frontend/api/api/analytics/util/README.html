@@ -125,13 +125,12 @@ api/analytics/util/README · Smart Supply Pro · API</title>
         <p>util.ts</p>
         <h2 id="enterprise">Enterprise</h2>
         <ul>
-        <li>firstStringOrEmpty / firstNumberOrZero are a multi-key,
-        default-returning family (try a list of keys, return ''/0 on
-        miss), distinct by design from the single-key,
-        undefined-returning pickString / pickNumber in
-        api/shared/fieldPickers. Kept separate intentionally -- do not
-        consolidate; the contracts differ. The names differ so that a
-        reader never mistakes one contract for the other.</li>
+        <li>firstStringOrEmpty / firstNumberOrZero read one key and
+        return a default (''/0) on a miss, so chart rows never hold
+        undefined; pickString / pickNumber in api/shared/fieldPickers
+        return undefined instead and leave the default to the caller.
+        The contracts differ (number-to-string coercion, numeric strings
+        read as numbers): do not consolidate.</li>
         </ul>
         <h2 id="type-aliases">Type Aliases</h2>
         <ul>

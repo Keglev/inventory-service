@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>26/26</span>
+                <span class='fraction'>22/22</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>21/21</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
@@ -128,14 +128,7 @@
 <a name='L63'></a><a href='#L63'>63</a>
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a>
-<a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L66'></a><a href='#L66'>66</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -176,19 +169,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">62x</span>
-<span class="cline-any cline-yes">64x</span>
-<span class="cline-any cline-yes">64x</span>
-<span class="cline-any cline-yes">15x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">72x</span>
-<span class="cline-any cline-yes">72x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -215,12 +203,11 @@
  * /api/analytics endpoints.
  *
  * @enterprise
- * - firstStringOrEmpty / firstNumberOrZero are a multi-key, default-returning
- *   family (try a list of keys, return ''/0 on miss), distinct by design from
- *   the single-key, undefined-returning pickString / pickNumber in
- *   api/shared/fieldPickers. Kept separate intentionally -- do not
- *   consolidate; the contracts differ. The names differ so that a reader
- *   never mistakes one contract for the other.
+ * - firstStringOrEmpty / firstNumberOrZero read one key and return a default
+ *   (''/0) on a miss, so chart rows never hold undefined; pickString /
+ *   pickNumber in api/shared/fieldPickers return undefined instead and leave
+ *   the default to the caller. The contracts differ (number-to-string
+ *   coercion, numeric strings read as numbers): do not consolidate.
  */
 import type { AnalyticsParams } from './validation';
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
@@ -244,22 +231,17 @@ export function isArrayOfRecords(x: unknown): x is Rec[] {
     return Array.isArray(x) &amp;&amp; x.every(isRecord);
 }
 &nbsp;
-/** Returns the value of the first key that holds a string (a number is stringified), or `''` when none does. */
-export function firstStringOrEmpty(r: Rec, keys: string[]): string {
-    for (const k of keys) {
-        const v = r[k];
-        if (typeof v === 'string') return v;
-        if (typeof v === 'number') return String(v);
-    }
+/** Returns the key's value when it is a string (a number is stringified), otherwise `''`. */
+export function firstStringOrEmpty(r: Rec, key: string): string {
+    const v = r[key];
+    if (typeof v === 'string') return v;
+    if (typeof v === 'number') return String(v);
     return '';
 }
 &nbsp;
-/** Returns the first present key's value coerced to a number, or 0 when no key is present, so NaN never reaches callers. */
-export function firstNumberOrZero(r: Rec, keys: string[]): number {
-    for (const k of keys) {
-        if (k in r) return asNumber(r[k]);
-    }
-    return 0;
+/** Returns the key's value coerced to a number, or 0 when the key is absent, so NaN never reaches callers. */
+export function firstNumberOrZero(r: Rec, key: string): number {
+    return key in r ? asNumber(r[key]) : 0;
 }
 &nbsp;
 /**

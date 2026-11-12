@@ -196,9 +196,9 @@ export async function getLowStockItems(supplierId: string): Promise&lt;LowStockR
         const rows: LowStockRow[] = rawList
         .map((rec) =&gt; {
             // LowStockItemDTO field names.
-            const itemName = firstStringOrEmpty(rec, ['itemName']);
-            const quantity = firstNumberOrZero(rec, ['quantity']);
-            const minimumQuantity = firstNumberOrZero(rec, ['minimumQuantity']);
+            const itemName = firstStringOrEmpty(rec, 'itemName');
+            const quantity = firstNumberOrZero(rec, 'quantity');
+            const minimumQuantity = firstNumberOrZero(rec, 'minimumQuantity');
             return itemName ? { itemName, quantity, minimumQuantity } : <span class="branch-1 cbranch-no" title="branch not covered" >null;</span>
         })
         .filter((x): x is LowStockRow =&gt; x !== null);

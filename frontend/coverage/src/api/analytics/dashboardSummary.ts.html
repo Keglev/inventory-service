@@ -185,12 +185,12 @@ export async function getDashboardLowStock(): Promise&lt;LowStockRow[]&gt; {
     if (!isArrayOfRecords(rows)) return [];
     return (rows as Rec[])
       .map&lt;LowStockRow | null&gt;((rec) =&gt; {
-        const itemName = firstStringOrEmpty(rec, ['itemName']);
+        const itemName = firstStringOrEmpty(rec, 'itemName');
         if (!itemName) return null;
         return {
           itemName,
-          quantity: firstNumberOrZero(rec, ['quantity']),
-          minimumQuantity: firstNumberOrZero(rec, ['minimumQuantity']),
+          quantity: firstNumberOrZero(rec, 'quantity'),
+          minimumQuantity: firstNumberOrZero(rec, 'minimumQuantity'),
         };
       })
       .filter((x): x is LowStockRow =&gt; x !== null);
