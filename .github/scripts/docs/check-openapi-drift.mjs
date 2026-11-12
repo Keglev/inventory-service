@@ -6,7 +6,7 @@
 //        docs/backend/api/openapi.yaml; <java-src> is src/main/java. Called by
 //        check-openapi-drift.sh after the lint.
 //
-// The spec is written by hand (Standards OPENAPI, FY-1 A), so nothing else keeps
+// The spec is written by hand (Standards OPENAPI), so nothing else keeps
 // it equal to the code. Compared per /api operation: method and path; query and
 // path parameters with their required flag and, for LocalDate/LocalDateTime, the
 // date format; the first 2xx JSON response schema against the returned DTO's

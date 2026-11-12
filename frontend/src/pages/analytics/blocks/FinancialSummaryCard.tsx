@@ -8,7 +8,7 @@
  * bar chart (Purchases, COGS, Write-offs, Returns).
  *
  * @enterprise
- * - An empty supplier filter means all suppliers (Standards, S2-9; FE-6 A): the
+ * - An empty supplier filter means all suppliers, as in every supplier filter: the
  *   endpoint answers without supplierId with the all-supplier summary. The query
  *   waits only for the date range, which the endpoint requires.
  * - An all-zero result triggers a distinct empty state, so "nothing happened in

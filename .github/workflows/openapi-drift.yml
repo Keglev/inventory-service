@@ -7,7 +7,7 @@
 # changes alone: six response schemas once drifted through backend pull requests
 # that never touched the spec. A spec change is claimed by docs-pr-check, a
 # controller or DTO change by backend-ci, so both call this workflow
-# (Standards OPENAPI, FY-1 A). No chain prefix: it belongs to two chains
+# (backend ADR-0019, amendment 2026-11-12). No chain prefix: it belongs to two chains
 # (backend ADR-0017). No concurrency block, as in yaml-lint.yml: two callers of
 # one pull request share a ref.
 #
