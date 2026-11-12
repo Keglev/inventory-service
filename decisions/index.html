@@ -248,8 +248,10 @@
         </tbody>
         </table>
         <p>Backend ADR-0009 supersedes the wallet delivery and password
-        model of backend ADR-0001; the auto-login mechanism ADR-0001
-        chose still stands.</p>
+        model of backend ADR-0001: production uses the encrypted wallet
+        with a runtime password, delivered outside the image. The mTLS
+        channel and the database account layer ADR-0001 chose still
+        stand.</p>
         <h2 id="frontend">Frontend</h2>
         <p>Source: <a
         href="../frontend/architecture/09-decisions/index.html">Frontend
@@ -355,6 +357,18 @@
         <td><a
         href="../frontend/architecture/09-decisions/adr-0014-searching-bounded-lists-in-the-browser.html">Searching
         bounded lists in the browser</a></td>
+        </tr>
+        <tr class="odd">
+        <td>0015</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0015-user-menu-and-one-settings-dialog.html">The
+        user menu and one settings dialog follow SAP Fiori</a></td>
+        </tr>
+        <tr class="even">
+        <td>0016</td>
+        <td><a
+        href="../frontend/architecture/09-decisions/adr-0016-typescript-7-waits-for-its-tools.html">TypeScript
+        7 waits until the linter and TypeDoc accept it</a></td>
         </tr>
         </tbody>
         </table>

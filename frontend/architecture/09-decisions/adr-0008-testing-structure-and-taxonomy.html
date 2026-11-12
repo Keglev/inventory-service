@@ -232,6 +232,33 @@
         harness.</li>
         </ul></li>
         </ul>
+        <h2
+        id="amendment-2026-11-12-the-test-tree-mirrors-the-source-tree">Amendment
+        2026-11-12: the test tree mirrors the source tree</h2>
+        <p>The taxonomy above (<code>unit/</code>,
+        <code>components/pages/&lt;domain&gt;/</code>, the HamburgerMenu
+        folder) no longer describes the tree. Ruled by Carlos and
+        carried out by the test-tree moves of October 2026:</p>
+        <ul>
+        <li><code>frontend/src/__tests__/</code> mirrors
+        <code>frontend/src/</code>: the spec for
+        <code>src/&lt;path&gt;/X.tsx</code> is
+        <code>src/__tests__/&lt;path&gt;/X.test.tsx</code>. A reader
+        finds the tests of a file by its path, and a moved source file
+        shows which spec moves with it.</li>
+        <li><code>src/__tests__/stubs/</code> and
+        <code>src/__tests__/test/</code> hold test-only infrastructure
+        (stubs, the provider harness
+        <code>test/all-providers.tsx</code>, the query-client helpers in
+        <code>test/queryClient.tsx</code>). Contract and wiring specs
+        that test no single source file live in the folder of the area
+        they guard (the chart standards under <code>utils/</code>).</li>
+        <li>Every test import and <code>vi.mock</code> path uses the
+        <code>@/</code> alias, so a move changes no import.</li>
+        </ul>
+        <p>The “Testing implications” lines of ADR-0001 to ADR-0007 that
+        name <code>unit/</code> or <code>components/pages/</code> paths
+        follow this layout too.</p>
         <h2 id="references">References</h2>
         <ul>
         <li>Architecture docs: <a
@@ -265,6 +292,10 @@
       </ul></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a
+      href="#amendment-2026-11-12-the-test-tree-mirrors-the-source-tree"
+      id="toc-amendment-2026-11-12-the-test-tree-mirrors-the-source-tree">Amendment
+      2026-11-12: the test tree mirrors the source tree</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

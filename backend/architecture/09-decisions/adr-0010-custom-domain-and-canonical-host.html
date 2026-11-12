@@ -264,6 +264,40 @@
         redirect URI (<code>/login/oauth2/code/google</code>) on the
         canonical host.</li>
         </ul>
+        <h2
+        id="amendment-2026-11-12-where-the-pieces-live-now">Amendment
+        2026-11-12: where the pieces live now</h2>
+        <p>Nothing in the decision changed:
+        <code>www.smartsupplypro.de</code> is still the one canonical
+        origin and the apex still redirects to it. The places this
+        record names did change:</p>
+        <ul>
+        <li><strong>DNS.</strong> The zone is hosted at Cloudflare; the
+        domain stays registered at INWX with Cloudflare’s nameservers.
+        <code>www</code> is a DNS-only <code>CNAME</code> to the Koyeb
+        edge, and Cloudflare answers the apex with a 301 to
+        <code>https://www.smartsupplypro.de/</code> (checked
+        2026-11-09). The redirect still lives outside version
+        control.</li>
+        <li><strong><code>APP_FRONTEND_BASE_URL</code>.</strong>
+        <code>fly.toml</code> was removed when the backend moved to the
+        shared Hetzner host (ADR-0012). The variable now lives in the
+        host’s <code>.env.prod</code> next to the other backend settings
+        (<code>docker/README.md</code> lists them). The Fly
+        secret-shadowing warning in the Implementation Notes no longer
+        applies.</li>
+        <li><strong>Health-check target.</strong> The frontend deploy
+        workflow is <code>frontend-deploy.yml</code> (ADR-0017);
+        <code>FRONTEND_URL</code> there is the target.</li>
+        <li><strong>A public backend host exists after all.</strong>
+        Alternative 3 rejected a public <code>api.</code> host for the
+        browser. The backend now has one,
+        <code>api.smartsupplypro.de</code>, for a different reason: the
+        Hetzner host’s Caddy terminates TLS for it and the frontend’s
+        Nginx proxies to it (ADR-0012). The browser still talks only to
+        <code>www</code> (ADR-0008), so the reasoning of Alternative 3
+        stands for browser traffic.</li>
+        </ul>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -300,6 +334,9 @@
       </ul></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#amendment-2026-11-12-where-the-pieces-live-now"
+      id="toc-amendment-2026-11-12-where-the-pieces-live-now">Amendment
+      2026-11-12: where the pieces live now</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

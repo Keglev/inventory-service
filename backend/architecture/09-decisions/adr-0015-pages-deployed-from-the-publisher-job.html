@@ -283,6 +283,33 @@
         artifact <code>github-pages-&lt;attempt&gt;</code>, so a re-run
         deploys its own copy. The permissions, environment, queue and
         deploy conditions above are unchanged.</p>
+        <h2
+        id="amendment-2026-11-12-the-deadline-sits-inside-the-job-and-a-blocker-is-cleared">Amendment
+        2026-11-12: the deadline sits inside the job, and a blocker is
+        cleared</h2>
+        <p>The 2026-11-05 amendment promised that a stuck deployment
+        cannot block the next one, because the script cancels its own
+        deployment on a timeout. On 2026-11-06 that did not hold: the
+        script’s deadline was 600 s and the job’s
+        <code>timeout-minutes</code> 10, so the runner ended the job
+        about five seconds before the deadline and the cancel never ran.
+        The orphaned deployment stayed “in progress” at GitHub, and
+        every later deployment was refused with HTTP 400 “cancel <sha>
+        first” until it was cancelled by hand.</p>
+        <ul>
+        <li><code>deploy-pages.sh</code> now gives up after 420 s, well
+        inside the job’s ten minutes, so its own cancel always
+        runs.</li>
+        <li>A refusal that names its blocker (“cancel <sha> first”)
+        makes the script cancel that deployment and retry once. The
+        docs-deploy concurrency queue runs one deploy job at a time, so
+        the blocker cannot be a deployment another job is still
+        watching.</li>
+        </ul>
+        <p>A deadline that ends in cleanup has to sit well inside the
+        job that runs it. The manual runbook (GitHub CLI: read the
+        deployment, then cancel it) stays the fallback when the retry is
+        refused too.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -327,6 +354,11 @@
       href="#amendment-2026-11-05-every-deployment-has-its-own-build-version"
       id="toc-amendment-2026-11-05-every-deployment-has-its-own-build-version">Amendment
       2026-11-05: every deployment has its own build version</a></li>
+      <li><a
+      href="#amendment-2026-11-12-the-deadline-sits-inside-the-job-and-a-blocker-is-cleared"
+      id="toc-amendment-2026-11-12-the-deadline-sits-inside-the-job-and-a-blocker-is-cleared">Amendment
+      2026-11-12: the deadline sits inside the job, and a blocker is
+      cleared</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

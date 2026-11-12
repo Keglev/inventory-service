@@ -281,6 +281,15 @@
         (exact value is non-deterministic)</li>
         </ul></li>
         </ul>
+        <h2 id="amendment-2026-11-12-who-fills-fielderrors">Amendment
+        2026-11-12: who fills fieldErrors</h2>
+        <p>The Implementation Notes say <code>fieldErrors</code> is
+        populated only by the bean-validation handler. As the Decision
+        states, <code>BusinessExceptionHandler</code> fills it too: a
+        <code>DuplicateResourceException</code> that names its field
+        answers 409 with that field in <code>fieldErrors</code> (a
+        duplicate supplier or item name arrives as
+        <code>fieldErrors.name</code>).</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a href="../06-runtime.html">§6 Runtime View</a> —
@@ -317,6 +326,9 @@
       </ul></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#amendment-2026-11-12-who-fills-fielderrors"
+      id="toc-amendment-2026-11-12-who-fills-fielderrors">Amendment
+      2026-11-12: who fills fieldErrors</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

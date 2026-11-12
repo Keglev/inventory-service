@@ -222,6 +222,37 @@
         before the merge, after the other open pull requests have
         merged, so none waits for a name it does not report.</li>
         </ul>
+        <h2
+        id="amendment-2026-11-12-what-the-ruleset-requires-and-the-drift-check">Amendment
+        2026-11-12: what the ruleset requires, and the drift check</h2>
+        <ul>
+        <li><strong>Branches need not be up to date.</strong> The
+        ruleset does not require a pull request’s branch to contain the
+        latest <code>main</code> before it merges. A pull request is
+        tested on its merge commit with <code>main</code> as it was when
+        the run started; after the merge, the push run on
+        <code>main</code> tests the merged tree again, and only a
+        successful push run starts the image build and deploy chains.
+        Two changes that pass alone but break together therefore stop at
+        the release, not in production, without forcing every open pull
+        request to re-run after each merge.</li>
+        <li><strong>A fourth required check.</strong> Besides the three
+        claimant checks the ruleset requires
+        <code>GitGuardian Security Checks</code>, the secret scan
+        GitHub’s GitGuardian app reports on every pull request.</li>
+        <li><strong>A check over two families.</strong>
+        <code>openapi-drift.yml</code> compares the OpenAPI spec with
+        the controllers and DTOs. Its files belong to the docs family
+        (the spec) and the backend family (controllers and DTOs), so
+        <code>backend-ci.yml</code> and <code>docs-pr-check.yml</code>
+        both call it as a job behind their aggregators, and it has its
+        own diff gate: it runs when the pull request touches
+        <code>docs/backend/api/</code>, a <code>controller/</code> or
+        <code>dto/</code> folder, or the check itself. A check that
+        spans two families follows this shape; one that spans all three
+        is called by all three claimants, as the YAML lint is (ADR-0016,
+        amendment of 2026-10-20).</li>
+        </ul>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -261,6 +292,11 @@
       id="toc-consequences">Consequences</a></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a
+      href="#amendment-2026-11-12-what-the-ruleset-requires-and-the-drift-check"
+      id="toc-amendment-2026-11-12-what-the-ruleset-requires-and-the-drift-check">Amendment
+      2026-11-12: what the ruleset requires, and the drift
+      check</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

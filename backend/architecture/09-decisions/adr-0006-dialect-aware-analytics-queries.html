@@ -325,6 +325,33 @@
         clients send them back as received. An exact comparison keeps
         any index on the column usable, as the 2026-10-19 amendment
         noted for the search.</p>
+        <h2
+        id="amendment-2026-11-12-three-builders-and-the-queries-they-hold-today">Amendment
+        2026-11-12: three builders, and the queries they hold today</h2>
+        <p>The Decision puts all SQL text in
+        <code>StockMetricsSqlBuilder</code>. The SQL is split by the
+        repository fragment it serves, into three static builders in the
+        same package:</p>
+        <ul>
+        <li><code>StockDetailSqlBuilder</code>: the filtered
+        stock-history search (one statement for both dialects since the
+        2026-10-19 amendment);</li>
+        <li><code>StockMetricsSqlBuilder</code>: supplier totals and
+        update counts (one statement each);</li>
+        <li><code>StockTrendSqlBuilder</code>: monthly movement, daily
+        item movements, price trend and daily employee activity, each as
+        an H2 and an Oracle variant, because date bucketing and
+        valuation really differ.</li>
+        </ul>
+        <p>The method lists in the Implementation Notes are out of date.
+        <code>getDailyStockValuation</code> no longer exists; the stock
+        value series is computed in the service from
+        <code>getDailyItemMovements</code>.
+        <code>findItemsBelowMinimumStock</code> left
+        <code>StockMetricsRepository</code>; the below-minimum list is a
+        JPQL query on <code>InventoryItemRepository</code>. The decision
+        (custom fragments, dialect variants only where the dialects
+        differ) is unchanged.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a
@@ -372,6 +399,11 @@
       <li><a href="#amendment-2026-11-06-one-supplier-id-rule"
       id="toc-amendment-2026-11-06-one-supplier-id-rule">Amendment
       2026-11-06: one supplier-id rule</a></li>
+      <li><a
+      href="#amendment-2026-11-12-three-builders-and-the-queries-they-hold-today"
+      id="toc-amendment-2026-11-12-three-builders-and-the-queries-they-hold-today">Amendment
+      2026-11-12: three builders, and the queries they hold
+      today</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

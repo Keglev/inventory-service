@@ -326,6 +326,29 @@
         sanitized replacement strings appear in the response body</li>
         </ul></li>
         </ul>
+        <h2
+        id="amendment-2026-11-12-each-handler-calls-sanitize">Amendment
+        2026-11-12: each handler calls sanitize()</h2>
+        <p>Two statements above describe the code inaccurately:</p>
+        <ul>
+        <li><strong>“Adding a new handler automatically benefits from
+        sanitization via the shared <code>respond()</code>
+        helper.”</strong> <code>respond()</code> does not sanitize. Each
+        handler that forwards an exception message calls
+        <code>sanitize()</code> itself before <code>respond()</code>, as
+        the Migration notes already ask. A new handler that forgets the
+        call forwards the raw message.</li>
+        <li><strong>The caller list.</strong>
+        <code>handleValidation</code>, <code>handleConstraint</code>,
+        <code>handleNotFound</code> and
+        <code>handleResponseStatus</code> call <code>sanitize()</code>.
+        <code>handleAccessDenied</code> returns a fixed text, like
+        <code>handleDataIntegrity</code>,
+        <code>handleAuthentication</code> and
+        <code>handleUnexpected</code>.</li>
+        </ul>
+        <p>The Implementation Notes also cite line numbers; the method
+        is <code>GlobalExceptionHandler.sanitize</code>.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a href="../08-concepts.html">§8 Exception Handling</a> —
@@ -360,6 +383,9 @@
       </ul></li>
       <li><a href="#implementation-notes"
       id="toc-implementation-notes">Implementation Notes</a></li>
+      <li><a href="#amendment-2026-11-12-each-handler-calls-sanitize"
+      id="toc-amendment-2026-11-12-each-handler-calls-sanitize">Amendment
+      2026-11-12: each handler calls sanitize()</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>

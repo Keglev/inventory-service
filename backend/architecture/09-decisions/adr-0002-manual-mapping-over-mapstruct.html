@@ -261,6 +261,16 @@
         Implementation Notes line on <code>@PrePersist</code> and the
         <code>"system"</code> fallback describes the code before this
         date.</p>
+        <h2 id="amendment-2026-11-12-two-mappers">Amendment 2026-11-12:
+        two mappers</h2>
+        <p><code>StockHistoryMapper</code> no longer exists. Since the
+        stock-history read API was removed (ADR-0018) no response
+        carries a stock-history entry, and the write side builds the
+        <code>StockHistory</code> entity in
+        <code>StockHistoryServiceImpl</code>. The remaining mappers are
+        <code>InventoryItemMapper</code> and
+        <code>SupplierMapper</code>; the decision applies to both
+        unchanged.</p>
         <h2 id="references">References</h2>
         <ul>
         <li><a href="../05-building-blocks.html">§5 Building Block
@@ -299,6 +309,9 @@
       id="toc-amendment-2026-10-16-inventoryitem-without-prepersist">Amendment
       2026-10-16: InventoryItem without <span class="citation"
       data-cites="PrePersist">@PrePersist</span></a></li>
+      <li><a href="#amendment-2026-11-12-two-mappers"
+      id="toc-amendment-2026-11-12-two-mappers">Amendment 2026-11-12:
+      two mappers</a></li>
       <li><a href="#references" id="toc-references">References</a></li>
       </ul></li>
       </ul>
