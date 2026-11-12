@@ -79,13 +79,15 @@ describe('createSupplierSchema', () => {
     });
   });
 
-  describe('failure paths', () => {
-    it('rejects empty string for email', () => {
-      const error = expectParseFailure(createSupplierSchema, { name: 'Email Test', email: '' });
+  describe('empty email', () => {
+    it('treats an empty email as no email', () => {
+      const data = expectParseSuccess(createSupplierSchema, { name: 'Email Test', email: '' });
 
-      expect(error.issues[0].message).toBe('errors:validation.invalidEmail');
+      expect(data.email).toBeNull();
     });
+  });
 
+  describe('failure paths', () => {
     it('rejects missing name', () => {
       expectParseFailure(createSupplierSchema, { contactName: 'John' });
     });
@@ -130,13 +132,8 @@ describe('editSupplierSchema', () => {
       expect(expectParseSuccess(editSupplierSchema, input)).toEqual(input);
     });
 
-    it('coerces invalid email to null instead of rejecting the edit payload', () => {
-      const data = expectParseSuccess(editSupplierSchema, {
-        supplierId: '789',
-        contactName: 'Test User',
-        phone: '555-1234',
-        email: 'bad-email',
-      });
+    it('treats an empty email as no email', () => {
+      const data = expectParseSuccess(editSupplierSchema, { supplierId: '789', email: '' });
 
       expect(data.email).toBeNull();
     });
@@ -149,6 +146,17 @@ describe('editSupplierSchema', () => {
         phone: '123',
         email: 'test@example.com',
       });
+    });
+
+    it('rejects an invalid email with the invalidEmail key instead of clearing it', () => {
+      const error = expectParseFailure(editSupplierSchema, {
+        supplierId: '789',
+        contactName: 'Test User',
+        phone: '555-1234',
+        email: 'bad-email',
+      });
+
+      expect(error.issues[0].message).toBe('errors:validation.invalidEmail');
     });
 
     it('rejects empty supplierId with a stable error message', () => {
