@@ -53,10 +53,12 @@ export interface UseCreateSupplierFormReturn {
  * form banner; the parent's onCreated reports success.
  * 
  * @param onCreated - Callback when supplier is successfully created
+ * @param readOnly - Demo session: a valid submit shows the demo message and sends no request
  * @returns Form methods and submission handler
  */
 export const useCreateSupplierForm = (
-  onCreated: () => void
+  onCreated: () => void,
+  readOnly = false
 ): UseCreateSupplierFormReturn => {
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const [formError, setFormError] = React.useState<string | null>(null);
@@ -92,6 +94,11 @@ export const useCreateSupplierForm = (
   };
 
   const onSubmit = async (data: CreateSupplierForm): Promise<{ success: boolean }> => {
+    if (readOnly) {
+      setFormError(t('common:demoDisabled'));
+      return { success: false };
+    }
+
     setFormError(null);
 
     try {

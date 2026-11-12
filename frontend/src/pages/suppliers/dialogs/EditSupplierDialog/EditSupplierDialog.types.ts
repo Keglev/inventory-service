@@ -22,4 +22,6 @@ export interface EditSupplierDialogProps {
   onClose: () => void;
   /** Called after successful supplier update to reload data */
   onSupplierUpdated: () => void;
+  /** Demo session: the dialog stays usable, a valid submit sends no request (frontend ADR-0013). */
+  readOnly?: boolean;
 }

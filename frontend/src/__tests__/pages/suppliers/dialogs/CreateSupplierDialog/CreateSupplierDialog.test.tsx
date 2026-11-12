@@ -43,7 +43,8 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/pages/suppliers/dialogs/CreateSupplierDialog/useCreateSupplierForm', () => ({
   // Keep mock signature explicit: the dialog passes `onCreated` only.
-  useCreateSupplierForm: (...args: [onCreated: () => void]) => mocks.useCreateSupplierForm(...args),
+  useCreateSupplierForm: (...args: [onCreated: () => void, readOnly: boolean]) =>
+    mocks.useCreateSupplierForm(...args),
 }));
 
 vi.mock('@/pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm', () => ({
@@ -85,11 +86,13 @@ const renderDialog = (overrides?: {
   open?: boolean;
   onClose?: () => void;
   onCreated?: () => void;
+  readOnly?: boolean;
 }) => {
   const props = {
     open: overrides?.open ?? true,
     onClose: overrides?.onClose ?? vi.fn(),
     onCreated: overrides?.onCreated ?? vi.fn(),
+    readOnly: overrides?.readOnly,
   };
 
   render(<CreateSupplierDialog {...props} />);
@@ -97,6 +100,14 @@ const renderDialog = (overrides?: {
 };
 
 describe('CreateSupplierDialog', () => {
+  it('passes readOnly to the form hook (demo mode)', () => {
+    mocks.useCreateSupplierForm.mockReturnValue(defaultFormState());
+
+    renderDialog({ readOnly: true });
+
+    expect(mocks.useCreateSupplierForm).toHaveBeenCalledWith(expect.any(Function), true);
+  });
+
   it('initializes form hook, renders heading, and wires help button', async () => {
     const formState = defaultFormState();
     const onCreated = vi.fn();
@@ -104,7 +115,7 @@ describe('CreateSupplierDialog', () => {
 
     renderDialog({ onCreated });
 
-    expect(mocks.useCreateSupplierForm).toHaveBeenCalledWith(onCreated);
+    expect(mocks.useCreateSupplierForm).toHaveBeenCalledWith(onCreated, false);
 
     expect(screen.getByRole('heading', { name: /Add Supplier/ })).toBeInTheDocument();
 

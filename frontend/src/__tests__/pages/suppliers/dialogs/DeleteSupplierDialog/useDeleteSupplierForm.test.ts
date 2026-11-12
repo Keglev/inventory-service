@@ -12,7 +12,9 @@
  *   - and enters confirmation mode.
  * - Confirm delete enforces preconditions:
  *   - requires a selected supplier,
- *   - requires ADMIN role.
+ *   - requires ADMIN role;
+ *   - in demo mode (readOnly) sends no request and shows the demo message, ahead of the
+ *     role check (frontend ADR-0013).
  * - On successful delete, calls the provided `onDeleted` callback.
  * - On failed/blocked deletes, surfaces a user-facing error message and resets loading state;
  *   a thrown request is also logged (logError), captured so it asserts instead of printing.
@@ -130,6 +132,26 @@ describe('useDeleteSupplierForm', () => {
 
     expect(mocks.deleteSupplier).not.toHaveBeenCalled();
     expect(result.current.error).toBe('Only administrators can perform this action.');
+  });
+
+  it('sends no request and shows the demo message, not the admin message, when readOnly', async () => {
+    // The demo session's role is DEMO, so without the demo check first the admin message would show
+    mocks.useAuth.mockReturnValue({ user: { role: 'DEMO', isDemo: true } });
+    const onDeleted = vi.fn();
+    const { result } = renderHook(() => useDeleteSupplierForm(onDeleted, true));
+
+    act(() => {
+      result.current.handleSelectSupplier(supplier);
+    });
+
+    await act(async () => {
+      await result.current.handleConfirmDelete();
+    });
+
+    expect(mocks.deleteSupplier).not.toHaveBeenCalled();
+    expect(result.current.error).toBe('You are in demo mode and cannot perform this operation.');
+    expect(result.current.showConfirmation).toBe(true);
+    expect(onDeleted).not.toHaveBeenCalled();
   });
 
   it('calls deleteSupplier and notifies the parent when the deletion succeeds', async () => {

@@ -20,4 +20,6 @@ export interface CreateSupplierDialogProps {
    * Parent typically reloads the list and shows a toast.
    */
   onCreated: () => void;
+  /** Demo session: the dialog stays usable, a valid submit sends no request (frontend ADR-0013). */
+  readOnly?: boolean;
 }

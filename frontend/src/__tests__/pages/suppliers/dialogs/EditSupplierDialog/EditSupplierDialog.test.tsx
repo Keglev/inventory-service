@@ -57,7 +57,8 @@ vi.mock('@/hooks/useHelp', () => ({
 
 vi.mock('@/pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm', () => ({
   // The real hook is tested separately; the dialog container is tested here as a wiring unit.
-  useEditSupplierForm: (onUpdated: () => void) => mocks.useEditSupplierForm(onUpdated),
+  useEditSupplierForm: (onUpdated: () => void, readOnly: boolean) =>
+    mocks.useEditSupplierForm(onUpdated, readOnly),
 }));
 
 type SearchStepProps = {
@@ -122,6 +123,7 @@ type RenderOverrides = Partial<{
   open: boolean;
   onClose: () => void;
   onSupplierUpdated: () => void;
+  readOnly: boolean;
 }>;
 
 const renderDialog = (form: UseEditSupplierFormReturn, overrides: RenderOverrides = {}) => {
@@ -131,7 +133,14 @@ const renderDialog = (form: UseEditSupplierFormReturn, overrides: RenderOverride
   const open = overrides.open ?? true;
 
   mocks.useEditSupplierForm.mockReturnValue(form);
-  render(<EditSupplierDialog open={open} onClose={onClose} onSupplierUpdated={onSupplierUpdated} />);
+  render(
+    <EditSupplierDialog
+      open={open}
+      onClose={onClose}
+      onSupplierUpdated={onSupplierUpdated}
+      readOnly={overrides.readOnly}
+    />
+  );
 
   return { onClose, onSupplierUpdated };
 };
@@ -155,6 +164,12 @@ beforeEach(() => {
 });
 
 describe('EditSupplierDialog', () => {
+  it('passes readOnly to the workflow hook (demo mode)', () => {
+    renderDialog(createEditSupplierDialogForm(), { readOnly: true });
+
+    expect(mocks.useEditSupplierForm).toHaveBeenCalledWith(expect.any(Function), true);
+  });
+
   it('initializes hook, renders steps, and wires help button', async () => {
     const user = userEvent.setup();
     // Build a full `useEditSupplierForm` contract so the container can wire props safely.
@@ -162,6 +177,7 @@ describe('EditSupplierDialog', () => {
     renderDialog(form);
 
     expect(mocks.useEditSupplierForm).toHaveBeenCalledTimes(1);
+    expect(mocks.useEditSupplierForm).toHaveBeenCalledWith(expect.any(Function), false);
     expect(screen.getByRole('heading', { name: 'Edit Supplier' })).toBeInTheDocument();
 
     expect(mocks.searchStep).toHaveBeenCalledWith(

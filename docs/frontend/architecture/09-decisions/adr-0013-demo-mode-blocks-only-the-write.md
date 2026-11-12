@@ -64,3 +64,23 @@ Ruled by Carlos (FE-7 A, 2026-11-03). The rename dialog now follows the rule:
 valid submit before the request with `common:demoDisabled`. All five inventory
 dialogs honor demo mode; the Consequences line on rename no longer holds. The
 supplier dialogs stay outside this decision.
+
+## Amendment 2026-11-12: the supplier dialogs follow the rule
+Ruled by Carlos (2026-11-09). The project standards say demo mode is read-only in
+every dialog, and the supplier dialogs were the exception this record named: a demo
+create or edit went to the backend, came back 401 and showed a server error, and a
+demo delete stopped at the ADMIN check with "Only administrators can perform this
+action". The three supplier dialogs now honor demo mode the same way as the
+inventory dialogs:
+
+- `SuppliersDialogs` passes `isDemo` to the create, edit and delete dialogs as
+  `readOnly`, and each dialog hands it to its form hook;
+- the dialogs stay fully usable: search, selection, input, validation and the
+  confirmation step run as for a signed-in user;
+- the write step stops before the request and shows `common:demoDisabled`. In the
+  delete dialog this check comes before the ADMIN check, because the demo user's
+  role would otherwise produce the role message.
+
+The Consequences line "The supplier dialogs are outside this decision" and the same
+sentence in the 2026-11-06 amendment no longer hold; every mutation dialog in the
+application now follows this decision.

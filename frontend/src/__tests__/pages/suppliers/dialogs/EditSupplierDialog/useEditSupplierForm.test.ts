@@ -17,6 +17,8 @@
  *   - requires both `pendingChanges` and `selectedSupplier`
  *   - delegates persistence to `updateSupplier`
  *   - maps failures via `mapSupplierError` and closes confirmation
+ *   - in demo mode (readOnly) sends no request and shows the demo message in the
+ *     confirmation (frontend ADR-0013)
  * - Resetting the form:
  *   - clears selection + error
  *   - resets search, confirmation state, and form state
@@ -95,8 +97,8 @@ let searchState: Deps['searchState'];
 let formState: Deps['formState'];
 let confirmationState: Deps['confirmationState'];
 
-const renderForm = (onUpdated: () => void = vi.fn()) =>
-  renderHook(() => useEditSupplierForm(onUpdated));
+const renderForm = (onUpdated: () => void = vi.fn(), readOnly = false) =>
+  renderHook(() => useEditSupplierForm(onUpdated, readOnly));
 
 const selectSupplier = (result: ReturnType<typeof renderForm>['result']) => {
   act(() => {
@@ -224,6 +226,23 @@ describe('useEditSupplierForm', () => {
     expect(result.current.formError).toBe('Network failure');
     expect(confirmationState.setShowConfirmation).toHaveBeenCalledWith(false);
     consoleSpy.mockRestore();
+  });
+
+  it('sends no request and keeps the confirmation open with the demo message when readOnly', async () => {
+    const onUpdated = vi.fn();
+    const { result } = renderForm(onUpdated, true);
+
+    selectSupplier(result);
+    confirmationState.pendingChanges = pendingChanges;
+
+    await act(async () => {
+      await result.current.handleConfirmChanges();
+    });
+
+    expect(mocks.updateSupplier).not.toHaveBeenCalled();
+    expect(result.current.formError).toBe('You are in demo mode and cannot perform this operation.');
+    expect(confirmationState.setShowConfirmation).not.toHaveBeenCalledWith(false);
+    expect(onUpdated).not.toHaveBeenCalled();
   });
 
   it('resets search, confirmation, and form state when resetForm is called', () => {
