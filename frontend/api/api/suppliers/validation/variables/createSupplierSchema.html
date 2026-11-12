@@ -130,10 +130,8 @@ api/suppliers/validation/variables/createSupplierSchema · Smart Supply Pro · A
         <code>ZodTransform</code>&lt;<code>string</code> |
         <code>null</code>, <code>string</code> |
         <code>undefined</code>&gt;&gt;; <code>email</code>:
-        <code>ZodPipe</code>&lt;<code>ZodOptional</code>&lt;<code>ZodEmail</code>&gt;,
-        <code>ZodTransform</code>&lt;<code>string</code> |
-        <code>null</code>, <code>string</code> |
-        <code>undefined</code>&gt;&gt;; <code>name</code>:
+        <code>ZodPreprocess</code>&lt;<code>ZodNullable</code>&lt;<code>ZodEmail</code>&gt;,
+        <code>unknown</code>&gt;; <code>name</code>:
         <code>ZodString</code>; <code>phone</code>:
         <code>ZodPipe</code>&lt;<code>ZodOptional</code>&lt;<code>ZodString</code>&gt;,
         <code>ZodTransform</code>&lt;<code>string</code> |
@@ -141,7 +139,7 @@ api/suppliers/validation/variables/createSupplierSchema · Smart Supply Pro · A
         <code>undefined</code>&gt;&gt;; }, <code>$strip</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/suppliers/validation.ts#L21">api/suppliers/validation.ts:21</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/main/frontend/src/api/suppliers/validation.ts#L31">api/suppliers/validation.ts:31</a></p>
         <p>Schema for the supplier create form. Empty optional fields
         are coerced to null so the backend receives null rather than an
         empty string.</p>

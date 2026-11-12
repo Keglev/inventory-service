@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
@@ -120,7 +120,14 @@
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -133,6 +140,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">17x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -154,9 +171,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -194,6 +208,16 @@
 import { z } from 'zod';
 &nbsp;
 /**
+ * Optional e-mail of both supplier forms: an empty field (the forms' default '')
+ * means no address and becomes null; anything else must be a valid address, so
+ * a typo shows the field error instead of being dropped.
+ */
+const optionalEmail = z.preprocess(
+  (v) =&gt; (v === '' || v === undefined ? null : v),
+  z.email('errors:validation.invalidEmail').nullable(),
+);
+&nbsp;
+/**
  * Schema for the supplier create form.
  * Empty optional fields are coerced to null so the backend receives null rather than an empty string.
  */
@@ -210,10 +234,7 @@ export const createSupplierSchema = z.object({
     .string()
     .optional()
     .transform((v) =&gt; v || null),
-  email: z
-    .email('errors:validation.invalidEmail')
-    .optional()
-    .transform((v) =&gt; v || null),
+  email: optionalEmail,
 });
 &nbsp;
 export type CreateSupplierForm = z.infer&lt;typeof createSupplierSchema&gt;;
@@ -230,7 +251,7 @@ export const editSupplierSchema = z.object({
   supplierId: z.string().min(1, 'errors:validation.required'),
   contactName: z.string().nullable().catch(null),
   phone: z.string().nullable().catch(null),
-  email: z.email('errors:validation.invalidEmail').nullable().catch(null),
+  email: optionalEmail,
 });
 &nbsp;
 export type EditSupplierForm = z.infer&lt;typeof editSupplierSchema&gt;;
