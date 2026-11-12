@@ -22,6 +22,7 @@ import { alpha, createTheme, ThemeProvider } from '@mui/material/styles';
 import type { InventoryRow } from '@/api/inventory/types';
 
 type GridMockProps = {
+  density?: string;
   rows?: Array<Record<string, unknown>>;
   columns?: unknown[];
   rowCount?: number;
@@ -34,6 +35,13 @@ type GridMockProps = {
   sx?: Record<string, Record<string, unknown>>;
   children?: ReactNode;
 };
+
+// Deterministic settings: the density test sets its own preference.
+const settings = vi.hoisted(() => ({
+  useSettings: vi.fn(() => ({ userPreferences: { tableDensity: 'comfortable' } })),
+}));
+
+vi.mock('@/hooks/useSettings', () => settings);
 
 // Captures the sx prop so the theme-arrow style callbacks can be exercised.
 let lastSx: GridMockProps['sx'] = undefined;
@@ -49,6 +57,7 @@ vi.mock('@mui/x-data-grid', () => ({
         data-cols={(props.columns ?? []).length}
         data-rowcount={props.rowCount}
         data-loading={String(props.loading)}
+        data-density={props.density}
       >
         {rows.map((row) => (
           <button
@@ -139,6 +148,16 @@ describe('InventoryTable', () => {
 
     expect(onPaginationChange).toHaveBeenCalledWith({ page: 1, pageSize: 25 });
     expect(onSortChange).toHaveBeenCalledWith([{ field: 'name', sort: 'desc' }]);
+  });
+
+  it.each([
+    { tableDensity: 'compact', expected: 'compact' },
+    { tableDensity: 'comfortable', expected: 'standard' },
+  ])('maps the $tableDensity preference to the $expected grid density', ({ tableDensity, expected }) => {
+    settings.useSettings.mockReturnValue({ userPreferences: { tableDensity } });
+    setup();
+
+    expect(screen.getByTestId('grid')).toHaveAttribute('data-density', expected);
   });
 
   it('shows the loading overlay only while loading', () => {

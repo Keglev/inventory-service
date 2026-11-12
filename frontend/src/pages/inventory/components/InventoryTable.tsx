@@ -4,7 +4,7 @@
  *
  * @summary
  * DataGrid wrapper for the inventory list with server-side pagination
- * and sorting, row selection by click, and stock-level row coloring.
+ * and sorting, the user's table density, and stock-level row coloring.
  *
  * @enterprise
  * - Server-side pagination and sorting (paginationMode/sortingMode
@@ -31,6 +31,7 @@ import type { GridColDef, GridPaginationModel, GridSortModel } from '@mui/x-data
 import { Box, CircularProgress, Stack } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import type { InventoryRow } from '../../../api/inventory/types';
+import { useSettings } from '../../../hooks/useSettings';
 
 export interface InventoryTableProps {
   rows: InventoryRow[];
@@ -55,6 +56,8 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
   loading,
   rowCount,
 }) => {
+  const { userPreferences } = useSettings();
+
   return (
     <Box sx={{ width: '100%', position: 'relative' }}>
       {/* No fixed height: the data grid sizes to its rows when the parent is
@@ -89,6 +92,9 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
         rowCount={rowCount}
         pageSizeOptions={[10, 25, 50]}
         loading={loading}
+        // The theme makes every grid compact by default; the preference picks
+        // compact (36 px rows) or MUI's standard density (52 px) here.
+        density={userPreferences.tableDensity === 'compact' ? 'compact' : 'standard'}
         getRowClassName={(params) => {
           const row = params.row as InventoryRow;
           const onHand = Number(row.onHand ?? 0);
