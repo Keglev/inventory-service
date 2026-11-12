@@ -222,27 +222,19 @@
         <td>Standardise on one mechanism</td>
         </tr>
         <tr class="even">
-        <td>TD-02</td>
-        <td><code>handleDataIntegrity</code> Javadoc states it sanitizes
-        SQL detail, but it returns a hardcoded conflict message and
-        never calls <code>sanitize()</code>.</td>
-        <td>Trivial — misleading documentation</td>
-        <td>Correct the comment to match behaviour</td>
-        </tr>
-        <tr class="odd">
         <td>TD-03</td>
         <td>No optimistic locking (<code>@Version</code>) anywhere;
         concurrent updates to the same row last-write-wins.</td>
         <td>Low — acceptable for current single-writer workload</td>
         <td>Accepted; revisit if concurrent edit volume grows</td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td>TD-05</td>
         <td>Docs UI: double scrollbars on documentation pages.</td>
         <td>Low — cosmetic</td>
         <td>Fix in the docs cleanup pass</td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td>TD-07</td>
         <td><code>DatabaseDialectDetector</code> selects SQL dialect
         from the active Spring profile, not from the real datasource. An
