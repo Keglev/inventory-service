@@ -27,7 +27,7 @@ import { useTranslation } from 'react-i18next';
 import { previewSrc } from './heroPreviewSrc';
 
 const WIDTH = 1116;
-const HEIGHT = 641;
+const HEIGHT = 424;
 
 const HeroPreview: React.FC = () => {
   const { t, i18n } = useTranslation<'landing'>('landing');
