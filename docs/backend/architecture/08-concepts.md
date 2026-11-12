@@ -1,5 +1,10 @@
 # §8 Cross-cutting Concepts
 
+## Domain Model
+
+The domain model (suppliers, inventory items, stock history, users and their
+relations) is drawn once, in [§5 Domain Model (ER Diagram)](05-building-blocks.md#domain-model-er-diagram).
+
 ## Security
 
 Authentication uses the OAuth2 Authorization Code flow with Google as the sole
