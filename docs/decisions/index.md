@@ -44,7 +44,9 @@ Source: [Backend architecture, section 9](../backend/architecture/09-decisions/i
 | 0020 | [Employee analytics are shown to administrators and the demo, not to users](../backend/architecture/09-decisions/adr-0020-employee-analytics-for-admin-and-demo.md) |
 
 Backend ADR-0009 supersedes the wallet delivery and password model of backend
-ADR-0001; the auto-login mechanism ADR-0001 chose still stands.
+ADR-0001: production uses the encrypted wallet with a runtime password, delivered
+outside the image. The mTLS channel and the database account layer ADR-0001 chose
+still stand.
 
 ## Frontend
 
@@ -66,3 +68,5 @@ Source: [Frontend architecture, section 9](../frontend/architecture/09-decisions
 | 0012 | [Low-stock severity scales with each item's minimum](../frontend/architecture/09-decisions/adr-0012-low-stock-severity-scales-with-the-minimum.md) |
 | 0013 | [Demo mode walks every inventory dialog and blocks only the write](../frontend/architecture/09-decisions/adr-0013-demo-mode-blocks-only-the-write.md) |
 | 0014 | [Searching bounded lists in the browser](../frontend/architecture/09-decisions/adr-0014-searching-bounded-lists-in-the-browser.md) |
+| 0015 | [The user menu and one settings dialog follow SAP Fiori](../frontend/architecture/09-decisions/adr-0015-user-menu-and-one-settings-dialog.md) |
+| 0016 | [TypeScript 7 waits until the linter and TypeDoc accept it](../frontend/architecture/09-decisions/adr-0016-typescript-7-waits-for-its-tools.md) |

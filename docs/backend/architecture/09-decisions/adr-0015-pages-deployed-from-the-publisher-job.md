@@ -134,6 +134,26 @@ stuck deployment cannot block the next one. The upload step names the artifact
 `github-pages-<attempt>`, so a re-run deploys its own copy. The permissions,
 environment, queue and deploy conditions above are unchanged.
 
+## Amendment 2026-11-12: the deadline sits inside the job, and a blocker is cleared
+The 2026-11-05 amendment promised that a stuck deployment cannot block the next one,
+because the script cancels its own deployment on a timeout. On 2026-11-06 that did
+not hold: the script's deadline was 600 s and the job's `timeout-minutes` 10, so the
+runner ended the job about five seconds before the deadline and the cancel never
+ran. The orphaned deployment stayed "in progress" at GitHub, and every later
+deployment was refused with HTTP 400 "cancel <sha> first" until it was cancelled by
+hand.
+
+- `deploy-pages.sh` now gives up after 420 s, well inside the job's ten minutes, so
+  its own cancel always runs.
+- A refusal that names its blocker ("cancel <sha> first") makes the script cancel
+  that deployment and retry once. The docs-deploy concurrency queue runs one deploy
+  job at a time, so the blocker cannot be a deployment another job is still
+  watching.
+
+A deadline that ends in cleanup has to sit well inside the job that runs it. The
+manual runbook (GitHub CLI: read the deployment, then cancel it) stays the fallback
+when the retry is refused too.
+
 ## References
 - [ADR-0013: The docs pipeline rebuilds, and publishes, by change](adr-0013-docs-pipeline-rebuilds-by-change.md)
 - Configuring a publishing source for GitHub Pages: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site

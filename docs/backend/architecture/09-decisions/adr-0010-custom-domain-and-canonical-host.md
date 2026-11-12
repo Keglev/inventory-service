@@ -108,6 +108,26 @@ cookie decision made there is unaffected; only the frontend hostname changed.
 - Google Cloud OAuth2 client: authorized JavaScript origin and redirect URI
   (`/login/oauth2/code/google`) on the canonical host.
 
+## Amendment 2026-11-12: where the pieces live now
+Nothing in the decision changed: `www.smartsupplypro.de` is still the one canonical
+origin and the apex still redirects to it. The places this record names did change:
+
+- **DNS.** The zone is hosted at Cloudflare; the domain stays registered at INWX
+  with Cloudflare's nameservers. `www` is a DNS-only `CNAME` to the Koyeb edge, and
+  Cloudflare answers the apex with a 301 to `https://www.smartsupplypro.de/`
+  (checked 2026-11-09). The redirect still lives outside version control.
+- **`APP_FRONTEND_BASE_URL`.** `fly.toml` was removed when the backend moved to the
+  shared Hetzner host (ADR-0012). The variable now lives in the host's `.env.prod`
+  next to the other backend settings (`docker/README.md` lists them). The Fly
+  secret-shadowing warning in the Implementation Notes no longer applies.
+- **Health-check target.** The frontend deploy workflow is `frontend-deploy.yml`
+  (ADR-0017); `FRONTEND_URL` there is the target.
+- **A public backend host exists after all.** Alternative 3 rejected a public
+  `api.` host for the browser. The backend now has one, `api.smartsupplypro.de`, for
+  a different reason: the Hetzner host's Caddy terminates TLS for it and the
+  frontend's Nginx proxies to it (ADR-0012). The browser still talks only to `www`
+  (ADR-0008), so the reasoning of Alternative 3 stands for browser traffic.
+
 ## References
 - [ADR-0007](adr-0007-cross-origin-auth-cookie.md) — cookie strategy; its Context
   names the superseded hostnames

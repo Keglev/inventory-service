@@ -103,6 +103,12 @@ sets the id, `createdBy`, `createdAt` and the minimum-quantity default there bef
 the first save. The Implementation Notes line on `@PrePersist` and the `"system"`
 fallback describes the code before this date.
 
+## Amendment 2026-11-12: two mappers
+`StockHistoryMapper` no longer exists. Since the stock-history read API was removed
+(ADR-0018) no response carries a stock-history entry, and the write side builds the
+`StockHistory` entity in `StockHistoryServiceImpl`. The remaining mappers are
+`InventoryItemMapper` and `SupplierMapper`; the decision applies to both unchanged.
+
 ## References
 - [§5 Building Block View](../05-building-blocks.md) — service layer description
 - [ADR-0003: DTO boundary](./adr-0003-dto-boundary-no-entity-exposure.md) — why

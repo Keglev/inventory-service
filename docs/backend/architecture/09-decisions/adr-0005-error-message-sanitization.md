@@ -121,6 +121,20 @@ already safe to expose.
     exception message contains a Windows path, a class name, and a SQL fragment,
     and assert that the sanitized replacement strings appear in the response body
 
+## Amendment 2026-11-12: each handler calls sanitize()
+Two statements above describe the code inaccurately:
+
+- **"Adding a new handler automatically benefits from sanitization via the shared
+  `respond()` helper."** `respond()` does not sanitize. Each handler that forwards an
+  exception message calls `sanitize()` itself before `respond()`, as the Migration
+  notes already ask. A new handler that forgets the call forwards the raw message.
+- **The caller list.** `handleValidation`, `handleConstraint`, `handleNotFound` and
+  `handleResponseStatus` call `sanitize()`. `handleAccessDenied` returns a fixed text,
+  like `handleDataIntegrity`, `handleAuthentication` and `handleUnexpected`.
+
+The Implementation Notes also cite line numbers; the method is
+`GlobalExceptionHandler.sanitize`.
+
 ## References
 - [§8 Exception Handling](../08-concepts.md) — handler order, error contract, full
   sanitize() behaviour summary

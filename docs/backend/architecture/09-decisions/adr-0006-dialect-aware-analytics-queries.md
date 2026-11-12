@@ -149,6 +149,23 @@ lower case (UUIDs, `seed-sup-nnn`) and clients send them back as received. An ex
 comparison keeps any index on the column usable, as the 2026-10-19 amendment noted
 for the search.
 
+## Amendment 2026-11-12: three builders, and the queries they hold today
+The Decision puts all SQL text in `StockMetricsSqlBuilder`. The SQL is split by the
+repository fragment it serves, into three static builders in the same package:
+
+- `StockDetailSqlBuilder`: the filtered stock-history search (one statement for
+  both dialects since the 2026-10-19 amendment);
+- `StockMetricsSqlBuilder`: supplier totals and update counts (one statement each);
+- `StockTrendSqlBuilder`: monthly movement, daily item movements, price trend and
+  daily employee activity, each as an H2 and an Oracle variant, because date
+  bucketing and valuation really differ.
+
+The method lists in the Implementation Notes are out of date. `getDailyStockValuation`
+no longer exists; the stock value series is computed in the service from
+`getDailyItemMovements`. `findItemsBelowMinimumStock` left `StockMetricsRepository`;
+the below-minimum list is a JPQL query on `InventoryItemRepository`. The decision
+(custom fragments, dialect variants only where the dialects differ) is unchanged.
+
 ## References
 - [ADR-0003: DTO boundary](./adr-0003-dto-boundary-no-entity-exposure.md) — the
   reporting exception these repositories implement
