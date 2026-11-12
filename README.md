@@ -53,9 +53,9 @@ Provisioning design and the structured error contract are covered under [Technic
 
 ## Screenshots
 
-<img src="./frontend/src/assets/project-image.png" alt="Analytics dashboard overview" width="600" height="300"/>
+<img src="./docs/images/analytics-overview.png" alt="Analytics overview: stock value over time and monthly stock movement" width="600"/>
 
-<img src="./frontend/src/assets/barchart.png" alt="Monthly stock movement bar chart" width="600" height="300"/>
+<img src="./docs/images/analytics-finance.png" alt="Finance analytics for one supplier: financial summary, most updated items and stock changes by reason" width="600"/>
 
 ---
 
@@ -67,6 +67,7 @@ Provisioning design and the structured error contract are covered under [Technic
 - [API Reference (ReDoc)](https://keglev.github.io/inventory-service/backend/api/index.html) — interactive OpenAPI documentation
 - [Security Concepts (arc42 §8)](https://keglev.github.io/inventory-service/backend/architecture/08-concepts.html) — OAuth2 authorization-code flow, session cookie strategy, role enforcement
 - [Building Blocks (arc42 §5)](https://keglev.github.io/inventory-service/backend/architecture/05-building-blocks.html) — layer structure and per-service responsibilities, including the WAC analytics design
+- [Domain Model (ER Diagram)](https://keglev.github.io/inventory-service/backend/architecture/05-building-blocks.html#domain-model-er-diagram) — the four entities (suppliers, inventory items, stock history, users) and their relations
 
 ---
 

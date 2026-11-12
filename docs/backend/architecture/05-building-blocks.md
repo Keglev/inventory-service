@@ -198,7 +198,7 @@ erDiagram
         string createdBy
         timestamp timestamp "col CREATED_AT"
     }
-    APP_USER {
+    USERS_APP {
         string id PK
         string email UK
         string name
