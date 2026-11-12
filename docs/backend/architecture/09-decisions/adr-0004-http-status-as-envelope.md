@@ -120,6 +120,12 @@ Static-resource 404s return no body (`void` handler with `@ResponseStatus`).
     fields of the response body
   - The `timestamp` field is asserted to be non-null (exact value is non-deterministic)
 
+## Amendment 2026-11-12: who fills fieldErrors
+The Implementation Notes say `fieldErrors` is populated only by the bean-validation
+handler. As the Decision states, `BusinessExceptionHandler` fills it too: a
+`DuplicateResourceException` that names its field answers 409 with that field in
+`fieldErrors` (a duplicate supplier or item name arrives as `fieldErrors.name`).
+
 ## References
 - [§6 Runtime View](../06-runtime.md) — exception-to-status reference table and
   error-path sequence diagrams

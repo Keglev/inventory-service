@@ -122,6 +122,10 @@ Entities never cross the controller boundary; DTOs never enter the repository la
 - `InventoryItem` lost its `@PrePersist` callback: the service sets `createdAt`
   and `createdBy` before the first save (see the ADR-0002 amendment of the same date).
 
+## Amendment 2026-11-12: two mappers
+The Implementation Notes list three mappers; `StockHistoryMapper` no longer exists
+(see the ADR-0002 amendment of the same date). The boundary itself is unchanged.
+
 ## References
 - [§5 Building Block View](../05-building-blocks.md) — layer narrative describing
   the controller/service/repository boundary

@@ -73,6 +73,24 @@ We keep tests under `frontend/src/__tests__/` and organize them with a clear tax
   - Keep unit tests deterministic and fast.
   - Prefer rendering tests with the shared provider harness.
 
+## Amendment 2026-11-12: the test tree mirrors the source tree
+The taxonomy above (`unit/`, `components/pages/<domain>/`, the HamburgerMenu folder)
+no longer describes the tree. Ruled by Carlos and carried out by the test-tree
+moves of October 2026:
+
+- `frontend/src/__tests__/` mirrors `frontend/src/`: the spec for
+  `src/<path>/X.tsx` is `src/__tests__/<path>/X.test.tsx`. A reader finds the tests
+  of a file by its path, and a moved source file shows which spec moves with it.
+- `src/__tests__/stubs/` and `src/__tests__/test/` hold test-only infrastructure
+  (stubs, the provider harness `test/all-providers.tsx`, the query-client helpers in
+  `test/queryClient.tsx`). Contract and wiring specs that test no single source file
+  live in the folder of the area they guard (the chart standards under `utils/`).
+- Every test import and `vi.mock` path uses the `@/` alias, so a move changes no
+  import.
+
+The "Testing implications" lines of ADR-0001 to ADR-0007 that name `unit/` or
+`components/pages/` paths follow this layout too.
+
 ## References
 - Architecture docs: [Testing Concepts (§8c)](../08c-concepts-testing.md)
 - Related ADRs: ADR-0006

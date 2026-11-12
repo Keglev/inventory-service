@@ -86,6 +86,26 @@ Each claimant reports a check of its own, and all three are required.
   contexts replace `build-and-test` right before the merge, after the other
   open pull requests have merged, so none waits for a name it does not report.
 
+## Amendment 2026-11-12: what the ruleset requires, and the drift check
+- **Branches need not be up to date.** The ruleset does not require a pull
+  request's branch to contain the latest `main` before it merges. A pull request is
+  tested on its merge commit with `main` as it was when the run started; after the
+  merge, the push run on `main` tests the merged tree again, and only a successful
+  push run starts the image build and deploy chains. Two changes that pass alone but
+  break together therefore stop at the release, not in production, without forcing
+  every open pull request to re-run after each merge.
+- **A fourth required check.** Besides the three claimant checks the ruleset
+  requires `GitGuardian Security Checks`, the secret scan GitHub's GitGuardian app
+  reports on every pull request.
+- **A check over two families.** `openapi-drift.yml` compares the OpenAPI spec with
+  the controllers and DTOs. Its files belong to the docs family (the spec) and the
+  backend family (controllers and DTOs), so `backend-ci.yml` and `docs-pr-check.yml`
+  both call it as a job behind their aggregators, and it has its own diff gate: it
+  runs when the pull request touches `docs/backend/api/`, a `controller/` or `dto/`
+  folder, or the check itself. A check that spans two families follows this shape;
+  one that spans all three is called by all three claimants, as the YAML lint is
+  (ADR-0016, amendment of 2026-10-20).
+
 ## References
 - [ADR-0016: One claimant for the required check, and the browser suite inside CI](adr-0016-one-claimant-and-the-e2e-inside-ci.md)
 - [ADR-0017: Workflow files are named by chain, not numbered](adr-0017-workflows-named-by-chain.md)

@@ -38,6 +38,6 @@ ADRs do **not** document:
 
 ---
 
-Frontend decisions: see [docs/frontend/architecture/adr/](../../../frontend/architecture/09-decisions/index.md)
+Frontend decisions: see the [frontend decisions index](../../../frontend/architecture/09-decisions/index.md)
 
 [Back to Architecture Index](../index.md)
