@@ -33,9 +33,9 @@ export async function getLowStockItems(supplierId: string): Promise<LowStockRow[
         const rows: LowStockRow[] = rawList
         .map((rec) => {
             // LowStockItemDTO field names.
-            const itemName = firstStringOrEmpty(rec, ['itemName']);
-            const quantity = firstNumberOrZero(rec, ['quantity']);
-            const minimumQuantity = firstNumberOrZero(rec, ['minimumQuantity']);
+            const itemName = firstStringOrEmpty(rec, 'itemName');
+            const quantity = firstNumberOrZero(rec, 'quantity');
+            const minimumQuantity = firstNumberOrZero(rec, 'minimumQuantity');
             return itemName ? { itemName, quantity, minimumQuantity } : null;
         })
         .filter((x): x is LowStockRow => x !== null);

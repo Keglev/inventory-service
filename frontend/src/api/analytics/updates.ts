@@ -127,16 +127,16 @@ function windowParams(filter?: StockUpdatesFilter): Record<string, string | unde
 /** Maps one backend record tolerantly; a record without timestamp or item name is dropped. */
 function toStockUpdateRow(rec: Rec): StockUpdateRow | null {
     // StockUpdateResultDTO field names.
-    const timestamp = firstStringOrEmpty(rec, ['timestamp']);
-    const itemName = firstStringOrEmpty(rec, ['itemName']);
+    const timestamp = firstStringOrEmpty(rec, 'timestamp');
+    const itemName = firstStringOrEmpty(rec, 'itemName');
     if (!timestamp || !itemName) return null;
 
-    const reason = firstStringOrEmpty(rec, ['reason']);
-    const user = firstStringOrEmpty(rec, ['createdBy']);
+    const reason = firstStringOrEmpty(rec, 'reason');
+    const user = firstStringOrEmpty(rec, 'createdBy');
     return {
         timestamp,
         itemName,
-        delta: firstNumberOrZero(rec, ['change']),
+        delta: firstNumberOrZero(rec, 'change'),
         reason: reason || undefined,
         user: user || undefined,
     };

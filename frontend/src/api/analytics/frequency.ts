@@ -41,9 +41,9 @@ export async function getItemUpdateFrequency(
     return (data as Array<Record<string, unknown>>)
       .map((r) => {
         // ItemUpdateFrequencyDTO(itemName, updateCount) has no id: the name keys the row.
-        const name = firstStringOrEmpty(r, ['itemName']);
+        const name = firstStringOrEmpty(r, 'itemName');
         if (!name) return null;
-        const updates = firstNumberOrZero(r, ['updateCount']);
+        const updates = firstNumberOrZero(r, 'updateCount');
         return { id: name, name, updates } as ItemUpdateFrequencyPoint;
       })
       .filter((x): x is ItemUpdateFrequencyPoint => x !== null)

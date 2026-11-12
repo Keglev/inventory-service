@@ -6,7 +6,7 @@
  * Contract under test:
  * - Guarantees numeric normalization is tolerant (invalid inputs become
  *   0)
- * - Guarantees numeric field selection respects key order and supports
+ * - Guarantees the key's value is read as a number (0 when absent), with
  *   string-to-number coercion
  *
  * Out of scope:
@@ -56,27 +56,27 @@ describe('asNumber', () => {
 });
 
 describe('firstNumberOrZero', () => {
-  it('returns the first matching number by key order', () => {
+  it('returns the number value of the key', () => {
     const obj = { count: 42, total: 100 };
 
-    expect(firstNumberOrZero(obj, ['count', 'total'])).toBe(42);
+    expect(firstNumberOrZero(obj, 'count')).toBe(42);
   });
 
   it('coerces numeric strings to numbers', () => {
     const obj = { value: '3.14' };
 
-    expect(firstNumberOrZero(obj, ['value'])).toBe(3.14);
+    expect(firstNumberOrZero(obj, 'value')).toBe(3.14);
   });
 
-  it('returns 0 when no matching keys exist', () => {
+  it('returns 0 when the key is missing', () => {
     const obj = { foo: 'bar' };
 
-    expect(firstNumberOrZero(obj, ['missing'])).toBe(0);
+    expect(firstNumberOrZero(obj, 'missing')).toBe(0);
   });
 
   it('returns 0 for non-numeric values', () => {
     const obj = { value: 'not-a-number' };
 
-    expect(firstNumberOrZero(obj, ['value'])).toBe(0);
+    expect(firstNumberOrZero(obj, 'value')).toBe(0);
   });
 });
