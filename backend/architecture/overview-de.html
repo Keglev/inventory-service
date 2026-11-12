@@ -110,23 +110,55 @@
       <article class="doc-body">
         <h1 id="backend-architektur">Backend-Architektur</h1>
         <p>Das Backend von Smart Supply Pro ist ein Spring-Boot-Dienst
-        zur Verwaltung von Lieferantenbeziehungen, Bestandsverfolgung
-        und Echtzeit-Bestandsanalysen. Die Architektur legt den
-        Schwerpunkt auf <strong>Sicherheit</strong>,
-        <strong>Wartbarkeit</strong> und <strong>klare Trennung der
-        Verantwortlichkeiten</strong> durch klar definierte
-        Schichten.</p>
+        für Lieferantenbeziehungen, Bestandsverfolgung und
+        Bestandsanalysen. Es stellt dem React-Frontend eine REST-API
+        bereit, hält seine Daten in der Oracle Autonomous Database und
+        meldet Benutzer über Google an.</p>
         <blockquote>
-        <p><strong>Dies ist eine Zusammenfassung auf einer
-        Seite.</strong> Die vollständige arc42-Dokumentation —
-        Einführung und Ziele, Randbedingungen, Kontext, Bausteine,
-        Laufzeit, Verteilung, Konzepte, Entscheidungen, Qualität,
-        Risiken und Glossar — finden Sie in der <a
-        href="index-de.html">vollständigen
-        Architekturdokumentation</a>.</p>
+        <p><strong>Dies ist eine Zusammenfassung der arc42-Dokumentation
+        auf einer Seite.</strong> Jeder Abschnitt verweist auf die Seite
+        mit den Details und Begründungen: Die <a
+        href="index-de.html">vollständige Architekturdokumentation</a>
+        umfasst Einführung und Ziele, Randbedingungen, Kontext,
+        Bausteine, Laufzeit, Verteilung, Konzepte, Entscheidungen,
+        Qualität, Risiken und Glossar.</p>
         </blockquote>
-        <h2 id="technologie-stack">Technologie-Stack</h2>
+        <h2 id="kontext-und-technologie">Kontext und Technologie</h2>
+        <p>Der Browser spricht nie direkt mit dem Backend-Host. Er lädt
+        das Frontend von <code>www.smartsupplypro.de</code>; dessen
+        Nginx liefert das Bundle aus und leitet <code>/api</code>, die
+        OAuth2-Pfade und <code>/logout</code> an
+        <code>api.smartsupplypro.de</code> weiter. Dort beendet der
+        Caddy des gemeinsam genutzten Hetzner-Hosts TLS und reicht die
+        Anfrage an den Backend-Container weiter. Google ist der einzige
+        Identitätsanbieter, die Oracle Autonomous Database die einzige
+        Produktionsdatenbank.</p>
+        <div class="mermaid">
+        flowchart LR
+          Browser["Browser"]:::actor
+          Nginx["Frontend-Nginx (Koyeb)\nwww.smartsupplypro.de"]:::external
+          Caddy["Caddy (Hetzner-Host)\napi.smartsupplypro.de"]:::external
+          App["Spring-Boot-Backend"]:::controller
+          Oracle["Oracle Autonomous DB"]:::repository
+          Google["Google OAuth2"]:::external
+
+          Browser -->|gleicher Ursprung| Nginx
+          Nginx -->|/api, OAuth2, /logout| Caddy
+          Caddy --> App
+          App -->|JDBC über mTLS| Oracle
+          App -->|Code-Austausch| Google
+
+          classDef actor      fill:#6b7280,color:#fff,stroke:#4b5563;
+          classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
+          classDef repository fill:#d97706,color:#fff,stroke:#b45309;
+          classDef external   fill:#4f46e5,color:#fff,stroke:#3730a3;
+        </div>
         <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
         <thead>
         <tr class="header">
         <th>Komponente</th>
@@ -136,310 +168,138 @@
         </thead>
         <tbody>
         <tr class="odd">
-        <td>Framework</td>
-        <td>Spring Boot</td>
-        <td>4.1.0</td>
-        </tr>
-        <tr class="even">
         <td>Sprache</td>
         <td>Java</td>
         <td>21</td>
         </tr>
+        <tr class="even">
+        <td>Framework</td>
+        <td>Spring Boot</td>
+        <td>4</td>
+        </tr>
         <tr class="odd">
+        <td>Sicherheit</td>
+        <td>Spring Security, OAuth2-Client</td>
+        <td>7 (von Boot verwaltet)</td>
+        </tr>
+        <tr class="even">
         <td>Datenbank</td>
-        <td>Oracle Autonomous Database</td>
+        <td>Oracle Autonomous Database (Produktion), H2 im Oracle-Modus
+        (Tests)</td>
         <td>23ai</td>
         </tr>
-        <tr class="even">
-        <td>Build-Tool</td>
-        <td>Maven</td>
-        <td>3.x+</td>
-        </tr>
         <tr class="odd">
-        <td>Testing</td>
+        <td>Build</td>
+        <td>Maven Wrapper</td>
+        <td>3</td>
+        </tr>
+        <tr class="even">
+        <td>Tests</td>
         <td>JUnit 6 (Jupiter), Mockito</td>
-        <td>Boot-verwaltet</td>
-        </tr>
-        <tr class="even">
-        <td>Sicherheit</td>
-        <td>Spring Security, OAuth2</td>
-        <td>7.x</td>
-        </tr>
-        <tr class="odd">
-        <td>Containerisierung</td>
-        <td>Docker</td>
-        <td>Aktuell</td>
+        <td>von Boot verwaltet</td>
         </tr>
         </tbody>
         </table>
-        <h2 id="architekturprinzipien">Architekturprinzipien</h2>
-        <ol type="1">
-        <li><strong>Trennung der Verantwortlichkeiten</strong> — klare
-        Grenzen zwischen Controller-, Service-, Repository- und
-        Datenschicht</li>
-        <li><strong>Dependency Injection</strong> — Spring verwaltet
-        alle Bean-Lebenszyklen und Abhängigkeiten</li>
-        <li><strong>RESTful API-Design</strong> — einheitliche
-        HTTP-Methoden und Statuscodes in der gesamten Anwendung</li>
-        <li><strong>Sicherheit zuerst</strong> —
-        OAuth2-Authentifizierung mit rollenbasierter Zugriffskontrolle
-        (RBAC)</li>
-        <li><strong>Mehrschichtige Validierung</strong> — von
-        DTO-Annotationen bis hin zu Datenbankconstraints</li>
-        <li><strong>Einheitliches Exception-Handling</strong> —
-        konsistentes Fehler-Response-Format mit passenden
-        HTTP-Statuscodes</li>
-        <li><strong>Testbarkeit</strong> — Constructor Injection und
-        Repository-Abstraktion ermöglichen saubere Unit- und
-        Integrationstests</li>
-        <li><strong>Dokumentation</strong> — Javadoc-Kommentare erklären
-        das <em>Warum</em>, nicht das Was; Architekturdokumentation wird
-        von der Pipeline generiert</li>
-        </ol>
-        <h2 id="systemarchitektur">Systemarchitektur</h2>
-        <div class="mermaid">
-        flowchart TB
-          Client["Client-Anwendungen"]:::controller
-          API["REST-API-Schicht"]:::controller
-          Security["Sicherheit & OAuth2"]:::service
-          Service["Geschäftslogik-Schicht"]:::service
-          Validation["Validierungs-Schicht"]:::service
-          Repository["Repository-Schicht"]:::repository
-          Database["Oracle ADB"]:::repository
-
-          Client -->|HTTP| API
-          API --> Security
-          Security -->|Authentifiziert| Service
-          Service --> Validation
-          Service --> Repository
-          Repository --> Database
-          Security -.->|Principal| Service
-
-          classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
-          classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
-          classDef repository fill:#d97706,color:#fff,stroke:#b45309;
-        </div>
-        <h2 id="kernschichten">Kernschichten</h2>
-        <h3 id="controller-schicht">Controller-Schicht</h3>
-        <p>Einstiegspunkt für alle HTTP-Anfragen. Die Controller
-        übernehmen Request-Routing, DTO-Konvertierung,
-        Response-Serialisierung und Basisvalidierung über
-        <code>@Valid</code>.</p>
-        <p>Wichtigste Controller: <code>SupplierController</code>,
-        <code>InventoryItemController</code>,
-        <code>AnalyticsController</code>,
-        <code>AuthController</code>.</p>
-        <div class="sourceCode" id="cb1"><pre
-        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/suppliers&quot;</span><span class="op">)</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">createSupplier</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">).</span><span class="fu">body</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">));</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-        <h3 id="service-schicht">Service-Schicht</h3>
-        <p>Enthält die gesamte Geschäftslogik und koordiniert
-        Operationen: Geschäftsregel-Validierung, Transaktionsverwaltung,
-        Datentransformation und Audit-Protokollierung.</p>
-        <p>Wichtigste Services: <code>SupplierService</code>,
-        <code>InventoryItemService</code>,
-        <code>StockHistoryService</code>,
-        <code>StockAnalyticsService</code>,
-        <code>FinancialAnalyticsService</code> (Finanzanalyse auf Basis
-        gewichteter Durchschnittskosten, WAC),
-        <code>EmployeeAnalyticsService</code>.</p>
-        <h3 id="validierungs-schicht">Validierungs-Schicht</h3>
-        <p>Drei Ebenen gewährleisten die Datenintegrität:</p>
+        <p>Details: <a href="02-constraints.html">§2
+        Randbedingungen</a>, <a href="03-context.html">§3
+        Kontext</a>.</p>
+        <h2 id="bausteine">Bausteine</h2>
+        <p>Anfragen durchlaufen vier Schichten. Controller leiten
+        weiter, validieren das eingehende DTO (<code>@Valid</code>) und
+        tragen die Berechtigungsregel (<code>@PreAuthorize</code>);
+        Services enthalten die Geschäftsregeln und die Transaktionen;
+        Repositories speichern, mit eigenen Fragmenten für das
+        Analyse-SQL. Entitäten verlassen die Service-Schicht nie, und
+        DTOs erreichen die Repositories nie. Die Abbildung zwischen
+        beiden ist schlichtes Java, ohne Generator.</p>
+        <p>Details: <a href="05-building-blocks.html">§5
+        Bausteinsicht</a>, <a
+        href="09-decisions/adr-0002-manual-mapping-over-mapstruct.html">ADR-0002</a>,
+        <a
+        href="09-decisions/adr-0003-dto-boundary-no-entity-exposure.html">ADR-0003</a>.</p>
+        <h2 id="sicherheit">Sicherheit</h2>
         <ul>
-        <li><strong>Controller-Ebene</strong> — JSR-380-Annotationen
-        (<code>@NotBlank</code>, <code>@NotNull</code> usw.) über
-        <code>@Valid</code></li>
-        <li><strong>Service-Ebene</strong> — Eindeutigkeitsprüfungen,
-        Beziehungsvalidierung, Zustandsprüfungen</li>
-        <li><strong>Datenbankebene</strong> — Constraints und eindeutige
-        Indizes als letzte Sicherheitsstufe</li>
+        <li><strong>Anmeldung.</strong> Das Backend führt den
+        Authorization-Code-Flow von Google selbst aus; der Browser hält
+        nie ein Token. Nur E-Mail-Adressen auf der Freigabeliste können
+        sich anmelden, und für alle anderen wird kein Konto angelegt (<a
+        href="09-decisions/adr-0011-restrict-oauth2-login-to-allowlist.html">ADR-0011</a>).
+        Nach der Anmeldung führt das Backend eine Server-Session; ihr
+        Cookie ist <code>HttpOnly</code>, <code>Secure</code> und
+        <code>SameSite=Lax</code>.</li>
+        <li><strong>Rollen.</strong> <code>ADMIN</code> darf alles;
+        <code>USER</code> darf lesen sowie Mengen und Preise anpassen.
+        Jeder <code>/api</code>-Endpunkt außer Health und
+        <code>/api/me</code> trägt eine ausdrückliche
+        <code>@PreAuthorize</code>-Regel, und ein Vertragstest schlägt
+        für einen Endpunkt ohne Regel fehl.</li>
+        <li><strong>Demo-Modus.</strong> Ist
+        <code>app.demo-readonly</code> aktiv, darf ein anonymer Besucher
+        die Demodaten lesen; jede Identität in einer Antwort wird durch
+        ein Pseudonym ersetzt. Schreibzugriffe erfordern weiterhin einen
+        angemeldeten <code>USER</code> oder <code>ADMIN</code>.</li>
         </ul>
-        <h3 id="repository-schicht">Repository-Schicht</h3>
-        <p>Spring Data JPA Repositories mit benutzerdefinierten
-        <code>@Query</code>-Methoden für komplexe Aggregationen,
-        <code>Pageable</code>-Unterstützung für große Datenmengen und
-        <code>@Transactional</code>-Verwaltung.</p>
-        <p>Wichtigste Repositories: <code>SupplierRepository</code>,
-        <code>InventoryItemRepository</code>,
-        <code>StockHistoryRepository</code> sowie benutzerdefinierte
-        Analytics-Mixins mit JPQL und nativem SQL.</p>
-        <h3 id="datenschicht">Datenschicht</h3>
-        <p>JPA-Entities mit Audit-Feldern (<code>createdAt</code>,
-        <code>createdBy</code>), gesetzt über <code>@PrePersist</code> /
-        <code>@CreationTimestamp</code>, und typsicheren
-        Enum-Spalten.</p>
-        <p>Entities: <code>Supplier</code>, <code>InventoryItem</code>,
-        <code>StockHistory</code>, <code>AppUser</code>.</p>
-        <h2 id="authentifizierung-und-sicherheit">Authentifizierung und
-        Sicherheit</h2>
-        <p>OAuth2-Authentifizierung mit Google als Provider. Spring
-        Security validiert jede Anfrage, erstellt den Principal im
-        <code>SecurityContext</code> und setzt RBAC über
-        <code>@PreAuthorize</code> durch.</p>
-        <p><strong>Rollen:</strong> - <code>ADMIN</code> — vollständiger
-        Systemzugriff - <code>USER</code> — Bestandsanzeige und
-        grundlegende Operationen</p>
-        <div class="mermaid">
-        %%{init: {"sequence": {"useMaxWidth": false}}}%%
-        sequenceDiagram
-          Client->>OAuth2Provider: Autorisierung anfordern
-          OAuth2Provider->>Client: Autorisierungscode
-          Client->>Controller: Code einreichen
-          Controller->>AuthService: Code gegen Token austauschen
-          AuthService->>OAuth2Provider: Token validieren
-          OAuth2Provider->>AuthService: Token gültig + Benutzerinformationen
-          AuthService->>Client: Session-Cookie setzen
-          Client->>API: Anfrage mit Session-Cookie (SameSite=None, Secure)
-          API->>SecurityContext: Validieren und Principal aufbauen
-          SecurityContext->>Controller: Mit authentifiziertem Principal ausführen
-        </div>
-        <h2 id="exception-handling">Exception-Handling</h2>
-        <p>Geschäfts- und Framework-Exceptions werden über einen
-        globalen <code>@ControllerAdvice</code>-Handler geleitet und
-        erzeugen eine einheitliche Fehler-Response — der HTTP-Status
-        trägt das Ergebnis, der Body enthält genau drei Felder: ein
-        maschinenlesbares Fehler-Token, eine menschenlesbare Nachricht
-        und einen Zeitstempel. Es gibt keine Korrelations-ID, und
-        Stack-Traces werden in Responses grundsätzlich nicht
-        exponiert.</p>
-        <div class="mermaid">
-        flowchart LR
-          Service["Service-Logik"]:::service
-          BusinessEx["Geschäfts-Exception"]:::service
-          DataEx["Daten-Exception"]:::repository
-          Handler["Exception-Handler"]:::controller
-          Response["Fehler-Response\nHTTP-Status + Nachricht"]:::controller
-
-          Service -->|Validierung fehlgeschlagen| BusinessEx
-          Service -->|DB-Constraint| DataEx
-          BusinessEx --> Handler
-          DataEx --> Handler
-          Handler --> Response
-
-          classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
-          classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
-          classDef repository fill:#d97706,color:#fff,stroke:#b45309;
-        </div>
-        <h2 id="datenfluss-bestandsitem-erstellen">Datenfluss:
-        Bestandsitem erstellen</h2>
-        <pre><code>POST /inventory/items
-  → InventoryItemController   DTO-Struktur mit @Valid prüfen
-  → InventoryItemService      DTO konvertieren, Namenseindeutigkeit prüfen, Lieferant validieren
-  → InventoryItemRepository   INSERT mit Datenbankconstraints
-  → StockHistoryService       Audit-Eintrag für Anfangsbestand schreiben
-  → Response                  InventoryItemDTO mit generierter ID</code></pre>
-        <h2 id="wichtigste-design-muster">Wichtigste Design-Muster</h2>
-        <table>
-        <colgroup>
-        <col style="width: 50%" />
-        <col style="width: 50%" />
-        </colgroup>
-        <thead>
-        <tr class="header">
-        <th>Muster</th>
-        <th>Zweck</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="odd">
-        <td>Constructor Injection</td>
-        <td>Explizite Abhängigkeiten; Unit-Tests ohne Spring-Kontext
-        möglich</td>
-        </tr>
-        <tr class="even">
-        <td>Repository-Abstraktion</td>
-        <td>Austauschbarer Datenzugriff; in Service-Tests mockbar</td>
-        </tr>
-        <tr class="odd">
-        <td>DTO-Muster</td>
-        <td>Entkoppelt API-Vertrag vom internen Domain-Modell</td>
-        </tr>
-        <tr class="even">
-        <td>Exception-Übersetzung</td>
-        <td>Geschäfts-Exceptions werden an einer Grenze auf
-        HTTP-Statuscodes gemappt</td>
-        </tr>
-        <tr class="odd">
-        <td>Validierungs-Helfer</td>
-        <td>Komplexe Geschäftsregeln in dedizierten Validator-Klassen
-        isoliert</td>
-        </tr>
-        <tr class="even">
-        <td>Audit-Protokollierung</td>
-        <td><code>createdAt</code> vom Service
-        (<code>InventoryItem</code>), per <code>@PrePersist</code>
-        (<code>StockHistory</code>) oder <code>@CreationTimestamp</code>
-        (<code>Supplier</code>); <code>createdBy</code> vom Service vor
-        dem Persistieren gesetzt</td>
-        </tr>
-        </tbody>
-        </table>
-        <h2 id="performance-überlegungen">Performance-Überlegungen</h2>
-        <ul>
-        <li><strong>Pagination</strong> — alle Listen-Endpunkte
-        akzeptieren <code>Pageable</code>; unbegrenzte Abfragen werden
-        blockiert</li>
-        <li><strong><code>@EntityGraph</code></strong> — auf häufig
-        genutzten Pfaden eingesetzt, um N+1-Abfragen zu vermeiden</li>
-        <li><strong>Benutzerdefinierte <code>@Query</code></strong> —
-        natives SQL für komplexe Aggregationen, wo JPQL nicht
-        ausreicht</li>
-        <li><strong>HikariCP-Tuning</strong> — Connection Pool auf die
-        Speichergrenze des Containers abgestimmt</li>
-        <li><strong>Zustandslose Services</strong> — kein serverseitiger
-        Session-State; horizontale Skalierung ist direkt möglich</li>
-        </ul>
-        <h2 id="testing">Testing</h2>
-        <div class="mermaid">
-        flowchart TB
-          Unit["Unit-Tests\nServices, Validatoren"]:::service
-          Integration["Integrationstests\nController, Repositories"]:::controller
-          Coverage["JaCoCo-Abdeckungsbericht"]:::repository
-
-          Unit --> Coverage
-          Integration --> Coverage
-
-          classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
-          classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
-          classDef repository fill:#d97706,color:#fff,stroke:#b45309;
-        </div>
-        <ul>
-        <li><strong>Unit-Tests</strong> — Mockito-Mocks für alle
-        externen Abhängigkeiten; Fokus auf Geschäftslogik</li>
-        <li><strong>Integrationstests</strong> —
-        <code>@SpringBootTest</code> mit H2 im Oracle-kompatiblen
-        Modus</li>
-        <li><strong>Test-Fixtures</strong> — Builder- und
-        Factory-Methoden für reproduzierbare Testdaten</li>
-        </ul>
-        <h2 id="konfiguration">Konfiguration</h2>
-        <p>Spring Boot externalisierte Konfiguration über
-        <code>application.yml</code> mit drei Profilen:</p>
-        <ul>
-        <li><em>(kein Profil)</em> — lokale Entwicklung, H2
-        In-Memory-Datenbank</li>
-        <li><code>test</code> — H2 im Oracle-kompatiblen Modus,
-        DEBUG-Protokollierung</li>
-        <li><code>prod</code> — Oracle Autonomous Database über
-        Wallet-Authentifizierung, INFO-Protokollierung</li>
-        </ul>
-        <p>Umgebungsspezifische Secrets (OAuth2-Schlüssel,
-        Datenbankzugangsdaten) werden über Umgebungsvariablen injiziert
-        und nie in die Versionsverwaltung eingecheckt.</p>
-        <h2 id="bereitstellung">Bereitstellung</h2>
-        <p>Das Backend wird über eine vollständig automatisierte
-        GitHub-Actions-Pipeline auf dem gemeinsam genutzten
-        <strong>Hetzner</strong>-Host bereitgestellt:</p>
-        <pre><code>Code-Push
-  → backend-ci.yml      Maven-Build, JUnit-Tests, JaCoCo-Abdeckung
-  → backend-docker.yml  Docker-Image-Build, Trivy-CVE-Scan, Push zu GHCR
-  → backend-deploy.yml  Geprüftes Image auf den Hetzner-Host ausliefern, Health-Check</code></pre>
-        <p>Das Docker-Image enthält ausschließlich das Produktions-JAR
-        und <code>start.sh</code> — keine Testquellen oder
-        Dokumentation.</p>
+        <p>Details: <a href="08-concepts.html">§8 Querschnittliche
+        Konzepte</a>, <a href="06-runtime.html">§6 Laufzeitsicht</a>, <a
+        href="09-decisions/adr-0007-cross-origin-auth-cookie.html">ADR-0007</a>.</p>
+        <h2 id="fehler">Fehler</h2>
+        <p>Der HTTP-Status trägt das Ergebnis. Jede Fehlerantwort, auch
+        die 401 eines nicht angemeldeten API-Aufrufs, hat dieselbe Form:
+        ein Fehlerkürzel, eine Meldung und einen Zeitstempel, dazu
+        <code>fieldErrors</code>, wenn der Fehler ein Eingabefeld
+        benennt. Meldungen aus Ausnahmen werden bereinigt, bevor sie den
+        Client erreichen; Stacktraces erreichen ihn nie.</p>
+        <p>Details: <a href="08-concepts.html">§8 Fehlerbehandlung</a>,
+        <a
+        href="09-decisions/adr-0004-http-status-as-envelope.html">ADR-0004</a>,
+        <a
+        href="09-decisions/adr-0005-error-message-sanitization.html">ADR-0005</a>.</p>
+        <h2 id="daten-und-analysen">Daten und Analysen</h2>
+        <p>Oracle hält die Produktionsdaten; dort wendet Flyway die
+        Schema-Migrationen an. Die automatisierten Tests laufen auf H2
+        im Oracle-Kompatibilitätsmodus, weil die Free-Tier-Datenbank nur
+        freigegebene Adressen zulässt. Die Analyseabfragen liegen in
+        eigenen Repository-Fragmenten, ihr SQL in Builder-Klassen; wo H2
+        und Oracle sich tatsächlich unterscheiden (Datumsgruppierung,
+        Bewertung), hat jede Abfrage eine Variante je Dialekt.</p>
+        <p>Details: <a href="08b-concepts-infra.html">§8
+        Infrastruktur</a>, <a
+        href="09-decisions/adr-0006-dialect-aware-analytics-queries.html">ADR-0006</a>.</p>
+        <h2 id="verteilung">Verteilung</h2>
+        <p>Das Backend läuft als ein Container auf einem gemeinsam
+        genutzten Hetzner-Host. Ein Merge nach <code>main</code> startet
+        die Backend-CI; ist sie grün und betrifft die Änderung die
+        Anwendung, wird das Image gebaut, auf behebbare Schwachstellen
+        der Stufen HIGH und CRITICAL geprüft, in GHCR veröffentlicht und
+        auf den Host ausgerollt, gefolgt von einem Health-Check. Das
+        Datenbank-Wallet und alle Zugangsdaten kommen beim Start aus der
+        Umgebungsdatei des Hosts, nie aus dem Image.</p>
+        <p>Details: <a href="07-deployment.html">§7
+        Verteilungssicht</a>, <a
+        href="09-decisions/adr-0009-runtime-wallet-delivery.html">ADR-0009</a>,
+        <a
+        href="09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.html">ADR-0012</a>.</p>
+        <h2 id="qualität-und-tests">Qualität und Tests</h2>
+        <p>Unit-Tests prüfen Services und Validatoren ohne Spring;
+        Web-Slice-Tests prüfen die Controller mit ihren
+        Sicherheitsregeln; Persistenztests führen jedes Repository gegen
+        H2 aus; einige Tests mit vollem Kontext prüfen den Start. Die
+        Browser-Testsuite prüft das Frontend gegen dieses Backend,
+        gebaut aus demselben Commit, bevor etwas ausgerollt wird. Der
+        Abdeckungsbericht des letzten Builds auf <code>main</code> ist
+        veröffentlicht: <a
+        href="https://keglev.github.io/inventory-service/backend/coverage/index.html">Backend-Abdeckungsbericht</a>.</p>
+        <p>Details: <a href="08c-concepts-testing.html">§8 Tests</a>, <a
+        href="10-quality-requirements.html">§10
+        Qualitätsanforderungen</a>.</p>
+        <h2 id="entscheidungen-und-risiken">Entscheidungen und
+        Risiken</h2>
+        <p>Jede wesentliche Entscheidung ist mit ihren Alternativen in
+        den <a
+        href="09-decisions/index.html">Architekturentscheidungen</a>
+        festgehalten; bekannte Risiken, akzeptierte technische Schulden
+        und die Ausnahmen vom Größenbudget stehen in <a
+        href="11-risks-technical-debt.html">§11</a>.</p>
       </article>
     </main>
 
@@ -449,44 +309,19 @@
       <li><a href="#backend-architektur"
       id="toc-backend-architektur">Backend-Architektur</a>
       <ul>
-      <li><a href="#technologie-stack"
-      id="toc-technologie-stack">Technologie-Stack</a></li>
-      <li><a href="#architekturprinzipien"
-      id="toc-architekturprinzipien">Architekturprinzipien</a></li>
-      <li><a href="#systemarchitektur"
-      id="toc-systemarchitektur">Systemarchitektur</a></li>
-      <li><a href="#kernschichten"
-      id="toc-kernschichten">Kernschichten</a>
-      <ul>
-      <li><a href="#controller-schicht"
-      id="toc-controller-schicht">Controller-Schicht</a></li>
-      <li><a href="#service-schicht"
-      id="toc-service-schicht">Service-Schicht</a></li>
-      <li><a href="#validierungs-schicht"
-      id="toc-validierungs-schicht">Validierungs-Schicht</a></li>
-      <li><a href="#repository-schicht"
-      id="toc-repository-schicht">Repository-Schicht</a></li>
-      <li><a href="#datenschicht"
-      id="toc-datenschicht">Datenschicht</a></li>
-      </ul></li>
-      <li><a href="#authentifizierung-und-sicherheit"
-      id="toc-authentifizierung-und-sicherheit">Authentifizierung und
-      Sicherheit</a></li>
-      <li><a href="#exception-handling"
-      id="toc-exception-handling">Exception-Handling</a></li>
-      <li><a href="#datenfluss-bestandsitem-erstellen"
-      id="toc-datenfluss-bestandsitem-erstellen">Datenfluss:
-      Bestandsitem erstellen</a></li>
-      <li><a href="#wichtigste-design-muster"
-      id="toc-wichtigste-design-muster">Wichtigste
-      Design-Muster</a></li>
-      <li><a href="#performance-überlegungen"
-      id="toc-performance-überlegungen">Performance-Überlegungen</a></li>
-      <li><a href="#testing" id="toc-testing">Testing</a></li>
-      <li><a href="#konfiguration"
-      id="toc-konfiguration">Konfiguration</a></li>
-      <li><a href="#bereitstellung"
-      id="toc-bereitstellung">Bereitstellung</a></li>
+      <li><a href="#kontext-und-technologie"
+      id="toc-kontext-und-technologie">Kontext und Technologie</a></li>
+      <li><a href="#bausteine" id="toc-bausteine">Bausteine</a></li>
+      <li><a href="#sicherheit" id="toc-sicherheit">Sicherheit</a></li>
+      <li><a href="#fehler" id="toc-fehler">Fehler</a></li>
+      <li><a href="#daten-und-analysen"
+      id="toc-daten-und-analysen">Daten und Analysen</a></li>
+      <li><a href="#verteilung" id="toc-verteilung">Verteilung</a></li>
+      <li><a href="#qualität-und-tests"
+      id="toc-qualität-und-tests">Qualität und Tests</a></li>
+      <li><a href="#entscheidungen-und-risiken"
+      id="toc-entscheidungen-und-risiken">Entscheidungen und
+      Risiken</a></li>
       </ul></li>
       </ul>
     </nav>
