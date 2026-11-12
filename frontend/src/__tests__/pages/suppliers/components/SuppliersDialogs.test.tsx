@@ -6,6 +6,7 @@
  * Contract under test:
  * - Renders the Create/Edit/Delete dialog components.
  * - Wires the board-level props to the correct child-dialog prop names.
+ * - Passes isDemo to every dialog as readOnly (frontend ADR-0013).
  *
  * Out of scope:
  * - The internal rendering/behavior of each dialog (those are tested in their own suites).
@@ -61,6 +62,7 @@ const createProps = (overrides: Partial<SuppliersDialogsProps> = {}): SuppliersD
   openDelete: false,
   onCloseDelete: vi.fn(),
   onDeleted: vi.fn(),
+  isDemo: false,
   ...overrides,
 });
 
@@ -99,6 +101,14 @@ describe('SuppliersDialogs', () => {
         onSupplierDeleted: props.onDeleted,
       })
     );
+  });
+
+  it.each([true, false])('passes isDemo=%s to every dialog as readOnly', (isDemo) => {
+    renderDialogs(createProps({ isDemo }));
+
+    for (const dialog of [mocks.CreateSupplierDialog, mocks.EditSupplierDialog, mocks.DeleteSupplierDialog]) {
+      expect(dialog).toHaveBeenCalledWith(expect.objectContaining({ readOnly: isDemo }));
+    }
   });
 
   it.each([

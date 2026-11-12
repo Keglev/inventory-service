@@ -48,11 +48,12 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
   open,
   onClose,
   onSupplierDeleted,
+  readOnly = false,
 }) => {
   const form = useDeleteSupplierForm(() => {
     onSupplierDeleted();
     onClose();
-  });
+  }, readOnly);
 
   /**
    * Prevent dialog close during deletion.

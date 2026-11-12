@@ -137,11 +137,13 @@ const renderDialog = (overrides?: {
   onClose?: () => void;
   onSupplierDeleted?: () => void;
   formState?: UseDeleteSupplierFormReturn;
+  readOnly?: boolean;
 }) => {
   const props = {
     open: overrides?.open ?? true,
     onClose: overrides?.onClose ?? vi.fn(),
     onSupplierDeleted: overrides?.onSupplierDeleted ?? vi.fn(),
+    readOnly: overrides?.readOnly,
   };
 
   mocks.useDeleteSupplierForm.mockReturnValue(overrides?.formState ?? createFormState());
@@ -159,8 +161,14 @@ describe('DeleteSupplierDialog', () => {
     renderDialog();
 
     // Hook is initialized with an onDeleted callback.
-    expect(mocks.useDeleteSupplierForm).toHaveBeenCalledWith(expect.any(Function));
+    expect(mocks.useDeleteSupplierForm).toHaveBeenCalledWith(expect.any(Function), false);
     expect(mocks.searchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes readOnly to the workflow hook (demo mode)', () => {
+    renderDialog({ readOnly: true });
+
+    expect(mocks.useDeleteSupplierForm).toHaveBeenCalledWith(expect.any(Function), true);
   });
 
   it('renders confirmation step when showConfirmation is true', () => {

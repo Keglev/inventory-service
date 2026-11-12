@@ -61,10 +61,12 @@ export interface UseDeleteSupplierFormReturn {
  * Uses useSupplierSearch for search functionality.
  *
  * @param onDeleted - Callback when supplier is successfully deleted
+ * @param readOnly - Demo session: confirming shows the demo message and sends no request
  * @returns Workflow state and handlers
  */
 export const useDeleteSupplierForm = (
-  onDeleted: () => void
+  onDeleted: () => void,
+  readOnly = false
 ): UseDeleteSupplierFormReturn => {
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const { user } = useAuth();
@@ -87,6 +89,12 @@ export const useDeleteSupplierForm = (
   const handleConfirmDelete = React.useCallback(async () => {
     if (!selectedSupplier) {
       setError(t('errors:supplier.selection.noSupplierSelected'));
+      return;
+    }
+
+    // Ahead of the role check: the demo user's role is DEMO, and the demo message says why
+    if (readOnly) {
+      setError(t('common:demoDisabled'));
       return;
     }
 
@@ -113,7 +121,7 @@ export const useDeleteSupplierForm = (
     } finally {
       setIsDeleting(false);
     }
-  }, [selectedSupplier, user?.role, t, onDeleted]);
+  }, [selectedSupplier, user?.role, t, onDeleted, readOnly]);
 
   /**
    * Reset form to initial state.

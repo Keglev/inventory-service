@@ -54,8 +54,12 @@ with `fieldErrors.name` and is pinned to the input rather than the form banner.
 The dialogs also use
 the shared `HelpIconButton` and reference palette tokens rather than fixed hex
 values, so they follow the same help and theming contract as the inventory dialogs.
-Unlike Inventory, the supplier dialogs do not take a `readOnly` prop; demo
-restriction relies on backend authorization.
+Demo mode follows the inventory rule (frontend ADR-0013): `SuppliersDialogs`
+passes `isDemo` to all three dialogs as `readOnly`; the demo can search, pick a
+supplier, fill the form and reach the confirmation, and the write step shows
+`common:demoDisabled` without sending a request. In the delete dialog that check
+comes before the ADMIN check, so the demo sees why the action is blocked rather
+than a role message. The backend still refuses an anonymous write with 401.
 
 The dialogs send no audit fields. `createdBy` is assigned server-side from the
 authenticated principal, so a client can neither forge it nor omit it; the create

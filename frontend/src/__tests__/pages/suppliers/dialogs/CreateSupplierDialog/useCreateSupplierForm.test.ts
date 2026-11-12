@@ -14,6 +14,8 @@
  *   - maps error to the `name` field via `setError`,
  *   - sets a user-facing banner error,
  *   - and reports `{ success: false }` without calling `onCreated`.
+ * - In demo mode (readOnly): sends no request, shows the demo message and reports
+ *   `{ success: false }` (frontend ADR-0013).
  * - On unexpected thrown values:
  *   - sets a generic banner error,
  *   - and reports `{ success: false }`.
@@ -170,5 +172,23 @@ describe('useCreateSupplierForm', () => {
 
     // When the thrown value is not an Error, the hook falls back to a translated generic message.
     expect(result.current.formError).toBe('Failed to add supplier. Please try again.');
+  });
+  it('sends no request and shows the demo message when readOnly', async () => {
+    const onCreated = vi.fn();
+    const { result } = renderHook(() => useCreateSupplierForm(onCreated, true));
+
+    await act(async () => {
+      const submitResult = await result.current.onSubmit({
+        name: 'Acme Inc.',
+        contactName: '',
+        phone: '',
+        email: '',
+      });
+      expect(submitResult).toEqual({ success: false });
+    });
+
+    expect(mocks.createSupplier).not.toHaveBeenCalled();
+    expect(result.current.formError).toBe('You are in demo mode and cannot perform this operation.');
+    expect(onCreated).not.toHaveBeenCalled();
   });
 });

@@ -55,10 +55,11 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
   open,
   onClose,
   onCreated,
+  readOnly = false,
 }) => {
   const { t } = useTranslation(['common', 'suppliers']);
 
-  const form = useCreateSupplierForm(onCreated);
+  const form = useCreateSupplierForm(onCreated, readOnly);
 
   const handleClose = React.useCallback(() => {
     form.reset();

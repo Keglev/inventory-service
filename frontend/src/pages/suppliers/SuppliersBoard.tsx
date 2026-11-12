@@ -86,6 +86,7 @@ const SuppliersBoard: React.FC = () => {
           openDelete={state.openDelete}
           onCloseDelete={handleCloseDelete}
           onDeleted={handleSupplierDeleted}
+          isDemo={Boolean(user?.isDemo)}
         />
       }
     >

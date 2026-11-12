@@ -64,6 +64,7 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   open,
   onClose,
   onSupplierUpdated,
+  readOnly = false,
 }) => {
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
 
@@ -72,7 +73,7 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   const form = useEditSupplierForm(() => {
     onSupplierUpdated();
     onClose();
-  });
+  }, readOnly);
 
   /**
    * Handle dialog close.

@@ -73,10 +73,12 @@ export interface UseEditSupplierFormReturn {
  * confirmation state (delegated), and submission with error handling.
  *
  * @param onUpdated - Callback after a successful update; the form is already reset when it runs
+ * @param readOnly - Demo session: confirming shows the demo message and sends no request
  * @returns Workflow state and handlers
  */
 export const useEditSupplierForm = (
-  onUpdated: () => void
+  onUpdated: () => void,
+  readOnly = false
 ): UseEditSupplierFormReturn => {
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
 
@@ -109,6 +111,11 @@ export const useEditSupplierForm = (
   const handleConfirmChanges = React.useCallback(async () => {
     if (!confirmation.pendingChanges || !selectedSupplier) return;
 
+    if (readOnly) {
+      setFormError(t('common:demoDisabled'));
+      return;
+    }
+
     try {
       const response = await updateSupplier(selectedSupplier.id, {
         name: selectedSupplier.name,
@@ -132,7 +139,7 @@ export const useEditSupplierForm = (
       confirmation.setShowConfirmation(false);
       logError('Update failed:', err);
     }
-  }, [confirmation, selectedSupplier, onUpdated, resetForm, t]);
+  }, [confirmation, selectedSupplier, onUpdated, resetForm, t, readOnly]);
 
   return {
     // Search state

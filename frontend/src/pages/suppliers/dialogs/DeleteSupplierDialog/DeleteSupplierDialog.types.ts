@@ -22,4 +22,6 @@ export interface DeleteSupplierDialogProps {
   onClose: () => void;
   /** Called after successful deletion to reload supplier list */
   onSupplierDeleted: () => void;
+  /** Demo session: the dialog stays usable, a valid submit sends no request (frontend ADR-0013). */
+  readOnly?: boolean;
 }

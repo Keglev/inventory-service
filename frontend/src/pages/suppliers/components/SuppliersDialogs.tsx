@@ -7,6 +7,7 @@
  *
  * @enterprise
  * - Pure composition: the logic lives in the dialogs, so the board stays an orchestrator.
+ * - isDemo reaches all three dialogs as readOnly (frontend ADR-0013).
  */
 
 import * as React from 'react';
@@ -34,6 +35,9 @@ export interface SuppliersDialogsProps {
   openDelete: boolean;
   onCloseDelete: () => void;
   onDeleted: () => void;
+
+  /** Demo session: every dialog stays usable and sends no write */
+  isDemo: boolean;
 }
 
 /**
@@ -57,6 +61,7 @@ export interface SuppliersDialogsProps {
  *   openDelete={deleteOpen}
  *   onCloseDelete={closeDelete}
  *   onDeleted={handleDeleted}
+ *   isDemo={isDemo}
  * />
  * ```
  */
@@ -70,6 +75,7 @@ export const SuppliersDialogs: React.FC<SuppliersDialogsProps> = ({
   openDelete,
   onCloseDelete,
   onDeleted,
+  isDemo,
 }) => {
   return (
     <>
@@ -77,18 +83,21 @@ export const SuppliersDialogs: React.FC<SuppliersDialogsProps> = ({
         open={openCreate}
         onClose={onCloseCreate}
         onCreated={onCreated}
+        readOnly={isDemo}
       />
 
       <EditSupplierDialog
         open={openEdit}
         onClose={onCloseEdit}
         onSupplierUpdated={onUpdated}
+        readOnly={isDemo}
       />
 
       <DeleteSupplierDialog
         open={openDelete}
         onClose={onCloseDelete}
         onSupplierDeleted={onDeleted}
+        readOnly={isDemo}
       />
     </>
   );
