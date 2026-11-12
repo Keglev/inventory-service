@@ -51,5 +51,5 @@ visible bug, not silent English
 
 Vitest + React Testing Library, centralized under `src/__tests__/` mirroring the
 source tree, with a locked directory taxonomy and mocking policy
-([ADR-0008](09-decisions/adr-0008-testing-structure-and-taxonomy.md)). Currently
-1,319 tests across 225 files at ~86% line coverage, run on every CI build.
+([ADR-0008](09-decisions/adr-0008-testing-structure-and-taxonomy.md)). The suite runs on
+every CI build; its coverage report is published ([frontend coverage report](https://keglev.github.io/inventory-service/frontend/coverage/index.html)).

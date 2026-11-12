@@ -109,7 +109,7 @@ and rules:
 |---|---|---|
 | Inventory | Item CRUD, quantity adjustment, price changes, stock reasons | [§5.1](05-domains/inventory.md) |
 | Suppliers | Supplier CRUD, search/display modes, linked-items delete guard | [§5.2](05-domains/suppliers.md) |
-| Analytics | Chart/table blocks, filters with URL sync, supplier-gated queries | [§5.3](05-domains/analytics.md) |
+| Analytics | Chart/table blocks, filters with URL sync; an empty supplier filter means all suppliers, except for the blocks whose endpoint needs one | [§5.3](05-domains/analytics.md) |
 | Dashboard | KPI cards, movement mini-chart, navigation hub | [§5.4](05-domains/dashboard.md) |
 | Auth | Login, OAuth callback + session hydration, demo entry, logout | [§5.5](05-domains/auth.md) |
 | Home | Public landing flow and demo entry point | [§5.6](05-domains/home.md) |

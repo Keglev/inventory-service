@@ -14,17 +14,17 @@ und ein **zweisprachiges Nutzererlebnis mit Deutsch als Erstsprache**.
 
 | Komponente     | Technologie                   | Version |
 |----------------|-------------------------------|---------|
-| Framework      | React                         | 19.1    |
-| Sprache        | TypeScript                    | 6.x     |
-| Build-Tool     | Vite                          | 7.x     |
-| UI-Bibliothek  | MUI (Material UI) + X DataGrid| 7.x / 8.x |
-| Server-State   | TanStack React Query          | 5.x     |
-| Routing        | React Router                  | 7.x     |
-| Forms          | React Hook Form + Zod         | 7.x / 4.x |
-| i18n           | i18next + react-i18next       | 25.x / 15.x |
-| Diagramme      | Recharts                      | 3.x     |
-| HTTP-Client    | Axios                         | 1.x     |
-| Tests          | Vitest + Testing Library      | 4.x     |
+| Framework      | React                         | 19      |
+| Sprache        | TypeScript                    | 6       |
+| Build-Tool     | Vite                          | 8       |
+| UI-Bibliothek  | MUI (Material UI) + X Data Grid | 9 / 9 |
+| Server-State   | TanStack React Query          | 5       |
+| Routing        | React Router                  | 7       |
+| Forms          | React Hook Form + Zod         | 7 / 4   |
+| i18n           | i18next + react-i18next       | 26 / 17 |
+| Diagramme      | Recharts                      | 3       |
+| HTTP-Client    | Axios                         | 1       |
+| Tests          | Vitest + Testing Library; Playwright | 5 / 16; 1 |
 | Laufzeit       | Node                          | >= 24   |
 
 ## Zentrale Architekturprinzipien
@@ -36,7 +36,7 @@ und ein **zweisprachiges Nutzererlebnis mit Deutsch als Erstsprache**.
 5. **Context für globalen Client-State** — Auth, Settings, Toast und Hilfe, Zugriff über Hooks, die außerhalb ihres Providers werfen
 6. **German-First-i18n** — localStorage wird beim Erstbesuch mit `de` vorbelegt; keine Fallback-Strings im Code
 7. **Dialoggetriebene Mutationen** — Create-/Edit-/Delete-Flows sind isolierte Dialog-Container je Domäne
-8. **Testbarkeit** — ~1.600 Vitest-Tests in 251 Dateien (~99 % Zeilenabdeckung) über Unit-, Komponenten- und Routing-Contract-Ebenen
+8. **Testbarkeit** — Vitest-Suiten über Unit-, Komponenten- und Routing-Contract-Ebenen, dazu eine Playwright-Suite in der CI; Abdeckungsschwellen sichern jeden Build ab ([Bericht](https://keglev.github.io/inventory-service/frontend/coverage/index.html))
 
 ## Systemarchitektur
 
@@ -71,8 +71,8 @@ Präsentationskomponenten und Dialog-Container.
 | Domäne | Verantwortung |
 |---|---|
 | Inventory | Artikel-CRUD, Mengenanpassung, Preisänderungen, Bestandsgründe |
-| Suppliers | Lieferanten-CRUD, Such-/Anzeigemodi, Löschsperre bei aktivem Bestand |
-| Analytics | Chart-/Tabellenblöcke, Filter mit URL-Sync, lieferantenabhängige Abfragen |
+| Suppliers | Lieferanten-CRUD, Suche per Eingabe, seitenweise Liste; Löschen abgelehnt, solange ein Artikel auf den Lieferanten verweist |
+| Analytics | Chart-/Tabellenblöcke, Filter mit URL-Sync; ein leerer Lieferantenfilter bedeutet alle Lieferanten |
 | Dashboard | KPI-Karten, Bewegungs-Mini-Chart, Navigationszentrale |
 | Auth | Login, OAuth-Callback + Session-Hydration, Demo-Einstieg, Logout |
 | Home | Öffentlicher Landing-Flow und Demo-Einstiegspunkt |
@@ -80,18 +80,20 @@ Präsentationskomponenten und Dialog-Container.
 ## Authentifizierung und Session-Modell
 
 Sessionbasiertes OAuth2 (Google), vollständig im Backend — die SPA hält keine
-Tokens. Der Auth-Context hydratisiert über `GET /api/me`; ein schreibgeschützter
-**Demo-Modus** existiert ausschließlich im Frontend über localStorage, Schreiboperationen
-sind in der UI blockiert. Unautorisierte Antworten behandelt der Axios-Interceptor
+Tokens. Der Auth-Context hydratisiert über `GET /api/me`. Der **Demo-Modus** ist eine
+clientseitige Session (in localStorage) ohne Backend-Konto: Seine Lesezugriffe erreichen
+das Backend anonym und werden über `app.demo-readonly` zugelassen, und jeder Dialog
+stoppt einen Schreibzugriff vor der Anfrage ([ADR-0013](09-decisions/adr-0013-demo-mode-blocks-only-the-write.md)). Unautorisierte Antworten behandelt der Axios-Interceptor
 zentral, mit drei Ausnahmen (öffentliche Seiten, der `/api/me`-Probe-Aufruf,
 Demo-Sessions).
 
 ## Internationalisierung
 
 Vollständige Lokalisierung Englisch/Deutsch mit zur Laufzeit geladenen JSON-Namespaces,
-zur Compile-Zeit typisierten Schlüsseln (`resources.d.ts`) und einer strikten Richtlinie
-ohne Fallback-Strings: Jeder Schlüssel existiert in beiden Sprachdateien. Der Erstbesuch
-rendert bewusst auf Deutsch.
+zur Compile-Zeit typisierten Schlüsseln (`resources.d.ts`, aus der englischen JSON) und
+ohne Fallback-Strings im Code; jeder Schlüssel existiert in beiden Sprachdateien. Der
+Erstbesuch rendert bewusst auf Deutsch, und ein zur Laufzeit fehlender Schlüssel fällt
+auf Deutsch zurück.
 
 ## Deployment
 
@@ -101,9 +103,11 @@ auf den Frontend-Host um und reverse-proxyt `/api/*` sowie die OAuth-Pfade zum
 Backend auf `api.smartsupplypro.de` (kanonische Aufzeichnung: Backend-ADR-0008).
 
 ```
-Source push
-  → frontend-ci.yml       type-check, lint, Vitest suite
-  → frontend-deploy.yml   Docker build (Nginx), deploy to Koyeb
+Merge nach main
+  → frontend-ci.yml       Audit, Lint, Vitest-Suite, Playwright-Suite; Image-Build,
+                          SBOM- und CVE-Prüfung, Push nach Docker Hub
+  → frontend-deploy.yml   dieses Image per Digest auf Koyeb ausrollen, prüfen, dass das
+                          ausgelieferte Bundle den Commit trägt
 ```
 
 ## Tests

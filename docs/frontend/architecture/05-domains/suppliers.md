@@ -62,6 +62,4 @@ comes before the ADMIN check, so the demo sees why the action is blocked rather
 than a role message. The backend still refuses an anonymous write with 401.
 
 The dialogs send no audit fields. `createdBy` is assigned server-side from the
-authenticated principal, so a client can neither forge it nor omit it; the create
-form previously sent nothing and the update form sent the signed-in user's email,
-which the backend discarded.
+authenticated principal, so a client can neither forge it nor omit it.

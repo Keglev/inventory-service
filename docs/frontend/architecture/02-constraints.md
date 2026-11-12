@@ -4,18 +4,18 @@
 
 | Component | Technology | Version |
 |---|---|---|
-| Language | TypeScript (strict) | 6.x |
-| UI framework | React | 19.1 |
-| Build tool | Vite | 7.x |
-| Component library | MUI (Material UI) | 7.x |
-| CSS-in-JS | Emotion | 11.x |
-| Server state | TanStack React Query | 5.x |
-| HTTP client | Axios | 1.x |
-| Routing | React Router | 7.x |
-| Forms & validation | React Hook Form + Zod | current |
-| Localization | i18next / react-i18next | current |
-| Charts | Recharts | current |
-| Testing | Vitest + React Testing Library | 4.x |
+| Language | TypeScript (strict) | 6 |
+| UI framework | React | 19 |
+| Build tool | Vite | 8 |
+| Component library | MUI (Material UI), MUI X Data Grid | 9 / 9 |
+| CSS-in-JS | Emotion | 11 |
+| Server state | TanStack React Query | 5 |
+| HTTP client | Axios | 1 |
+| Routing | React Router | 7 |
+| Forms & validation | React Hook Form + Zod | 7 / 4 |
+| Localization | i18next / react-i18next | 26 / 17 |
+| Charts | Recharts | 3 |
+| Testing | Vitest + React Testing Library; Playwright | 5 / 16; 1 |
 | Runtime (dev) | Node.js | 24+ |
 
 The frontend is deployed as a static build behind Nginx on Koyeb; it has no server

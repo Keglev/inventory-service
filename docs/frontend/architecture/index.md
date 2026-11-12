@@ -20,7 +20,7 @@ reasoning behind every significant decision.
 |---|---|---|
 | 1 | Correctness | UI state always reflects server truth; mutations invalidate the right query caches |
 | 2 | Maintainability | Feature-first layering (ADR-0001); strict size and comment standards; typed i18n keys |
-| 3 | Testability | 1,319 tests across 225 files (~86% line coverage); every layer testable in isolation |
+| 3 | Testability | Every layer testable in isolation; the suite runs on every CI build and fails below the coverage thresholds in `vitest.config.ts` ([frontend coverage report](https://keglev.github.io/inventory-service/frontend/coverage/index.html)) |
 | 4 | Bilingual UX | Full EN/DE localization with no in-code fallback strings |
 
 ## Chapters
@@ -39,7 +39,7 @@ reasoning behind every significant decision.
 | [§8c Concepts](08c-concepts-testing.md) | Testing strategy and conventions | Current |
 | [§9 Decisions (ADRs)](09-decisions/index.md) | Architecture decision records | Current |
 | [§10 Quality Requirements](10-quality-requirements.md) | Enforced quality scenarios and non-goals | Current |
-| [§11 Risks & Technical Debt](11-risks-technical-debt.md) | Known risks and tracked debt | Current |
+| [§11 Risks & Technical Debt](11-risks-technical-debt.md) | Known risks and technical debt | Current |
 | [§12 Glossary](12-glossary.md) | Domain and technical terms | Current |
 
 ## Sprache / Language

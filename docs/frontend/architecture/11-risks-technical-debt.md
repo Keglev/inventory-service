@@ -1,8 +1,7 @@
 # §11 Risks & Technical Debt
 
 Known risks (external or time-driven) and deliberately accepted debt, each
-traceable to the code or decision it concerns. Internal tracking IDs match the
-BUCKET markers in source.
+traceable to the code or decision it concerns.
 
 ## 11.1 Risks
 
@@ -11,35 +10,23 @@ BUCKET markers in source.
 | FR-01 | The serve-time API-base rewrite applies only to responses whose type is listed in `sub_filter_types`; if the serving layer stops using such a type, the rewrite no-ops in silence | Low — the retained direct cross-origin path keeps the app working; topology flips invisibly | `sub_filter_types` lists both JavaScript types, and every deploy asserts the rewrite ran ([ADR-0010](09-decisions/adr-0010-verifying-frontend-deploys.md)). A base-image bump is not a cause: nginx has mapped `.js` to `application/javascript` since 1.5.4 — see the correction in [ADR-0008 (backend)](../../backend/architecture/09-decisions/adr-0008-serve-time-api-base-rewrite.md) |
 | FR-02 | Routes load eagerly — no code splitting; initial bundle grows with every feature | Low–Medium over time | Page-module boundaries are the ready seams ([§6](06-runtime.md)); revisit when initial-load metrics warrant |
 
-## 11.2 Technical Debt (tracked)
+## 11.2 Technical Debt
 
-| ID | Item | Where |
-|---|---|---|
-| CB-APP33/34 | Settings language-sync can overwrite explicit format choices; parts of the preference set lack persistence | [§8](08-concepts.md) |
-| CB-APP15 / CM-APP2 | Scrollbar rules duplicated between global.css and CssBaseline; print `!important` overrides unaudited | [§8b](08b-concepts-i18n-theming.md) |
-
-The remaining open registry entries are UI-level items of the same character and
-live as BUCKET markers at their source sites.
+No technical debt is open in the frontend. Format preferences survive a language
+change and are persisted with the rest of the preference set
+(`context/settings/SettingsContext.tsx`); scrollbar styling has one home,
+`styles/global.css`, whose print rules state why they need `!important`.
 
 ## Size-Budget Waivers
 
 Measured over code lines against the budgets in [§2](02-constraints.md); function
-lengths follow its counting rule, which leaves both brace lines out (2026-10-29).
+lengths follow its counting rule, which leaves both brace lines out.
 A file's layer follows its place in the tree: files under a `dialogs/` folder are
 dialogs, `use*` files and `handlers/` are hooks and handlers, a page's top-level
 file under `pages/<area>/` is a page orchestrator, and the remaining UI files are
 components.
 
-No file carries a waiver. The waiver for
-`pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm.tsx` (164 code lines
-against the dialogs alarm of 160) is withdrawn: the file measures 134.
-
-No file and no function exceeds its layer's alarm.
-`pages/analytics/sections/EmployeesActivityChart.tsx` was at 155 against the
-components alarm of 150 until its series colours, time axis and formatters moved
-into the sibling hook `useEmployeeChartFormatting.ts` (2026-10-29): they decide
-what the chart shows and how it reads, a different level from the card that lays
-it out.
+No file carries a waiver, and no file and no function exceeds its layer's alarm.
 
 Three functions sit above their band and below their alarm: `DateRangeFilter`
 122 and `MovementsSection` 120 (components, band 100), and `useEditItemForm` 89

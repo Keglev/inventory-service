@@ -13,7 +13,8 @@ message (the Google account is not on the access allow-list), while other values
 show a generic sign-in-failed message.
 "Continue in Demo Mode" calls `useAuth().loginAsDemo()`, persists the demo user
 under `localStorage['ssp.demo.session']`, and navigates to the dashboard — a
-client-only, read-only session with no backend account.
+client-side, read-only session with no backend account; its reads reach the backend
+anonymously and are admitted by `app.demo-readonly`.
 
 ## Callback & Session Hydration
 
