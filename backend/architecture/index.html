@@ -137,17 +137,20 @@
         <tr class="odd">
         <td>1</td>
         <td>Security</td>
-        <td>Every endpoint requires a valid OAuth2 token; admin
-        operations additionally require the <code>ADMIN</code> role
-        enforced via <code>@PreAuthorize</code> at the controller
-        boundary</td>
+        <td>Sign-in through Google OAuth2 opens a server session; every
+        <code>/api</code> endpoint carries a <code>@PreAuthorize</code>
+        rule, writes need <code>USER</code> or <code>ADMIN</code>, and
+        admin operations <code>ADMIN</code>. With demo mode on,
+        anonymous callers may read and receive masked identities; health
+        is public</td>
         </tr>
         <tr class="even">
         <td>2</td>
         <td>Maintainability</td>
         <td>Each concept has exactly one home — controllers route,
-        services decide, repositories persist; cross-layer leakage is a
-        build-time error</td>
+        services decide, repositories persist; the DTO boundary (<a
+        href="09-decisions/adr-0003-dto-boundary-no-entity-exposure.html">ADR-0003</a>)
+        keeps the layers apart, checked in review</td>
         </tr>
         <tr class="odd">
         <td>3</td>
@@ -217,8 +220,8 @@
         <tbody>
         <tr class="odd">
         <td><a href="02-constraints.html">§2 Constraints</a></td>
-        <td>Java 21, Spring Boot 4.1.x, Oracle 23ai, Maven, Docker;
-        solo-dev and REST conventions</td>
+        <td>Java 21, Spring Boot 4, Oracle 23ai, Maven, Docker; solo-dev
+        and REST conventions</td>
         </tr>
         <tr class="even">
         <td><a href="03-context.html">§3 Context &amp; Scope</a></td>
@@ -261,13 +264,14 @@
         <tr class="odd">
         <td><a href="10-quality-requirements.html">§10 Quality
         Requirements</a></td>
-        <td>Test strategy, JaCoCo coverage gates, CI pipeline, Trivy CVE
-        scan</td>
+        <td>Quality tree and measurable quality scenarios, each traced
+        to the decision or view that realises it</td>
         </tr>
         <tr class="even">
         <td><a href="11-risks-technical-debt.html">§11 Risks &amp;
         Technical Debt</a></td>
-        <td>Known risks, upcoming EOLs, and named technical debt</td>
+        <td>Known risks, named technical debt and the size-budget
+        waivers</td>
         </tr>
         <tr class="odd">
         <td><a href="12-glossary.html">§12 Glossary</a></td>

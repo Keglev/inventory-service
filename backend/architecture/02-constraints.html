@@ -127,7 +127,7 @@
         <tr class="even">
         <td>Framework</td>
         <td>Spring Boot</td>
-        <td>4.1.0</td>
+        <td>4</td>
         </tr>
         <tr class="odd">
         <td>Database</td>
@@ -136,13 +136,13 @@
         </tr>
         <tr class="even">
         <td>Build tool</td>
-        <td>Maven</td>
-        <td>3.x+</td>
+        <td>Maven (wrapper)</td>
+        <td>3</td>
         </tr>
         <tr class="odd">
         <td>Security</td>
         <td>Spring Security, OAuth2</td>
-        <td>7.x (Boot-managed)</td>
+        <td>7 (Boot-managed)</td>
         </tr>
         <tr class="even">
         <td>Containerisation</td>
@@ -157,8 +157,11 @@
         </tbody>
         </table>
         <p><strong>Oracle Autonomous Database</strong> is the sole
-        supported database. Local development and CI use H2 in
-        Oracle-compatibility mode. There is no PostgreSQL profile.</p>
+        supported database: the default profile, local development
+        included, connects to Oracle from <code>DB_URL</code>,
+        <code>DB_USER</code> and <code>DB_PASS</code>. The automated
+        tests use H2 in Oracle-compatibility mode (<code>test</code>
+        profile). There is no PostgreSQL profile.</p>
         <p><strong>Oracle wallet authentication</strong> — the wallet is
         delivered at runtime as a base64 value in the host environment
         file, extracted by the startup script (which sets

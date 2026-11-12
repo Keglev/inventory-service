@@ -168,15 +168,18 @@
         so the contract cannot drift per endpoint. See <a
         href="09-decisions/adr-0004-http-status-as-envelope.html">ADR
         0004</a>.</p>
-        <h2 id="stateless-services-and-horizontal-scaling">Stateless
-        Services and Horizontal Scaling</h2>
-        <p>No business state is held in memory between requests. Spring
-        Security tracks the authenticated principal via an HTTP-only
-        cookie, but the backend itself treats every request as
-        self-contained. Additional instances can be added behind a load
-        balancer without sticky sessions or a shared cache — a property
-        the single-container deployment on the shared host relies on,
-        satisfied at zero extra cost.</p>
+        <h2 id="state-and-scaling">State and Scaling</h2>
+        <p>No business state is held in memory between requests: items,
+        suppliers and the stock history live in the database. The login
+        session is the one exception. Spring Security keeps the
+        signed-in principal in a server session
+        (<code>JSESSIONID</code>), held in the container’s memory; there
+        is no shared session store. One container serves every request
+        on the shared host, so this needs no sticky routing. The cost is
+        named: a redeploy ends every session, so signed-in users sign in
+        again after a release, and a second instance would need sticky
+        sessions or a shared session store first. The demo and the
+        OAuth2 login round trip hold no server state.</p>
       </article>
     </main>
 
@@ -199,9 +202,8 @@
       <li><a href="#http-status-as-the-response-envelope"
       id="toc-http-status-as-the-response-envelope">HTTP Status as the
       Response Envelope</a></li>
-      <li><a href="#stateless-services-and-horizontal-scaling"
-      id="toc-stateless-services-and-horizontal-scaling">Stateless
-      Services and Horizontal Scaling</a></li>
+      <li><a href="#state-and-scaling" id="toc-state-and-scaling">State
+      and Scaling</a></li>
       </ul></li>
       </ul>
     </nav>

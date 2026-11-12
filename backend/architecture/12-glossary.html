@@ -254,9 +254,10 @@
         href="./09-decisions/adr-0005-error-message-sanitization.html">ADR-0005</a></td>
         </tr>
         <tr class="odd">
-        <td><code>SameSite=None; Secure</code></td>
-        <td>Session cookie attributes configured on the backend;
-        production browser traffic is same-origin via the Nginx
+        <td><code>SameSite=Lax; Secure</code></td>
+        <td>Attributes of the session cookie and the OAuth2 login
+        cookies: the frontend and the API share a registrable domain,
+        and production browser traffic is same-origin via the Nginx
         serve-time rewrite — see <a
         href="./07-deployment.html">§7</a></td>
         </tr>

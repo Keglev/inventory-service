@@ -148,10 +148,9 @@
         from that machine. Architecture and API documentation are
         published to <strong>GitHub Pages</strong> via a separate docs
         pipeline.</p>
-        <p><strong>Previous hosting.</strong> The backend previously ran
-        on a single-tenant 1 GB VM at a managed platform provider. The
-        migration to the shared host, its cost and the shared-fate
-        trade-off it accepts are recorded in <a
+        <p>Why the backend shares a host with another project, what that
+        costs and the shared-fate trade-off it accepts are recorded in
+        <a
         href="09-decisions/adr-0012-backend-hosting-on-shared-hetzner-host.html">ADR
         0012</a>.</p>
         <h2 id="deployment-diagram">Deployment Diagram</h2>
@@ -185,10 +184,10 @@
             classDef external   fill:#4f46e5,color:#fff,stroke:#3730a3;
         </div>
         <h2 id="cicd-pipeline">CI/CD Pipeline</h2>
-        <p>Twelve GitHub Actions workflows make up the pipeline. They
-        are grouped by the chain they belong to and listed in execution
-        order within it; the shared ones serve more than one chain or
-        none (<a
+        <p>The pipeline is made of the GitHub Actions workflows and the
+        two composite actions below. They are grouped by the chain they
+        belong to and listed in execution order within it; the shared
+        ones serve more than one chain or none (<a
         href="09-decisions/adr-0017-workflows-named-by-chain.html">ADR
         0017</a>).</p>
         <table>
@@ -375,8 +374,8 @@
         <code>workflow_run</code> run’s own <code>head_sha</code> is
         <code>main</code>’s HEAD when the run was created and can name a
         later merge.</p>
-        <p>Every action reference across all eleven workflows is pinned
-        to a commit SHA rather than a mutable tag;
+        <p>Every action reference across all workflows is pinned to a
+        commit SHA rather than a mutable tag;
         <code>dependabot.yml</code> opens one grouped pull request a
         month to move those pins, which is the only way they get updated
         at all.</p>
@@ -444,16 +443,25 @@
         <tr class="odd">
         <td>Local dev</td>
         <td>(none)</td>
-        <td>H2 in-memory</td>
-        <td><code>.env</code> file or IDE run config</td>
+        <td>Oracle, from <code>DB_URL</code>, <code>DB_USER</code>,
+        <code>DB_PASS</code> (startup fails without them)</td>
+        <td><code>.env</code> file (template <code>.env.example</code>)
+        or IDE run config</td>
         </tr>
         <tr class="even">
         <td>CI / test</td>
         <td><code>test</code></td>
-        <td>H2 (Oracle-compatibility mode)</td>
+        <td>H2 in memory (Oracle-compatibility mode)</td>
         <td><code>application-test.yml</code></td>
         </tr>
         <tr class="odd">
+        <td>Browser suite (CI)</td>
+        <td><code>test,e2e</code></td>
+        <td>H2 as in <code>test</code>, plus the e2e seed and demo mode
+        on</td>
+        <td><code>application-e2e.yml</code></td>
+        </tr>
+        <tr class="even">
         <td>Production</td>
         <td><code>prod</code></td>
         <td>Oracle Autonomous DB 23ai</td>

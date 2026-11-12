@@ -110,10 +110,10 @@
       <article class="doc-body">
         <h1 id="building-block-view">§5 Building Block View</h1>
         <h2 id="controller-layer">Controller Layer</h2>
-        <p>Eleven <code>@RestController</code> classes form the HTTP
-        boundary, grouped by domain path; a twelfth class,
-        <code>RootRedirectController</code>, is a plain
-        <code>@Controller</code> that redirects the site root.</p>
+        <p>Ten <code>@RestController</code> classes form the HTTP
+        boundary, grouped by domain path;
+        <code>RootRedirectController</code>, a plain
+        <code>@Controller</code>, redirects the site root.</p>
         <table>
         <colgroup>
         <col style="width: 33%" />
@@ -157,7 +157,9 @@
         <tr class="even">
         <td><code>StockUpdateAnalyticsController</code></td>
         <td><code>/api/analytics</code></td>
-        <td>Stock update query and post</td>
+        <td>Stock update queries, as a list and paged
+        (<code>/stock-updates</code>,
+        <code>/stock-updates/page</code>)</td>
         </tr>
         <tr class="odd">
         <td><code>StockReasonAnalyticsController</code></td>
@@ -177,7 +179,8 @@
         <tr class="even">
         <td><code>AuthController</code></td>
         <td><code>/api</code></td>
-        <td><code>/auth/me</code> and logout</td>
+        <td><code>GET /api/me</code>, the signed-in user’s profile;
+        sign-out is Spring Security’s <code>POST /logout</code></td>
         </tr>
         <tr class="odd">
         <td><code>RootRedirectController</code></td>
@@ -190,7 +193,7 @@
         request (503 when it fails, designed for Oracle Free Tier
         auto-pausing); only the JDBC product name is cached after the
         first successful ping. Every <code>/api</code> endpoint except
-        health, <code>/api/me</code> and the API logout carries
+        health and <code>/api/me</code> carries
         <code>@PreAuthorize</code>, which a contract test enforces;
         inbound DTOs are validated with JSR-380 (<code>@Valid</code>)
         before reaching the service layer. Controllers perform DTO
@@ -286,7 +289,7 @@
         <td><code>AppUserRepository</code></td>
         <td>Spring Data JPA</td>
         <td>Written only by <code>UserProvisioningService</code>; read
-        by <code>AuthController</code> (<code>/auth/me</code>) and
+        by <code>AuthController</code> (<code>/api/me</code>) and
         <code>EmployeeAnalyticsService</code> (display names); outside
         the domain mutation flow</td>
         </tr>
@@ -421,7 +424,7 @@
             subgraph Controllers
                 SC["SupplierController"]:::controller
                 IC["InventoryItemController\nInventoryItemPatchController"]:::controller
-                AC["AnalyticsController\nStockAnalyticsController\nStockUpdateAnalyticsController"]:::controller
+                AC["AnalyticsController\nStock, StockUpdate, StockReason\nand Employee analytics controllers"]:::controller
                 AuC["AuthController"]:::controller
             end
 
@@ -442,10 +445,8 @@
             subgraph Model
                 SUP["Supplier"]:::entity
                 INV["InventoryItem"]:::entity
-                SH["StockHistory"]:::entity
-                AU["AppUser"]:::entity
-                SCR["StockChangeReason\n(11 values)"]:::enumNode
-                RL["Role\nADMIN / USER"]:::enumNode
+                SH["StockHistory\nreason: StockChangeReason"]:::entity
+                AU["AppUser\nrole: ADMIN / USER"]:::entity
             end
 
             subgraph CrossCutting["Cross-cutting"]
@@ -458,7 +459,8 @@
             IC --> IS
             IS --> SHS
             AC --> AS
-            AuC --> UPS
+            SEC --> UPS
+            AuC -. reads .-> AU
 
             SS --> SR
             IS --> IR
@@ -470,14 +472,11 @@
             SR --> SUP
             IR --> INV
             SHR --> SH
-            SH -. reason .-> SCR
-            AU -. role .-> RL
 
             classDef controller fill:#2563eb,color:#fff,stroke:#1d4ed8;
             classDef service    fill:#0d9488,color:#fff,stroke:#0f766e;
             classDef repository fill:#d97706,color:#fff,stroke:#b45309;
             classDef entity     fill:#374151,color:#fff,stroke:#1f2937;
-            classDef enumNode   fill:#6b7280,color:#fff,stroke:#4b5563;
             classDef crosscut   fill:#7c3aed,color:#fff,stroke:#5b21b6;
         </div>
         <h2 id="domain-model-er-diagram">Domain Model (ER Diagram)</h2>

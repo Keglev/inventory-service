@@ -138,18 +138,22 @@
         <tr class="odd">
         <td>1</td>
         <td>Sicherheit</td>
-        <td>Jeder Endpunkt erfordert ein gültiges OAuth2-Token;
-        Administratoroperationen erfordern zusätzlich die Rolle
-        <code>ADMIN</code>, die per <code>@PreAuthorize</code> an der
-        Controller-Grenze durchgesetzt wird</td>
+        <td>Die Anmeldung über Google OAuth2 eröffnet eine
+        Server-Session; jeder <code>/api</code>-Endpunkt trägt eine
+        <code>@PreAuthorize</code>-Regel, Schreibzugriffe erfordern
+        <code>USER</code> oder <code>ADMIN</code>,
+        Administratoroperationen <code>ADMIN</code>. Bei aktivem
+        Demo-Modus dürfen anonyme Aufrufer lesen und erhalten maskierte
+        Identitäten; der Health-Endpunkt ist öffentlich</td>
         </tr>
         <tr class="even">
         <td>2</td>
         <td>Wartbarkeit</td>
         <td>Jedes Konzept hat genau einen Ort — Controller routen,
-        Services entscheiden, Repositories persistieren;
-        schichtenübergreifende Abhängigkeiten werden zur Kompilierzeit
-        verhindert</td>
+        Services entscheiden, Repositories persistieren; die DTO-Grenze
+        (<a
+        href="09-decisions/adr-0003-dto-boundary-no-entity-exposure.html">ADR-0003</a>)
+        hält die Schichten auseinander, geprüft im Review</td>
         </tr>
         <tr class="odd">
         <td>3</td>
@@ -221,7 +225,7 @@
         <tbody>
         <tr class="odd">
         <td><a href="02-constraints.html">§2 Randbedingungen</a></td>
-        <td>Java 21, Spring Boot 4.1.x, Oracle 23ai, Maven, Docker;
+        <td>Java 21, Spring Boot 4, Oracle 23ai, Maven, Docker;
         Einzelentwickler- und REST-Konventionen</td>
         </tr>
         <tr class="even">
@@ -264,14 +268,14 @@
         <tr class="odd">
         <td><a href="10-quality-requirements.html">§10
         Qualitätsziele</a></td>
-        <td>Teststrategie, JaCoCo-Abdeckungsgrenzen, CI-Pipeline,
-        Trivy-CVE-Scan</td>
+        <td>Qualitätsbaum und messbare Qualitätsszenarien, jeweils auf
+        die Entscheidung oder Sicht zurückgeführt, die sie umsetzt</td>
         </tr>
         <tr class="even">
         <td><a href="11-risks-technical-debt.html">§11 Risiken und
         technische Schulden</a></td>
-        <td>Bekannte Risiken, bevorstehende EOLs und benannte technische
-        Schulden</td>
+        <td>Bekannte Risiken, benannte technische Schulden und die
+        Ausnahmen vom Größenbudget</td>
         </tr>
         <tr class="odd">
         <td><a href="12-glossary.html">§12 Glossar</a></td>

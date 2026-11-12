@@ -131,8 +131,8 @@
           Q --> REL["Reliability & correctness"]
 
           SEC --> SEC1["No internal disclosure in error responses"]
-          SEC --> SEC2["Credential safety (wallet auto-login, injected secrets)"]
-          SEC --> SEC3["AuthN / AuthZ: OAuth2 + RBAC, secure cross-origin session"]
+          SEC --> SEC2["Credential safety (wallet and secrets injected at runtime)"]
+          SEC --> SEC3["AuthN / AuthZ: OAuth2 + RBAC, same-site session cookie"]
 
           MNT --> MNT1["Separation of concerns (layered)"]
           MNT --> MNT2["Modifiability via the DTO boundary"]
@@ -189,13 +189,17 @@
         </tr>
         <tr class="odd">
         <td>Q-03</td>
-        <td>Security — cross-origin auth</td>
-        <td>A browser request from the Koyeb frontend origin calls the
-        backend at <code>api.smartsupplypro.de</code></td>
+        <td>Security — session</td>
+        <td>A signed-in browser calls <code>/api</code> on
+        <code>www.smartsupplypro.de</code>, which the frontend’s Nginx
+        proxies to the backend at
+        <code>api.smartsupplypro.de</code></td>
         <td>The session cookie is sent
-        <code>SameSite=Lax; Secure</code>; the request authenticates;
-        OAuth2 success redirects to <code>/auth</code>. See <a
-        href="./06-runtime.html">§6</a></td>
+        <code>HttpOnly; Secure; SameSite=Lax</code> and the request
+        authenticates; a cross-site form cannot carry the cookie. OAuth2
+        success redirects to the frontend’s landing path
+        (<code>/auth</code>). See <a href="./06-runtime.html">§6</a>, <a
+        href="./09-decisions/adr-0008-serve-time-api-base-rewrite.html">ADR-0008</a></td>
         </tr>
         <tr class="even">
         <td>Q-04</td>
@@ -222,7 +226,8 @@
         <td>Any handled failure occurs (validation, not-found, conflict,
         access-denied, unexpected)</td>
         <td>The body is <code>{error, message, timestamp}</code> — plus
-        <code>fieldErrors</code> only on bean-validation failures — with
+        <code>fieldErrors</code> when the failure names an input (bean
+        validation, a duplicate name) — with
         <code>error == HttpStatus.name().toLowerCase()</code>; no
         correlation ID, no stack trace. See <a
         href="./09-decisions/adr-0004-http-status-as-envelope.html">ADR-0004</a></td>

@@ -224,9 +224,10 @@
         the direct cross-origin path, not the active proxied
         topology.</li>
         <li><strong>Local development</strong>: Vite’s dev server
-        proxies <code>/api</code> to <code>localhost:8080</code>; Spring
-        Security CORS is enabled for <code>localhost:3000</code> only in
-        the default profile.</li>
+        proxies <code>/api</code> to the backend on
+        <code>localhost:8081</code> (<code>DEV_PROXY_TARGET</code>
+        overrides it); the default profile’s CORS list admits the Vite
+        origins on port 5173.</li>
         <li><strong>Demo mode</strong>:
         <code>AppProperties.demoReadonly</code> allows unauthenticated
         read-only access without removing <code>@PreAuthorize</code>

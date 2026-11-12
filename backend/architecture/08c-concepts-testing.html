@@ -120,16 +120,14 @@
         full-context tests.</p>
         <table>
         <colgroup>
-        <col style="width: 19%" />
-        <col style="width: 30%" />
-        <col style="width: 30%" />
-        <col style="width: 19%" />
+        <col style="width: 28%" />
+        <col style="width: 44%" />
+        <col style="width: 28%" />
         </colgroup>
         <thead>
         <tr class="header">
         <th>Layer</th>
         <th>Annotation</th>
-        <th>Test files</th>
         <th>Scope</th>
         </tr>
         </thead>
@@ -138,38 +136,37 @@
         <td>Unit</td>
         <td><code>@ExtendWith(MockitoExtension.class)</code> /
         <code>@Mock</code></td>
-        <td>28</td>
-        <td>Services, OAuth2 handlers,
-        <code>DatabaseDialectDetector</code>, and dialect-selection
-        logic — no Spring context</td>
+        <td>Services, validators, OAuth2 handlers,
+        <code>DatabaseDialectDetector</code> and the dialect selection —
+        no Spring context</td>
         </tr>
         <tr class="even">
         <td>Web slice</td>
         <td><code>@WebMvcTest</code></td>
-        <td>24</td>
-        <td>Controllers, security endpoints, and the exception handler,
-        with the service layer mocked</td>
+        <td>Controllers, the security rules in front of them and the
+        global exception handler, with the service layer mocked</td>
         </tr>
         <tr class="odd">
         <td>Persistence slice</td>
         <td><code>@DataJpaTest</code></td>
-        <td>13</td>
-        <td>All repositories — including the three custom analytics
-        <code>*Impl</code> classes — against H2</td>
+        <td>All repositories, the custom analytics <code>*Impl</code>
+        classes included, against H2</td>
         </tr>
         <tr class="even">
         <td>Full context</td>
         <td><code>@SpringBootTest</code></td>
-        <td>2</td>
-        <td>Application boot and wiring smoke tests</td>
+        <td>Application boot, the actuator build information, and item
+        reads outside a transaction (open-in-view is off)</td>
         </tr>
         </tbody>
         </table>
         <p>Security paths are tested as an overlay rather than a
         separate layer: <code>@WithMockUser</code>,
-        <code>@WithUserDetails</code>, and security-context tests (11
-        files) cover authentication and authorization at the controller
-        slice and in dedicated security-config tests.</p>
+        <code>@WithAnonymousUser</code> and security-context tests cover
+        authentication and authorization at the controller slice and in
+        dedicated security-config tests.
+        <code>ApiAuthorizationContractTest</code> fails when an
+        <code>/api</code> handler carries no authorization rule.</p>
         <h2
         id="database-strategy-h2-for-tests-oracle-for-production">Database
         strategy: H2 for tests, Oracle for production</h2>
@@ -213,11 +210,23 @@
         <h2 id="coverage">Coverage</h2>
         <p>Coverage is measured by the JaCoCo Maven plugin, bound to the
         <code>verify</code> phase, with the report written to
-        <code>target/site/jacoco</code>.</p>
+        <code>target/site/jacoco</code>. A <code>check</code> execution
+        fails the build when the bundle’s branch coverage falls below
+        the floor set in <code>pom.xml</code>; the comment there says
+        why branch coverage on the whole bundle is the measure. The
+        report of the latest build on <code>main</code> is published
+        with the docs: <a
+        href="https://keglev.github.io/inventory-service/backend/coverage/index.html">backend
+        coverage report</a>.</p>
         <h2 id="test-data">Test data</h2>
-        <p>There is no shared fixture or test-data builder framework.
-        Entities and DTOs are constructed directly within each test,
-        keeping test setup local and explicit.</p>
+        <p>Most tests build their entities and DTOs directly, so a
+        test’s setup stays next to its assertions. Where several test
+        classes need the same objects, a fixtures class beside them
+        holds the builders
+        (<code>InventoryItemServiceImplFixtures</code>,
+        <code>InventoryItemControllerTestFixtures</code>); the
+        <code>testsupport</code> package holds <code>LogCapture</code>,
+        which tests use to assert on what one class logs.</p>
         <hr />
         <p>See also: <a href="./08-concepts.html">§8 Concepts</a>
         (security, validation, exception handling) and <a

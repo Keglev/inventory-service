@@ -115,8 +115,9 @@
         <hr />
         <h2 id="configuration-profiles">Configuration / Profiles</h2>
         <p><code>application.yml</code> holds shared defaults (server
-        port 8081, OAuth2 provider URLs, global logging). Two profile
-        overlays specialise it:</p>
+        port 8081, the Oracle datasource from the environment, OAuth2
+        provider settings, the session cookie). Three profile overlays
+        specialise it, and a fourth lives with the tests:</p>
         <table>
         <colgroup>
         <col style="width: 25%" />
@@ -136,23 +137,43 @@
         <tr class="odd">
         <td>(none)</td>
         <td>No <code>SPRING_PROFILES_ACTIVE</code></td>
-        <td>Oracle via <code>DB_URL</code> env var (H2 if unset)</td>
-        <td>DEBUG — JDBC + Hibernate SQL</td>
+        <td>Oracle from <code>DB_URL</code>, <code>DB_USER</code>,
+        <code>DB_PASS</code>; startup fails without them. Flyway off,
+        <code>ddl-auto=none</code></td>
+        <td>off</td>
         </tr>
         <tr class="even">
         <td><code>test</code></td>
-        <td><code>SPRING_PROFILES_ACTIVE=test</code></td>
-        <td>H2 <code>MODE=Oracle</code> in-memory;
+        <td><code>SPRING_PROFILES_ACTIVE=test</code> (the Maven test
+        run)</td>
+        <td>H2 <code>MODE=Oracle</code> in memory;
         <code>ddl-auto=create-drop</code></td>
         <td>off (<code>logback-test.xml</code>, root WARN); on demand
         <code>-Dlogging.level.org.hibernate.SQL=DEBUG</code></td>
         </tr>
         <tr class="odd">
+        <td><code>e2e</code></td>
+        <td>added to <code>test</code> for the browser suite
+        (<code>test,e2e</code>)</td>
+        <td>H2 as in <code>test</code>, loaded with
+        <code>db/e2e/e2e-seed.sql</code>; demo mode on</td>
+        <td>as in <code>test</code></td>
+        </tr>
+        <tr class="even">
         <td><code>prod</code></td>
         <td><code>SPRING_PROFILES_ACTIVE=prod</code></td>
-        <td>Oracle Autonomous DB via wallet; Flyway-managed schema,
+        <td>Oracle Autonomous DB via the wallet; Flyway-managed schema,
         <code>ddl-auto=validate</code></td>
-        <td>off (<code>show-sql=false</code>, root INFO)</td>
+        <td>off</td>
+        </tr>
+        <tr class="odd">
+        <td><code>oracle-it</code></td>
+        <td>test-only
+        (<code>src/test/resources/application-oracle-it.yml</code>), run
+        by hand</td>
+        <td>a real Oracle ADB from a developer machine (<a
+        href="oracle-it-smoke-test.html">runbook</a>)</td>
+        <td>off</td>
         </tr>
         </tbody>
         </table>
@@ -265,8 +286,8 @@
         Repository Layer</a>.</p>
         <hr />
         <h2 id="logging">Logging</h2>
-        <p>SLF4J with Logback (Spring Boot default). Log levels per
-        profile:</p>
+        <p>SLF4J with Logback (Spring Boot default), plain text on
+        standard output:</p>
         <table>
         <colgroup>
         <col style="width: 33%" />
@@ -276,28 +297,34 @@
         <thead>
         <tr class="header">
         <th>Profile</th>
-        <th>Application (<code>com.smartsupplypro</code>)</th>
-        <th>Framework / Hibernate SQL</th>
+        <th>Root level</th>
+        <th>SQL</th>
         </tr>
         </thead>
         <tbody>
         <tr class="odd">
-        <td>default / test</td>
-        <td>DEBUG</td>
-        <td>DEBUG (JDBC + Hibernate SQL + parameter values)</td>
+        <td>(none) / <code>prod</code></td>
+        <td>INFO (Boot’s default)</td>
+        <td>not logged (<code>show-sql</code> keeps its default,
+        false)</td>
         </tr>
         <tr class="even">
-        <td>prod</td>
-        <td>INFO</td>
-        <td>INFO (framework noise suppressed)</td>
+        <td><code>test</code> / <code>e2e</code></td>
+        <td>WARN (<code>src/test/resources/logback-test.xml</code>,
+        console only)</td>
+        <td>not logged unless
+        <code>-Dlogging.level.org.hibernate.SQL=DEBUG</code> is
+        passed</td>
         </tr>
         </tbody>
         </table>
-        <p>In production: <code>show-sql=false</code>, health endpoint
-        <code>show-details: never</code>. In test:
-        <code>show-details: always</code> to support CI assertions. Test
-        output also writes to <code>logs/test-application.log</code>. No
-        MDC context or correlation ID is added to log entries.</p>
+        <p>In production the health endpoint keeps
+        <code>show-details: never</code> (Boot’s default); the
+        <code>test</code> profile sets <code>always</code> for the
+        assertions in CI. No MDC context or correlation ID is added to
+        log entries. What may be logged, and how request text is kept
+        from forging a line, is recorded in <a
+        href="09-decisions/adr-0021-request-text-neutralised-at-the-log-call.html">ADR-0021</a>.</p>
         <hr />
         <p>See also: <a href="08c-concepts-testing.html">§8 Testing
         (test strategy, H2 vs Oracle)</a></p>

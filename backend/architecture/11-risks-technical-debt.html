@@ -161,8 +161,7 @@
         <td>Low</td>
         <td>Accepted; see <a
         href="./09-decisions/adr-0009-runtime-wallet-delivery.html">ADR-0009</a>
-        (the former image-extraction risk is retired — the image carries
-        no wallet)</td>
+        (the image carries no wallet, so extracting it yields none)</td>
         </tr>
         <tr class="odd">
         <td>R-03</td>
@@ -276,10 +275,7 @@
         <td>30</td>
         <td>One fluent <code>HttpSecurity</code> statement. The parts
         that can be extracted already are, into the entry-point, filter
-        and authorization helpers. The logout block dropped a
-        <code>permitAll()</code> that decided nothing (2026-11-02); the
-        login page line (2026-10-28) keeps the body one above the
-        alarm.</td>
+        and authorization helpers.</td>
         </tr>
         </tbody>
         </table>
@@ -289,10 +285,7 @@
         <code>repository/custom/StockDetailQueryRepositoryImpl.java</code>
         at 100 and
         <code>repository/custom/util/StockTrendSqlBuilder.java</code> at
-        145. The repository was at 115 until the stock-history read API
-        and its three queries were removed (2026-10-28). The builder was
-        waived at 153 until its unused all-suppliers monthly variant was
-        removed (2026-10-16).</p>
+        145.</p>
         <p>Seven methods sit between the target of 20 and the alarm of
         30: <code>EmployeeAnalyticsService::getEmployeeActivity</code>
         at 27, the two daily-movement builders in
@@ -303,10 +296,7 @@
         <code>StockDetailQueryRepositoryImpl::streamEventsForWAC</code>
         at 21 each. These figures follow the counting rule in <a
         href="02-constraints.html">§2</a>, which leaves both brace lines
-        out (2026-10-29); the earlier count of thirteen included them.
-        The two daily-movement builders joined the band when they
-        replaced the daily-valuation builders, which had been waived
-        above. The band is guidance, the alarm is the gate.</p>
+        out. The band is guidance, the alarm is the gate.</p>
       </article>
     </main>
 

@@ -123,7 +123,7 @@
         R-04</a> for the gap it partially closes).</p>
         <h2 id="what-it-does">What it does</h2>
         <p>Runs a single Spring Boot context-load test
-        (<code>InventoryServiceApplicationTest.contextLoads()</code>)
+        (<code>InventoryServiceApplicationTest.should_load_the_context_when_the_application_starts()</code>)
         under the <code>oracle-it</code> profile. If the application
         context assembles and the datasource connects, the test passes —
         confirming the wallet, credentials, and Oracle dialect work end
@@ -213,9 +213,10 @@
         setting either is sufficient. Both are shown for clarity.</p>
         <h2 id="interpreting-the-result">Interpreting the result</h2>
         <ul>
-        <li><strong><code>contextLoads()</code> passes</strong> → the
-        app boots, the wallet/mTLS connection succeeds, and the Oracle
-        dialect initialises. Connection path verified.</li>
+        <li><strong><code>should_load_the_context_when_the_application_starts()</code>
+        passes</strong> → the app boots, the wallet/mTLS connection
+        succeeds, and the Oracle dialect initialises. Connection path
+        verified.</li>
         <li><strong><code>IllegalStateException</code> before tests
         run</strong> → a required env var is unset. Re-check the four
         variables above.</li>
