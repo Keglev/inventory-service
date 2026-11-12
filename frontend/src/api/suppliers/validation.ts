@@ -15,6 +15,16 @@
 import { z } from 'zod';
 
 /**
+ * Optional e-mail of both supplier forms: an empty field (the forms' default '')
+ * means no address and becomes null; anything else must be a valid address, so
+ * a typo shows the field error instead of being dropped.
+ */
+const optionalEmail = z.preprocess(
+  (v) => (v === '' || v === undefined ? null : v),
+  z.email('errors:validation.invalidEmail').nullable(),
+);
+
+/**
  * Schema for the supplier create form.
  * Empty optional fields are coerced to null so the backend receives null rather than an empty string.
  */
@@ -31,10 +41,7 @@ export const createSupplierSchema = z.object({
     .string()
     .optional()
     .transform((v) => v || null),
-  email: z
-    .email('errors:validation.invalidEmail')
-    .optional()
-    .transform((v) => v || null),
+  email: optionalEmail,
 });
 
 export type CreateSupplierForm = z.infer<typeof createSupplierSchema>;
@@ -51,7 +58,7 @@ export const editSupplierSchema = z.object({
   supplierId: z.string().min(1, 'errors:validation.required'),
   contactName: z.string().nullable().catch(null),
   phone: z.string().nullable().catch(null),
-  email: z.email('errors:validation.invalidEmail').nullable().catch(null),
+  email: optionalEmail,
 });
 
 export type EditSupplierForm = z.infer<typeof editSupplierSchema>;
