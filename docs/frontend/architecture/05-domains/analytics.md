@@ -21,9 +21,10 @@ Each block (card or table) renders one visualization, declares one React Query
 query with a stable key encoding every filter input, calls one function from
 `frontend/src/api/analytics/*`, and handles its own loading/empty/error states.
 Key conventions: keys are feature-scoped
-(`['analytics','lowStock', supplierId, from, to]`-style), and supplier-gated
-blocks compute `enabled = Boolean(supplierId)` so the query never fires without
-its required input — rendering a select-a-supplier helper instead.
+(`['analytics','lowStock', supplierId]`-style). The blocks whose endpoint needs a
+supplier (low stock, most-updated items) compute `enabled = Boolean(supplierId)`, so
+the query never fires without it and a select-a-supplier helper shows instead; for
+the other blocks an empty supplier filter means all suppliers.
 
 ## Shared & Extracted Building Blocks
 

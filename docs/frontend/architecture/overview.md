@@ -14,17 +14,17 @@ and **a German-first bilingual user experience**.
 
 | Component      | Technology                    | Version |
 |----------------|-------------------------------|---------|
-| Framework      | React                         | 19.1    |
-| Language       | TypeScript                    | 6.x     |
-| Build tool     | Vite                          | 7.x     |
-| UI library     | MUI (Material UI) + X DataGrid| 7.x / 8.x |
-| Server state   | TanStack React Query          | 5.x     |
-| Routing        | React Router                  | 7.x     |
-| Forms          | React Hook Form + Zod         | 7.x / 4.x |
-| i18n           | i18next + react-i18next       | 25.x / 15.x |
-| Charts         | Recharts                      | 3.x     |
-| HTTP client    | Axios                         | 1.x     |
-| Testing        | Vitest + Testing Library      | 4.x     |
+| Framework      | React                         | 19      |
+| Language       | TypeScript                    | 6       |
+| Build tool     | Vite                          | 8       |
+| UI library     | MUI (Material UI) + X Data Grid | 9 / 9 |
+| Server state   | TanStack React Query          | 5       |
+| Routing        | React Router                  | 7       |
+| Forms          | React Hook Form + Zod         | 7 / 4   |
+| i18n           | i18next + react-i18next       | 26 / 17 |
+| Charts         | Recharts                      | 3       |
+| HTTP client    | Axios                         | 1       |
+| Testing        | Vitest + Testing Library; Playwright | 5 / 16; 1 |
 | Runtime        | Node                          | >= 24   |
 
 ## Key architectural principles
@@ -36,7 +36,7 @@ and **a German-first bilingual user experience**.
 5. **Context for global client state** — auth, settings, toast, and help, accessed through throwing hooks
 6. **German-first i18n** — localStorage pre-seeded to `de` on first visit; no fallback strings in code
 7. **Dialog-driven mutations** — create/edit/delete flows are isolated dialog containers per domain
-8. **Testability** — ~1,600 Vitest tests across 251 files (~99% line coverage) spanning unit, component, and routing-contract layers
+8. **Testability** — Vitest suites across unit, component and routing-contract layers, plus a Playwright suite in CI; coverage thresholds gate every build ([report](https://keglev.github.io/inventory-service/frontend/coverage/index.html))
 
 ## System architecture
 
@@ -71,8 +71,8 @@ presentational components, and dialog containers.
 | Domain | Responsibility |
 |---|---|
 | Inventory | Item CRUD, quantity adjustment, price changes, stock reasons |
-| Suppliers | Supplier CRUD, search/display modes, linked-items delete guard |
-| Analytics | Chart/table blocks, filters with URL sync, supplier-gated queries |
+| Suppliers | Supplier CRUD, search by typing, paged list; delete refused while any item references the supplier |
+| Analytics | Chart/table blocks, filters with URL sync; an empty supplier filter means all suppliers |
 | Dashboard | KPI cards, movement mini-chart, navigation hub |
 | Auth | Login, OAuth callback + session hydration, demo entry, logout |
 | Home | Public landing flow and demo entry point |
@@ -80,16 +80,18 @@ presentational components, and dialog containers.
 ## Authentication and session model
 
 Session-based OAuth2 (Google) handled by the backend — the SPA holds no tokens.
-The auth context hydrates from `GET /api/me`; a read-only **demo mode** exists
-entirely in the frontend via localStorage, with write operations blocked in the
-UI. Unauthorized responses are handled centrally by the Axios interceptor, with
+The auth context hydrates from `GET /api/me`. **Demo mode** is a client-side
+session (kept in localStorage) with no backend account: its reads reach the backend
+anonymously and are admitted by `app.demo-readonly`, and every dialog stops a write
+before the request ([ADR-0013](09-decisions/adr-0013-demo-mode-blocks-only-the-write.md)). Unauthorized responses are handled centrally by the Axios interceptor, with
 three exemptions (public pages, the `/api/me` probe, demo sessions).
 
 ## Internationalization
 
 Full English/German localization with runtime-loaded JSON namespaces, compile-time
-typed keys (`resources.d.ts`), and a strict no-fallback-strings policy: every key
-exists in both locale files. First visit renders German by design.
+typed keys (`resources.d.ts`, from the English JSON) and no fallback strings in code;
+every key exists in both locale files. First visit renders German by design, and a
+key missing at runtime falls back to German.
 
 ## Deployment
 
@@ -99,9 +101,11 @@ time and reverse-proxies `/api/*` and the OAuth paths to the backend at `api.sma
 (canonical record: backend ADR-0008).
 
 ```
-Source push
-  → frontend-ci.yml       type-check, lint, Vitest suite
-  → frontend-deploy.yml   Docker build (Nginx), deploy to Koyeb
+Merge to main
+  → frontend-ci.yml       audit, lint, Vitest suite, Playwright suite; image build,
+                          SBOM and CVE gate, push to Docker Hub
+  → frontend-deploy.yml   deploy that image to Koyeb by digest, verify the served
+                          bundle carries the commit
 ```
 
 ## Testing

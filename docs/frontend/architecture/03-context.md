@@ -63,8 +63,8 @@ Koyeb hosting, and GitHub Pages.
   which predates the rewrite.
 - **No tokens in the browser**: the SPA never receives, stores, or forwards an OAuth
   token. Authentication state is read from a `/api/me`-style session probe.
-- **Demo mode is client-only**: a `localStorage` flag enables read-only exploration
-  against the live API — the backend's demo-readonly flag permits unauthenticated
+- **Demo mode is a client-side session**: a `localStorage` flag enables read-only
+  exploration against the live API — the backend's demo-readonly flag permits unauthenticated
   reads; there is no backend account and no security bypass, and mutating UI
   short-circuits before any request is sent.
 - **Docs deep links**: the footer and help panel link to the published documentation

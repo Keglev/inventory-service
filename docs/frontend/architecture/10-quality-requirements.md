@@ -24,13 +24,13 @@ graph LR
 
 | Property | Enforcement | Where |
 |---|---|---|
-| Every push builds and passes the full suite | `vitest --run --coverage` in workflow 5; type-check via `tsc -b` in the same workflow's image build | [§7](07-deployment.md) |
-| ~1,600 tests / ~99% line coverage, published per build | Vitest coverage to GitHub Pages | [§8c](08c-concepts-testing.md) |
+| Every push builds and passes the full suite | `vitest --run --coverage` in `frontend-ci.yml`; type-check via `tsc -b` in the same workflow's image build | [§7](07-deployment.md) |
+| Coverage stays above the thresholds in `vitest.config.ts`; the report is published per build | Vitest coverage gate; report on GitHub Pages ([frontend coverage report](https://keglev.github.io/inventory-service/frontend/coverage/index.html)) | [§8c](08c-concepts-testing.md) |
 | Translation keys valid at compile time | `resources.d.ts` typing from the EN JSON | [§8b](08b-concepts-i18n-theming.md) |
-| Missing i18n keys are visible bugs | No-fallback policy; keys added to both locales | [§8b](08b-concepts-i18n-theming.md) |
+| A missing translation is caught or falls back predictably | A static key missing from the EN JSON fails `tsc` (`resources.d.ts`); no in-code fallback strings; a key missing at runtime falls back to German (`fallbackLng: 'de'`), the default language | [§8b](08b-concepts-i18n-theming.md) |
 | Mutations refresh exactly what they change | Query-family invalidation conventions | [§8](08-concepts.md) |
 | Partial backend failure never blanks a page | Tolerant fetchers, empty-page fallbacks, per-block error states | [§8](08-concepts.md), [§5.4](05-domains/dashboard.md) |
-| File and method size stay reviewable | Per-layer code-line caps; waivers documented in headers | [§2](02-constraints.md) |
+| File and method size stay reviewable | Per-layer code-line caps; watched items and waivers in the published register ([§11](11-risks-technical-debt.md)) | [§2](02-constraints.md) |
 
 Coverage is treated as risk management, not a score: strong coverage is demanded
 on API hooks, workflow handlers, and validation/normalization logic; tiny
@@ -38,6 +38,8 @@ presentational wrappers are deliberately not chased.
 
 ## 10.3 Known Non-Goals
 
-No end-to-end browser tests against a live backend (all suites are deterministic
-with mocked boundaries), and no automated accessibility audit yet — RTL's
-role/name queries enforce a baseline in component tests.
+No browser tests against the production backend: the Playwright suite runs in CI
+against a backend built from the same commit on H2, in demo mode only
+([frontend ADR-0009](09-decisions/adr-0009-end-to-end-testing-with-playwright.md)),
+so signed-in flows stay covered by component tests. No automated accessibility audit
+yet — RTL's role/name queries enforce a baseline in component tests.

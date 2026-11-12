@@ -49,6 +49,6 @@ for one-off layout only.
 
 A small `styles/global.css` covers what component styles handle awkwardly:
 full-height root layout, webkit scrollbars, print overrides.
-Two tracked open items live here: the scrollbar rules are duplicated between
-global.css and the theme's CssBaseline (CB-APP15), and the print `!important`
-overrides await an audit (CM-APP2).
+Scrollbar styling lives only here (the theme's CssBaseline keeps the body background
+reset); the print rules use `!important` because MUI injects palette colours on body
+and links at higher specificity.

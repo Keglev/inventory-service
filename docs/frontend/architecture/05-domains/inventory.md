@@ -1,7 +1,8 @@
 # §5.1 Inventory Domain
 
-Supplier-scoped item management under `frontend/src/pages/inventory/`: browse,
-filter, and mutate items through dialog workflows
+Item management under `frontend/src/pages/inventory/`: browse the stock of all
+suppliers or of one picked supplier, filter it, and change items through dialog
+workflows
 ([ADR-0004](../09-decisions/adr-0004-dialog-workflow-architecture.md)).
 
 ## Orchestration & State
