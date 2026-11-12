@@ -17,7 +17,7 @@
 import type { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { alpha, createTheme, ThemeProvider } from '@mui/material/styles';
 
 import type { InventoryRow } from '@/api/inventory/types';
 
@@ -79,13 +79,16 @@ const rows = [
   { id: 'b', name: 'Beta', onHand: null, minQty: undefined },
 ] as unknown as InventoryRow[];
 
-function setup(overrides: Partial<React.ComponentProps<typeof InventoryTable>> = {}) {
+function setup(
+  overrides: Partial<React.ComponentProps<typeof InventoryTable>> = {},
+  theme = createTheme(),
+) {
   const onPaginationChange = vi.fn();
   const onSortChange = vi.fn();
   const getRowClassName = vi.fn(() => 'row-warning');
 
   render(
-    <ThemeProvider theme={createTheme()}>
+    <ThemeProvider theme={theme}>
       <InventoryTable
         rows={rows}
         columns={[{ field: 'name' }, { field: 'onHand' }]}
@@ -142,6 +145,14 @@ describe('InventoryTable', () => {
     setup({ loading: true });
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
+  });
+
+  it('paints the loading overlay in the theme surface colour when the mode is dark', () => {
+    const dark = createTheme({ palette: { mode: 'dark' } });
+    setup({ loading: true }, dark);
+
+    const overlay = screen.getByRole('progressbar').parentElement as HTMLElement;
+    expect(getComputedStyle(overlay).backgroundColor).toBe(alpha(dark.palette.background.paper, 0.7));
   });
 
   it('hides the loading overlay when idle', () => {

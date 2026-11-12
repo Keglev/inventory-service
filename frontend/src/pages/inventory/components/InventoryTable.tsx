@@ -68,7 +68,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
             right: 0,
             bottom: 0,
             zIndex: 10,
-            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.7),
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
